@@ -194,7 +194,7 @@ async function sbLoad(){if(!sb)return false;
  S.views=D.vistas.map(r=>({u:r.corredor,p:r.codigo,t:0}));
  const P={};D.permisos.forEach(r=>{(P[r.rol]=P[r.rol]||{})[r.clave]=r.valor});for(const r in P0)S.perm[r]={...P0[r],...(P[r]||{})};
  S.campanas=D.campanas.map(r=>({id:r.id,nombre:r.nombre,tipo:r.tipo,por:r.creada_por,desde:r.desde,hasta:r.hasta,activa:r.activa}));
- UI.me=D.yo.id;{const y=S.users.find(x=>x.id===D.yo.id);if(y)y.firma=D.yo.firma||""};save();return true}
+ UI.me=D.yo.id;{const y=S.users.find(x=>x.id===D.yo.id);if(y){y.firma=D.yo.firma||"";y.vol=D.yo.firma_volante||{}}};save();return true}
 const after=p=>p.then(()=>sbLoad()).then(()=>render(1)).catch(()=>{});
 async function rpc(fn,args){const {data,error}=await sb.rpc(fn,{p_lic:CRED.lic,p_pin:CRED.pin,...args});if(error){toast(error.message.replace(/^.*?: /,""));throw error}return data}
 
@@ -291,6 +291,7 @@ function clip(text,ok){
 const waLink=t=>"https://wa.me/?text="+encodeURIComponent(t);
 const firmaDef=u=>`${u.n}${u.lic?" · Lic. "+u.lic:""}${u.tel?" · "+u.tel:""}`;
 const firma=u=>(u&&u.firma&&String(u.firma).trim())||firmaDef(u||{n:""});
+const volData=u=>{const v=(u&&u.vol)||{};return {n:(v.n||"").trim()||u.n,tel:(v.tel||"").trim()||u.tel||"",lic:(v.lic||"").trim()||(u.lic?"Lic. "+u.lic:""),extra:(v.extra||"").trim()}};
 const shareText=(p,u)=>`${p.n} · ${p.dist}, ${p.prov}\n${p.t}${p.m2?", "+m2txt(p):""}\n${ofAct(p)?`Precio con descuento ${money(p.of)} (Venta ${money(p.lista)})`:`Precio de venta ${pv(p)}`}\nCódigo ${p.c} · Propiedades, oportunidades de inversión y negocios\n\n${firma(u)}`;
 const fichaTxt=p=>`FICHA TÉCNICA ${p.c}\n${p.n}\nTipo: ${p.t}\nUbicación: ${p.dist}, ${p.prov}${p.m2?"\nÁrea: "+m2txt(p):""}\nVenta: ${p.lista?money(p.lista):"Por definir"}${ofAct(p)?`\nPrecio con descuento: ${money(p.of)} (${hastaTxt(p)})`:""}\nFinca: ${p.finca||p.c}\nEncargada: ${p.enc}\nManejo: ${p.man}\nComisión al corredor: 5%\n\n${p.dsc}`;
 
@@ -410,11 +411,14 @@ function vCorDet(id){const x=U(id);if(!x||!x.id)return"";const vt=ventas(id),lv=
  <div><h3 style="font-size:15px;margin-bottom:6px">Últimos movimientos</h3>${L.length?L.slice(-12).reverse().map(l=>`<div class="sm" style="display:flex;justify-content:space-between;gap:8px;padding:4px 0;border-bottom:1px solid var(--line)"><span>${esc(l.x)} <span class="muted">· ${fd(String(l.t).slice(0,10))}</span></span><b class="num">${l.pts>0?"+":""}${l.pts}</b></div>`).join(""):`<p class="sm muted" style="margin:0">Sin movimientos.</p>`}</div>
  </div></div></div>`}
 function vFirma(){const u=me(),f=UI.firmaTmp!=null?UI.firmaTmp:(u.firma||firmaDef(u));
- return `<div class="ov" data-a="closeFirma"><form class="dlg" id="fFirma" role="dialog" aria-modal="true" aria-label="Mi firma"><div style="background:var(--brand);color:var(--brand-ink);padding:14px 18px;display:flex;justify-content:space-between;align-items:center"><b style="font:700 18px var(--f-d)">Mi firma para WhatsApp</b><button type="button" class="btn s" data-a="closeFirma" style="background:transparent;color:inherit;border-color:transparent">✕</button></div>
+ return `<div class="ov" data-a="closeFirma"><form class="dlg" id="fFirma" role="dialog" aria-modal="true" aria-label="Mi firma"><div style="background:var(--brand);color:var(--brand-ink);padding:14px 18px;display:flex;justify-content:space-between;align-items:center"><b style="font:700 18px var(--f-d)">Mi firma · WhatsApp, volantes y tizers</b><button type="button" class="btn s" data-a="closeFirma" style="background:transparent;color:inherit;border-color:transparent">✕</button></div>
  <div class="in grid" style="gap:10px"><p class="sm muted" style="margin:0">Va al final de todo lo que compartes: WhatsApp, catálogo de difusión, textos para redes y Marketplace. Cada usuario tiene la suya. Puedes usar varias líneas.</p>
  <label>Firma<textarea id="fiTxt" rows="5" maxlength="300" placeholder="${esc(firmaDef(u))}">${esc(f)}</textarea></label>
  <div class="sm muted">Vista previa:</div><div class="panel sm" id="fiPrev" style="white-space:pre-wrap;background:#e9fbe5;border-color:#c6efbd">${esc(f||firmaDef(u))}</div>
- <div class="row"><button class="btn p" type="submit">Guardar firma</button><button type="button" class="btn" data-a="firmaDef">Usar la de siempre</button><button type="button" class="btn" data-a="closeFirma">Cancelar</button></div></div></form></div>`}
+ <h3 style="font-size:15px;margin-top:6px">Mis datos en volantes y tizers</h3><p class="sm muted" style="margin:0">Salen de tu registro (nombre, licencia y teléfono). Cambia lo que quieras: se usa en todos tus volantes y tizers.</p>
+ ${(()=>{const v=(UI.volTmp)||u.vol||{};return `<div class="row"><label style="flex:1;min-width:180px">Nombre<input id="vfN" maxlength="60" value="${esc(v.n||"")}" placeholder="${esc(u.n)}"></label><label style="flex:1;min-width:140px">Teléfono<input id="vfT" maxlength="40" value="${esc(v.tel||"")}" placeholder="${esc(u.tel||"")}"></label></div>
+ <div class="row"><label style="flex:1;min-width:140px">Licencia<input id="vfL" maxlength="40" value="${esc(v.lic||"")}" placeholder="${esc(u.lic?"Lic. "+u.lic:"")}"></label><label style="flex:1;min-width:180px">Línea extra (opcional)<input id="vfX" maxlength="60" value="${esc(v.extra||"")}" placeholder="Correo, empresa o redes"></label></div>`})()}
+ <div class="row"><button class="btn p" type="submit">Guardar</button><button type="button" class="btn" data-a="firmaDef">Volver a mis datos de registro</button><button type="button" class="btn" data-a="closeFirma">Cancelar</button></div></div></form></div>`}
 function vCliForm(){
  const u=me(),all=can("segall")||can("adm"),brk=S.users.filter(x=>x.rol==="corredor"&&x.st==="Activo");
  return `<div class="ov" data-a="closeCli"><form class="dlg" id="fCli" role="dialog" aria-modal="true" aria-label="Registrar cliente"><div style="background:var(--brand);color:var(--brand-ink);padding:14px 18px;display:flex;justify-content:space-between;align-items:center"><b style="font:700 18px var(--f-d)">Registrar cliente</b><button type="button" class="btn s" data-a="closeCli" style="background:transparent;color:inherit;border-color:transparent">✕</button></div>
@@ -477,7 +481,7 @@ function vMat(){
  ${m.fmt==="teaser"?tzEditor(p,u):""}
  <label>Texto para<select id="mC"><option value="instagram" ${m.canal==="instagram"?"selected":""}>Instagram</option><option value="facebook" ${m.canal==="facebook"?"selected":""}>Facebook</option><option value="whatsapp" ${m.canal==="whatsapp"?"selected":""}>WhatsApp</option></select></label>
  <label>Foto de la propiedad<input type="file" id="mFoto" accept="image/*"></label><div class="sm muted">La foto se usa solo aquí, no se sube a ningún servidor.</div>
- <div class="sm" style="border-top:1px solid var(--line);padding-top:10px"><b>Datos en el diseño</b><div class="muted">${esc(u.n)}${u.lic?" · Lic. "+u.lic:""}${u.tel?" · "+u.tel:""}</div></div></div>
+ <div class="sm" style="border-top:1px solid var(--line);padding-top:10px"><b>Datos en el diseño</b><div class="muted">${(()=>{const v=volData(u);return [v.n,v.lic,v.tel,v.extra].filter(Boolean).map(esc).join(" · ")})()}</div><div class="sm muted" style="margin-top:4px">Salen de tu registro. Cámbialos en <button type="button" class="btn s" data-a="miFirma">Mi firma</button></div></div></div>
  <div class="grid"><div class="panel grid"><canvas id="cv" width="1080" height="1080" aria-label="Vista previa del tizer"></canvas><div class="row"><button class="btn p" data-a="cpImg">Copiar imagen</button><span class="sm muted">Si no se copia, clic derecho sobre la imagen y Guardar imagen.</span></div>
  <label>Texto de la publicación<textarea id="cap" rows="8">${esc(caption(p,u,m.canal))}</textarea></label><div class="row"><button class="btn p" data-a="cpCap">Copiar texto</button><a class="btn wa" id="waCap" target="_blank" rel="noopener" href="${waLink(caption(p,u,"whatsapp"))}">Enviar por WhatsApp</a></div></div></div></div>
  <h3 style="margin:22px 0 8px">Plan semanal de publicaciones sugerido</h3><div class="grid g3">${plan.map(x=>`<div class="rw"><span class="sm muted">${x[0]}</span><b>${x[1]?esc(x[1].n):"Sin propiedad"}</b>${x[1]?`<button class="btn s" data-a="tizer" data-v="${x[1].c}">Crear tizer</button>`:""}</div>`).join("")}</div>${vLote()}`;
@@ -488,9 +492,9 @@ function tzAuto(p,u){const o=ofAct(p);return {
  l1:"¡Gran Oportunidad",l2:`en ${p.prov}!`,
  precio:pv(p),antes:o?money(p.lista):"",badge:o?`OFERTA −${off(p)}%`:"",
  puntos:[`${p.t}${p.m2?" · "+m2txt(p):""}`,`${p.dist}, ${p.prov}`,`Finca N° ${p.finca||p.c.slice(2)}`].filter(Boolean).join("\n"),
- cta:"¡Agenda tu visita hoy!",nombre:u.n,tel:u.tel||"",lic:u.lic?`Lic. ${u.lic}`:""}}
+ cta:"¡Agenda tu visita hoy!",...(()=>{const v=volData(u);return {nombre:v.n,tel:v.tel,lic:v.lic,extra:v.extra}})()}}
 function tzData(p,u){const a=tzAuto(p,u),o=S.tz[p.c]||{};const r={};for(const k in a)r[k]=(o[k]!=null?o[k]:a[k]);return r}
-const TZF=[["l1","Título (línea 1)"],["l2","Título (línea 2)"],["precio","Precio"],["antes","Precio anterior (tachado)"],["badge","Etiqueta"],["puntos","Datos (uno por línea)",1],["cta","Llamado a la acción"],["nombre","Corredor"],["tel","Teléfono"],["lic","Licencia"]];
+const TZF=[["l1","Título (línea 1)"],["l2","Título (línea 2)"],["precio","Precio"],["antes","Precio anterior (tachado)"],["badge","Etiqueta"],["puntos","Datos (uno por línea)",1],["cta","Llamado a la acción"],["nombre","Corredor"],["tel","Teléfono"],["lic","Licencia"],["extra","Línea extra (correo, empresa)"]];
 function tzEditor(p,u){const d=tzData(p,u),a=tzAuto(p,u),n=fotoN(p),fi=UI.tzFoto[p.c]||1,ed=Object.keys(S.tz[p.c]||{}).length;
  return `<div class="tzed"><div class="row" style="justify-content:space-between;align-items:center"><b class="sm">Textos del teaser</b>${ed?`<button type="button" class="btn s" data-a="tzReset" data-v="${p.c}">Volver a automático</button>`:`<span class="pill">Automático</span>`}</div>
  ${n?`<div class="sm muted">Foto del avalúo</div><div class="row" style="gap:6px">${[...Array(n)].map((_,i)=>`<button type="button" class="gth" style="width:58px;height:42px;background-image:url('${fotoUrl(p,i+1)}')" data-a="tzFoto" data-v="${i+1}" aria-pressed="${fi===i+1}" aria-label="Usar foto ${i+1}"></button>`).join("")}</div>`:`<div class="sm muted">Esta finca no tiene fotos en su avalúo: sube una abajo.</div>`}
@@ -530,7 +534,7 @@ function drawTeaser(cv,p,u,photo,onload){
  x.fillStyle="#f0c75e";x.fillRect(0,cy,W,6);const cg=x.createLinearGradient(0,cy,W,H);cg.addColorStop(0,"#050f33");cg.addColorStop(1,"#0a1f5c");x.fillStyle=cg;x.fillRect(0,cy+6,W,H-cy-6);
  x.fillStyle="#f0c75e";x.font="800 34px Montserrat, sans-serif";fitText(x,d.cta,48,cy+58,W-300,34,"800","Montserrat");
  x.fillStyle="#fff";x.font="700 32px Montserrat, sans-serif";fitText(x,d.nombre,48,cy+104,W-300,32,"700","Montserrat");
- x.fillStyle="rgba(255,255,255,.82)";x.font="500 28px Montserrat, sans-serif";fitText(x,[d.tel,d.lic].filter(Boolean).join("  ·  "),48,cy+144,W-300,28,"500","Montserrat");
+ x.fillStyle="rgba(255,255,255,.82)";x.font="500 28px Montserrat, sans-serif";fitText(x,[d.tel,d.lic,d.extra].filter(Boolean).join("  ·  "),48,cy+144,W-300,28,"500","Montserrat");
  if(LOGOIMG.complete&&LOGOIMG.naturalWidth)x.drawImage(LOGOIMG,W-48-96,cy+30,96,96);
  x.textAlign="right";x.fillStyle="#fff";x.font="800 24px Montserrat, sans-serif";x.fillText("Propiedades",W-160,cy+72);x.fillStyle="#f0c75e";x.font="600 14px Montserrat, sans-serif";x.fillText("INVERSIÓN Y NEGOCIOS",W-160,cy+96);x.textAlign="left";
 }
@@ -573,7 +577,7 @@ function drawCv(){
  y+=50;x.fillStyle="rgba(255,255,255,.9)";x.font="500 34px 'Figtree',sans-serif";x.fillText(`${p.t}${p.m2?" · "+m2txt(p):""} · ${p.c}`,56,y);
  if(m.fmt==="flyer"){y+=56;x.font="500 30px 'Figtree',sans-serif";x.fillStyle="rgba(255,255,255,.8)";y=wrap(x,p.dsc,56,y,W-112,42);x.fillStyle="#f0c75e";x.font="600 30px 'Figtree',sans-serif";if(p.lista)x.fillText(`Venta ${money(p.lista)}${ofAct(p)?" · Hoy "+money(p.of):""}`,56,y+54)}
  const fy=H-150;const fg=x.createLinearGradient(0,fy,W,H);fg.addColorStop(0,"#050f33");fg.addColorStop(1,"#0a1f5c");x.fillStyle=fg;x.fillRect(0,fy,W,150);x.fillStyle="#f0c75e";x.fillRect(0,fy,W,6);
- x.fillStyle="#fff";x.font="700 40px 'Bricolage Grotesque',sans-serif";x.fillText(u.n,56,fy+62);x.font="500 28px 'Figtree',sans-serif";x.fillStyle="rgba(255,255,255,.85)";x.fillText([u.lic?"Lic. "+u.lic:"",u.tel||""].filter(Boolean).join("  ·  "),56,fy+106);
+ x.fillStyle="#fff";x.font="700 40px 'Bricolage Grotesque',sans-serif";{const v=volData(u);x.fillText(v.n,56,fy+62);x.font="500 28px 'Figtree',sans-serif";x.fillStyle="rgba(255,255,255,.85)";x.fillText([v.lic,v.tel,v.extra].filter(Boolean).join("  ·  "),56,fy+106)}
  if(LOGOIMG.complete&&LOGOIMG.naturalWidth)x.drawImage(LOGOIMG,W-56-84,fy+34,84,84);
  x.textAlign="right";x.fillStyle="#fff";x.font="700 30px 'Bricolage Grotesque',sans-serif";x.fillText("Propiedades",W-56-100,fy+70);x.font="500 16px 'Figtree',sans-serif";x.fillStyle="#f0c75e";x.fillText("OPORTUNIDADES DE INVERSIÓN Y NEGOCIOS",W-56-100,fy+98);x.textAlign="left";
 }
@@ -757,11 +761,11 @@ function award(u,e,l,p){const ex=ETAPAS.find(x=>x[0]===e);if(ex&&ex[2]&&!l.aw[e]
 document.addEventListener("click",e=>{
  const b=e.target.closest("[data-a]");if(!b)return;const a=b.dataset.a,v=b.dataset.v;
  if((a==="closeF"||a==="closeCopy"||a==="closeCli"||a==="closeFirma"||a==="closeDet")&&e.target!==b&&b.classList.contains("ov"))return;
- if(a==="closeFirma"){UI.firmaEd=false;UI.firmaTmp=null;render(1);return}
+ if(a==="closeFirma"){UI.firmaEd=false;UI.firmaTmp=null;UI.volTmp=null;render(1);return}
  if(a==="corDet"){UI.corDet=v;render(1);return}
  if(a==="closeDet"){UI.corDet=null;render(1);return}
- if(a==="miFirma"){UI.firmaEd=true;UI.firmaTmp=null;render(1);return}
- if(a==="firmaDef"){UI.firmaTmp=firmaDef(me());render(1);return}
+ if(a==="miFirma"){UI.firmaEd=true;UI.firmaTmp=null;UI.volTmp=null;render(1);return}
+ if(a==="firmaDef"){UI.firmaTmp=firmaDef(me());UI.volTmp={};render(1);return}
  if(a==="closeCli"){UI.cliForm=false;render(1);return}
  if(a==="closeCopy"){b.closest(".ov").remove();return}
  if(a==="closeF"){UI.ficha=null;render(1);return}
@@ -846,8 +850,9 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"&&(UI.ficha||UI.cliFo
 document.addEventListener("submit",e=>{
  e.preventDefault();const id=e.target.id;
  if(id==="fFirma"){const u=me(),t=$("#fiTxt").value.trim().slice(0,300),val=t===firmaDef(u)?"":t;
-  const ok=()=>{u.firma=val;UI.firmaEd=false;UI.firmaTmp=null;save();toast("Firma guardada");render(1)};
-  if(sbOn()){after(rpc("guardar_firma",{p_firma:val}).then(ok));return}
+  const g=i=>($(i)?$(i).value.trim():""),vol={n:g("#vfN"),tel:g("#vfT"),lic:g("#vfL"),extra:g("#vfX")};Object.keys(vol).forEach(k=>{if(!vol[k])delete vol[k]});
+  const ok=()=>{u.firma=val;u.vol=vol;UI.firmaEd=false;UI.firmaTmp=null;UI.volTmp=null;save();toast("Firma y datos de volantes guardados");render(1)};
+  if(sbOn()){after(rpc("guardar_firma",{p_firma:val,p_volante:vol}).then(ok));return}
   ok();return}
  if(id==="fLogin"){const l=$("#lgLic").value.trim().toUpperCase(),pw=$("#lgPin").value;UI.lastLic=l;
   if(!l||!pw){UI.err="Escribe tu usuario y tu contraseña.";render();return}
