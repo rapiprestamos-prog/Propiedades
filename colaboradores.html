@@ -184,7 +184,7 @@ function sesGuardar(){try{if(CRED.lic&&String(CRED.pin||"").startsWith("tok:"))l
 function sesBorrar(){try{localStorage.removeItem(SESKEY)}catch(e){}}
 function sesLeer(){try{const x=JSON.parse(localStorage.getItem(SESKEY)||"null");return x&&x.lic&&x.tok?x:null}catch(e){return null}}
 function sesTomar(lic,data,pw){CRED.lic=lic;if(data&&data.token){CRED.pin="tok:"+data.token;sesGuardar()}else CRED.pin=pw}
-function sesFin(msg){CRED.lic=CRED.pin=null;sesBorrar();UI.me=null;UI.mustChange=null;UI.ficha=null;UI.cliForm=null;UI.firmaEd=false;UI.corDet=null;if(msg)UI.err=msg;Object.assign(S,{clientes:[],leads:[],log:[],canjes:[],reqs:[],views:[],users:[]});save();if(sb)sbLoad().then(()=>render());render()}
+function sesFin(msg){CRED.lic=CRED.pin=null;UI.difSel=null;UI.difDest="clientes";sesBorrar();UI.me=null;UI.mustChange=null;UI.ficha=null;UI.cliForm=null;UI.firmaEd=false;UI.corDet=null;if(msg)UI.err=msg;Object.assign(S,{clientes:[],leads:[],log:[],canjes:[],reqs:[],views:[],users:[]});save();if(sb)sbLoad().then(()=>render());render()}
 function fromRow(r){return {c:r.codigo,finca:r.finca,n:r.nombre,t:r.tipo,prov:r.provincia||"",dist:r.corregimiento||"",est:r.estado,lista:r.precio_lista!=null&&+r.precio_lista>0?+r.precio_lista:null,of:r.precio_oferta!=null?+r.precio_oferta:null,ofHasta:r.oferta_hasta,m2:r.m2!=null?+r.m2:null,av:r.avaluo!=null?+r.avaluo:null,avd:r.avaluo_fecha,dsc:r.descripcion||"",inv:!!r.inversion,rent:null,vis:0,con:0,enc:r.encargada||"Por asignar",man:r.manejo||"Abierta",hue:r.hue||200,hot:!!r.hot,camp:r.campana||null,ofNom:r.oferta_nombre||null,ofDesde:r.oferta_desde||null,ced:r.cedida,lanz:r.lanzamiento,int:{g:+(r.costo_indirecto||0),gd:r.avaluo_fecha?Math.max(0,Math.round((NOW-new Date(r.avaluo_fecha+"T00:00"))/DAY)):null,li:r.valor_libros!=null?+r.valor_libros:null,vr:r.venta_rapida!=null?+r.venta_rapida:null,ref:r.ref_avaluo||"",sug:r.valor_sugerido!=null?+r.valor_sugerido:null}}}
 async function sbLoad(){if(!sb)return false;
  const old=Object.fromEntries(S.props.map(p=>[p.c,p]));const keep=p=>{if(old[p.c]){p.vis=old[p.c].vis;p.con=old[p.c].con}return p};
@@ -298,6 +298,8 @@ function clip(text,ok){
  try{navigator.clipboard.writeText(text).then(done,fb)}catch(e){fb()}
 }
 const waLink=t=>"https://wa.me/?text="+encodeURIComponent(t);
+const waTel=t=>{let d=String(t||"").replace(/\D/g,"");if(d.length===7||d.length===8)d="507"+d;return d.length>=10?d:""};
+const waTo=(tel,t)=>{const d=waTel(tel);return d?"https://wa.me/"+d+"?text="+encodeURIComponent(t):waLink(t)};
 const firmaDef=u=>`${u.n}${u.lic?" · Lic. "+u.lic:""}${u.tel?" · "+u.tel:""}`;
 const firma=u=>(u&&u.firma&&String(u.firma).trim())||firmaDef(u||{n:""});
 const volData=u=>{const v=(u&&u.vol)||{};return {n:(v.n||"").trim()||u.n,tel:(v.tel||"").trim()||u.tel||"",lic:(v.lic||"").trim()||(u.lic?"Lic. "+u.lic:""),extra:(v.extra||"").trim()}};
@@ -599,7 +601,8 @@ const MKCAT=p=>/Lote|Finca|comercial/.test(p.t)?"Terrenos":/Local/.test(p.t)?"Lo
 function mkListing(p,u){const o=ofAct(p);return {titulo:`${o?"OFERTA · ":""}${p.n}${p.m2?" · "+m2txt(p):""}`,precio:precio(p),cat:MKCAT(p),ubic:`${p.dist}, ${p.prov}, Panamá`,desc:`${p.dsc}\n\n${o?`Precio con descuento ${money(p.of)} (Venta ${money(p.lista)}), ${hastaTxt(p)}.\n`:""}${p.m2?"Área: "+m2txt(p)+". ":""}Tipo: ${p.t}. Código ${p.c}.\n\n${firma(u)}`}}
 function waCatalogo(ps,u){return `*Propiedades de la semana · Oportunidades de inversión y negocios*\n\n`+ps.map(p=>{const o=ofAct(p);return `*${p.n}*\n${p.dist}, ${p.prov} · ${p.t}${p.m2?" · "+m2txt(p):""}\n${o?`Con descuento *${money(p.of)}* (Venta ${money(p.lista)}, ${hastaTxt(p)})`:pv(p)}\nCódigo ${p.c}`}).join("\n\n")+`\n\nResponde con el código de la que te interese y coordinamos la visita.\n\n${firma(u)}`}
 function vDif(){
- const u=me(),V=S.props.filter(vendible);if(!UI.difSel)UI.difSel=Object.fromEntries(V.filter(p=>p.hot).map(p=>[p.c,true]));
+ const u=me(),V=S.props.filter(ofrecible);if(!UI.difSel){const t=hotList().slice(0,10);UI.difSel=Object.fromEntries(t.map(p=>[p.c,true]))}
+ if(UI.difDest==="corredores"&&!can("adm"))UI.difDest="clientes";
  const sel=V.filter(p=>UI.difSel[p.c]);const all=can("segall")||can("adm");
  const dest=UI.difDest==="clientes"?S.clientes.filter(c=>all||c.u===u.id||!c.u).map(c=>({n:c.n,tel:c.tel,x:c.canal})):UI.difDest==="interesados"?S.leads.filter(l=>(all||l.u===u.id)&&l.e!=="cierre").map(l=>({n:l.n,tel:l.tel,x:ETAPAS.find(e=>e[0]===l.e)[1]})):S.users.filter(x=>x.rol==="corredor"&&x.st==="Activo").map(x=>({n:x.n,tel:x.tel,x:"Corredor"}));
  const cat=waCatalogo(sel,u);
@@ -608,9 +611,9 @@ function vDif(){
  let body="";
  if(UI.difCanal==="wa"){
   body=`<div class="grid g2"><div class="panel grid"><h3 style="font-size:15px">2. Mensaje de catálogo</h3><p class="sm muted" style="margin:0">Un solo mensaje con todas las propiedades elegidas. Se envía igual a cada persona.</p><textarea id="difMsg" rows="12">${esc(cat)}</textarea><div class="row"><button class="btn p" data-a="cpDif">Copiar mensaje</button><a class="btn wa" target="_blank" rel="noopener" href="${waLink(cat)}">Abrir en WhatsApp</a></div></div>
-  <div class="panel grid"><h3 style="font-size:15px">3. Destinatarios</h3><div class="sub" style="margin:0">${[["clientes","Clientes de redes"],["interesados","Interesados"],["corredores","Corredores"]].map(x=>`<button data-a="difDest" data-v="${x[0]}" aria-pressed="${UI.difDest===x[0]}">${x[1]}</button>`).join("")}</div>
+  <div class="panel grid"><h3 style="font-size:15px">3. Destinatarios</h3><div class="sub" style="margin:0">${[["clientes","Clientes de redes"],["interesados","Interesados"]].concat(can("adm")?[["corredores","Corredores"]]:[]).map(x=>`<button data-a="difDest" data-v="${x[0]}" aria-pressed="${UI.difDest===x[0]}">${x[1]}</button>`).join("")}</div>
   <div class="row"><button class="btn p" data-a="cpTels">Copiar los ${dest.length} números</button><span class="sm muted">Pégalos en una lista de difusión de WhatsApp Business y manda el mensaje a todos de una vez.</span></div>
-  <div class="tbl" style="max-height:320px;overflow:auto"><table><thead><tr><th>Nombre</th><th>Teléfono</th><th>Origen</th><th></th></tr></thead><tbody>${dest.map(d=>`<tr><td>${esc(d.n)}</td><td class="num">${esc(d.tel||"")}</td><td class="sm muted">${esc(d.x)}</td><td><a class="btn s wa" target="_blank" rel="noopener" href="${waLink(`Hola ${esc(d.n.split(" ")[0])}, `+cat)}">Enviar</a></td></tr>`).join("")||`<tr><td colspan="4" class="muted">Sin destinatarios.</td></tr>`}</tbody></table></div></div></div>
+  <div class="tbl" style="max-height:320px;overflow:auto"><table><thead><tr><th>Nombre</th><th>Teléfono</th><th>Origen</th><th></th></tr></thead><tbody>${dest.map(d=>`<tr><td>${esc(d.n)}</td><td class="num">${esc(d.tel||"")}</td><td class="sm muted">${esc(d.x)}</td><td><a class="btn s wa" target="_blank" rel="noopener" href="${waTo(d.tel,`Hola ${String(d.n||"").split(" ")[0]}, `+cat)}">Enviar</a></td></tr>`).join("")||`<tr><td colspan="4" class="muted">Sin destinatarios.</td></tr>`}</tbody></table></div></div></div>
   <div class="panel" style="margin-top:14px"><h3 style="font-size:15px;margin-bottom:6px">Envío masivo de verdad</h3><p class="sm muted" style="margin:0;max-width:80ch">Lo de arriba usa el WhatsApp del corredor: una lista de difusión llega hasta a 256 contactos que tengan guardado el número. Para que la empresa envíe a cientos de personas desde un número propio, con plantillas aprobadas y registro de quién respondió, se usa la API oficial de WhatsApp (Meta Business). Es de pago por mensaje y requiere cuenta de empresa verificada. Está detallado en «Cómo se conecta».</p></div>`;
  } else {
   const L=sel.map(p=>mkListing(p,u));
@@ -822,7 +825,7 @@ document.addEventListener("click",e=>{
  else if(a==="msQuitar"){if(!can("precios"))return;let n=0;S.props.forEach(p=>{if(p.of){p.of=null;p.ofHasta=null;n++}});S.precioLog.push({t:iso(NOW),por:me().n,x:`Se quitaron las ofertas de ${n} propiedades`});save();toast("Ofertas retiradas");render(1)}
  else if(a==="difCanal"){UI.difCanal=v;render(1)}
  else if(a==="difDest"){UI.difDest=v;render(1)}
- else if(a==="difAll"){const V=S.props.filter(vendible);UI.difSel=Object.fromEntries(V.filter(p=>v==="all"||(v==="hot"&&hotList().slice(0,10).includes(p))||(v==="of"&&ofAct(p))).map(p=>[p.c,true]));render(1)}
+ else if(a==="difAll"){const V=S.props.filter(ofrecible);UI.difSel=Object.fromEntries(V.filter(p=>v==="all"||(v==="hot"&&hotList().slice(0,10).includes(p))||(v==="of"&&ofAct(p))).map(p=>[p.c,true]));render(1)}
  else if(a==="cpDif")clip($("#difMsg").value,"Mensaje copiado");
  else if(a==="cpTels"){const rows=[...document.querySelectorAll("#app tbody td.num")].map(t=>t.textContent.trim()).filter(Boolean);clip(rows.join("\n"),rows.length+" números copiados")}
  else if(a==="cpAll")clip(v,"Copiado");
@@ -831,7 +834,7 @@ document.addEventListener("click",e=>{
  else if(a==="cliLead"&&sbOn()){after(rpc("cliente_a_seguimiento",{p_id:v}).then(()=>toast("Cliente pasado a Seguimiento")))}
  else if(a==="cliLead"){const c=S.clientes.find(x=>x.id===v),u=me(),uid=c.u||u.id;toLead(c,uid);save();toast("Cliente pasado a Seguimiento");render(1)}
  else if(a==="logout"){UI.err="";UI.reg=null;if(sbOn()&&String(CRED.pin||"").startsWith("tok:"))sb.rpc("cerrar_sesion",{p_lic:CRED.lic,p_pin:CRED.pin}).then(()=>{},()=>{});
-  if(sbOn())sesFin();else{UI.me=null;UI.mustChange=null;CRED.lic=CRED.pin=null;try{localStorage.removeItem(SESKEY+"-local")}catch(e){}render()}}
+  if(sbOn())sesFin();else{UI.difSel=null;UI.difDest="clientes";UI.me=null;UI.mustChange=null;CRED.lic=CRED.pin=null;try{localStorage.removeItem(SESKEY+"-local")}catch(e){}render()}}
  else if(a==="quick"){UI.me=v;UI.tab="hot";render()}
  else if(a==="fImg"){UI.fImg=+v;const ph=$("#fichaPh"),p=PR(UI.ficha);if(ph&&p)ph.style.backgroundImage=`url('${fotoUrl(p,+v)}')`;document.querySelectorAll(".gth").forEach(g=>g.setAttribute("aria-pressed",g.dataset.v===v))}
  else if(a==="ficha"){UI.fImg=1;const u=me();if(u&&vendible(PR(v))){S.views.push({p:v,u:u.id,t:Date.now()});if(sbOn())sb.rpc("registrar_vista",{p_lic:CRED.lic,p_pin:CRED.pin,p_codigo:v}).then(()=>{})}UI.ficha=v;save();render(1)}
