@@ -1,0 +1,19 @@
+SITIO PARA GITHUB PAGES
+
+index.html          -> página pública «Propiedades, oportunidades de inversión y negocios»
+colaboradores.html  -> acceso privado de Colaboradores (botón dorado «Colaboradores» en la página pública)
+config.js           -> conexión a la base de datos (Supabase). Es el único archivo de configuración.
+fotos/              -> fotos de los avalúos, una carpeta por finca. No cambies los nombres.
+
+Cómo subirlo:
+1. github.com -> New repository -> nombre «propiedades» -> Public -> Create.
+2. Add file -> Upload files. Arrastra index.html, colaboradores.html, config.js, LEEME.txt, GUIA_TEASERS.txt y la carpeta fotos.
+   La web de GitHub acepta hasta 100 archivos por tanda: sube la carpeta fotos en varias tandas
+   (por ejemplo, 20 carpetas de fincas por vez) o usa GitHub Desktop, que sube todo de una vez.
+3. Settings -> Pages -> Branch: main, carpeta / (root) -> Save.
+4. En 1 o 2 minutos queda en:
+   Página pública:  https://TU-USUARIO.github.io/propiedades/
+   Colaboradores:   https://TU-USUARIO.github.io/propiedades/colaboradores.html
+
+Contraseñas: se guardan encriptadas. Cada persona crea la suya (mínimo 12 caracteres, letras y números).
+Nunca subas a GitHub los archivos .sql, CLAVES_TEMPORALES.txt, el Excel ni los avalúos.

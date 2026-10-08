@@ -1,0 +1,37 @@
+GUÍA · TEASERS AUTOMÁTICOS Y EDITABLES
+======================================
+
+QUÉ HACE
+Cada propiedad genera sola su teaser vertical (1024 x 1536, el mismo tamaño de tu diseño):
+  - Fondo: foto del avalúo de esa finca.
+  - Franja superior: «¡Gran Oportunidad» (dorado) + «en [provincia]!» (blanco).
+  - Etiqueta de oferta (ej. OFERTA −10 %), precio grande y precio anterior tachado.
+  - Datos con viñetas: tipo y área, ubicación, número de finca, avalúo.
+  - Barra de contacto: llamado a la acción, corredor, teléfono, licencia y logo.
+Todo sale del Excel y de las ofertas que fija la administración. Si cambia el precio, el teaser cambia solo.
+
+UNO POR UNO
+1. Entra a Colaboradores (colaboradores.html) → pestaña «Tizers y redes».
+2. Elige la propiedad. Formato: «Teaser vertical» (viene por defecto).
+3. Elige cuál foto del avalúo va de fondo (miniaturas debajo de «Foto del avalúo»).
+   Si la finca no tiene fotos, sube una con «Foto de la propiedad».
+4. Edita cualquier texto: título, precio, datos (uno por línea), llamado a la acción, contacto.
+   El teaser cambia mientras escribes. Lo editado queda guardado para esa propiedad.
+5. «Volver a automático» borra tus cambios y vuelve a los datos del sistema.
+6. «Copiar imagen» o clic derecho sobre el teaser → «Guardar imagen como…».
+
+EN LOTE
+1. Misma pestaña, abajo: «Teasers en lote».
+2. Elige: Hot list · Con oferta y foto · Todas las que tienen foto (máximo 60 por vez).
+3. «Generar» → aparecen todos. Clic en uno para editarlo.
+4. «Descargar todos (ZIP)» baja un ZIP con un JPG por propiedad (funciona en GitHub Pages).
+
+CAMBIAR EL DISEÑO PARA TODOS
+Los textos por defecto están en el archivo colaboradores.html, función tzAuto (busca «Gran Oportunidad»):
+  l1 = título línea 1 · l2 = línea 2 · cta = llamado a la acción · puntos = datos.
+Colores y posiciones: función drawTeaser. Si me mandas tu diseño completo, lo ajusto yo.
+
+FOTOS QUE FALTAN
+Ver FOTOS_FALTANTES.csv (va aparte, no en GitHub). Para agregarlas: pon las fotos en fotos/F-NUMERO/ con nombres
+0.jpg (miniatura, ~640 px), 1.jpg a 4.jpg (~1100 px), y súmalas en la lista FOTOS de las
+páginas, o mándamelas y yo las monto.
