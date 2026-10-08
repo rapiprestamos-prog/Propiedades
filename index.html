@@ -91,6 +91,9 @@ footer{padding:28px 0 48px;color:var(--mute);font-size:13px;border-top:1px solid
 .empty{padding:40px;text-align:center;color:var(--mute);background:var(--panel);border:1px dashed var(--line);border-radius:16px}
 @media (max-width:860px){.search{grid-template-columns:1fr 1fr}.search .btn{grid-column:1/-1;justify-content:center}.hero .wrap{grid-template-columns:1fr;padding-block:36px 96px}.hero .fig{min-height:240px;order:-1}.inv{grid-template-columns:1fr}.calc{position:static}.cta{grid-template-columns:1fr;padding:28px}.irow{grid-template-columns:90px minmax(0,1fr)}.irow .act{grid-column:1/-1}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+[hidden]{display:none!important}
+.menu a[aria-current=page]{background:var(--blue-soft);color:var(--blue);font-weight:700}
+.vista-anim{animation:vin .25s ease}@keyframes vin{from{opacity:.4;transform:translateY(6px)}to{opacity:1;transform:none}}
 </style>
 
 <header class="hdr"><div class="wrap"><div class="logo"><div class="mark"><svg viewBox="0 0 64 64" role="img" aria-label="Logotipo"><defs><linearGradient id="lg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#10307f"/><stop offset="1" stop-color="#050f33"/></linearGradient><linearGradient id="lg2" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#d4a62a"/><stop offset="1" stop-color="#f6d27a"/></linearGradient></defs><rect x="2" y="2" width="60" height="60" rx="16" fill="url(#lg1)"/><rect x="2.75" y="2.75" width="58.5" height="58.5" rx="15.5" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="1.5"/><path d="M14 36 L32 18 L50 36" fill="none" stroke="#fff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 33 V47 H44 V33" fill="none" stroke="#fff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" opacity=".92"/><path d="M26 41 L31 36 L35 39 L42 31" fill="none" stroke="url(#lg2)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M37 30 H43 V36" fill="none" stroke="url(#lg2)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div>Propiedades<small>Oportunidades de inversión y negocios</small></div></div>
@@ -186,7 +189,7 @@ function ficha(c){const p=PROPS.find(x=>x.c===c);if(!p)return;
 }
 document.addEventListener("click",e=>{const g=e.target.closest("[data-g]");if(g){const ph=$("#fph"),c=$("#fph")&&document.querySelector(".dlg").getAttribute("aria-label").replace("Ficha ","");const p=PROPS.find(x=>x.c===c);if(ph&&p)ph.style.backgroundImage=`url('${fotoUrl(p,+g.dataset.g)}')`;document.querySelectorAll(".gth").forEach(b=>b.setAttribute("aria-pressed",b===g));return}const t=e.target.closest("[data-t]");if(t){UI.tab=t.dataset.t;render();return}const f=e.target.closest("[data-f]");if(f)ficha(f.dataset.f)});
 document.addEventListener("keydown",e=>{if(e.key==="Escape")$("#modal").innerHTML="";if((e.key==="Enter"||e.key===" ")&&e.target.classList.contains("card")){e.preventDefault();ficha(e.target.dataset.f)}});
-$("#fs").addEventListener("submit",e=>{e.preventDefault();UI.q=$("#q").value;UI.t=$("#ft").value;UI.prov=$("#fp").value;UI.max=$("#fm").value;render();$("#catalogo").scrollIntoView({behavior:"smooth"})});
+$("#fs").addEventListener("submit",e=>{e.preventDefault();UI.q=$("#q").value;UI.t=$("#ft").value;UI.prov=$("#fp").value;UI.max=$("#fm").value;render();irA("catalogo",true)});
 ["cM","cH","cP","cR"].forEach(id=>$("#"+id).addEventListener("input",calc));
 $("#fc").addEventListener("submit",async e=>{e.preventDefault();const n=$("#cn").value.trim(),t=$("#ct").value.trim(),c=$("#ci").value,b=$("#fc button");if(!n||!t)return;
  const cod=c&&c!=="asesoria"?c:null,nota=c==="asesoria"?"Asesoría general de inversión":(cod?"Interés en "+cod:"");
@@ -196,6 +199,17 @@ $("#fc").addEventListener("submit",async e=>{e.preventDefault();const n=$("#cn")
  window.open(WA+encodeURIComponent(`Hola, soy ${n} (${t}). ${nota?nota+". ":""}Quiero que me contacten.`),"_blank","noopener");$("#cmsg").textContent="Te abrimos WhatsApp para enviar tu solicitud.";$("#fc").reset()});
 $("#ft").innerHTML+=[...new Set(PROPS.map(p=>p.t))].map(t=>`<option>${t}</option>`).join("");$("#fp").innerHTML+=[...new Set(PROPS.map(p=>p.prov))].map(t=>`<option>${t}</option>`).join("");
 render();
+/* Secciones: cada opción del menú muestra solo su sección (Propiedades, Inversión, Negocios, Cómo comprar, Contacto) */
+const VISTAS=["catalogo","inversion","negocios","como","contacto"];
+function irA(v,alCatalogo){if(!VISTAS.includes(v))v="catalogo";
+ const hero=document.querySelector(".hero"),main=document.querySelector("main");
+ hero.hidden=v!=="catalogo";main.hidden=v!=="catalogo";
+ VISTAS.filter(x=>x!=="catalogo").forEach(x=>{const el=document.getElementById(x);el.hidden=x!==v;if(x===v){el.classList.remove("vista-anim");void el.offsetWidth;el.classList.add("vista-anim")}});
+ document.querySelectorAll(".menu a").forEach(a=>a.setAttribute("aria-current",a.getAttribute("href")==="#"+v?"page":"false"));
+ if(alCatalogo)document.getElementById("catalogo").scrollIntoView({behavior:"smooth"});else window.scrollTo(0,0)}
+window.addEventListener("hashchange",()=>irA(location.hash.slice(1)));
+irA(location.hash.slice(1));
+
 /* Datos en vivo: precios y ofertas desde la base de datos (config.js) */
 let SB=null;
 (function(){const u=(CFG.supabaseUrl||"").trim(),k=(CFG.supabaseAnonKey||"").trim();if(!u||!k)return;
