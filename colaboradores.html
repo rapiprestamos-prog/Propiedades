@@ -248,7 +248,7 @@ if(!S.campanas)S.campanas=[];
 if(!S.tz)S.tz={};
 for(const r in P0)if(S.perm&&S.perm[r]){if(S.perm[r].cli===undefined)S.perm[r].cli=P0[r].cli||false;if(S.perm[r].dif===undefined)S.perm[r].dif=P0[r].dif||false;if(S.perm[r].precios===undefined)S.perm[r].precios=P0[r].precios||false}
 if(!S.precioLog)S.precioLog=[];
-const UI={me:null,tab:"hot",sub:"cor",of:{tc:"oferta",modo:"pct",val:10,sinFin:false,qPct:20,qFin:"sin",qHasta:plus(30),base:"lista",red:100,piso:"libros",pisoPct:70,nombre:"Oferta de "+new Date().toLocaleDateString("es-PA",{month:"long"}),desde:iso(NOW),hasta:plus(30),f:{tipo:"",prov:"",q:"",min:"",max:"",solo:"todas"},sel:{},over:{},conf:false},newPin:genClave(),mustChange:null,pinShow:{},mas:{modo:"pct",val:5,dias:7,tipo:"",prov:"",solo:"todas"},masPrev:false,cliCanal:"",cliForm:false,difSel:null,difCanal:"wa",difDest:"clientes",q:"",tipo:"",prov:"",max:"",soloOf:false,soloInv:false,ficha:null,mat:{p:"F-243052",fmt:"teaser",canal:"instagram",foto:null},tzFoto:{},lote:{set:"hot",items:[],busy:false},leadP:"",fl:"",reg:null,err:""};
+const UI={me:null,tab:"hot",sub:"cor",of:{tc:"oferta",modo:"pct",val:10,sinFin:false,qPct:20,qFin:"sin",qHasta:plus(30),base:"lista",red:100,piso:"ninguno",pisoPct:70,nombre:"Oferta de "+new Date().toLocaleDateString("es-PA",{month:"long"}),desde:iso(NOW),hasta:plus(30),f:{tipo:"",prov:"",q:"",min:"",max:"",solo:"todas"},sel:{},over:{},conf:false},newPin:genClave(),mustChange:null,pinShow:{},mas:{modo:"pct",val:5,dias:7,tipo:"",prov:"",solo:"todas"},masPrev:false,cliCanal:"",cliForm:false,difSel:null,difCanal:"wa",difDest:"clientes",q:"",tipo:"",prov:"",max:"",soloOf:false,soloInv:false,ficha:null,mat:{p:"F-243052",fmt:"teaser",canal:"instagram",foto:null},tzFoto:{},lote:{set:"hot",items:[],busy:false},leadP:"",fl:"",reg:null,err:""};
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
 const U=id=>S.users.find(u=>u.id===id), PR=c=>S.props.find(p=>p.c===c);
 const me=()=>U(UI.me);
@@ -284,7 +284,7 @@ const fotoN=p=>p&&FOTOS[p.c]||0;
 const fotoUrl=(p,k)=>`fotos/${p.c.replace(/[^A-Za-z0-9]+/g,"-").replace(/^-|-$/g,"")}/${k}.jpg`;
 const hue=(p,big)=>!p?"background:linear-gradient(160deg,#061236,#0a1f5c 55%,#10307f)":fotoN(p)?`background:url('${fotoUrl(p,big?1:0)}') center/cover no-repeat, ${art(p)} center/cover no-repeat`:`background:${art(p)} center/cover no-repeat`;
 const score=p=>vis(p)+p.con*3+off(p)*2;
-function toast(t){const e=$("#toast");e.textContent=t;e.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>e.hidden=true,2400)}
+function toast(t){const e=$("#toast");e.textContent=t;e.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>e.hidden=true,Math.max(2400,String(t).length*55))}
 function clip(text,ok){
  const done=()=>toast(ok||"Copiado");
  const fb=()=>{$("#modal").insertAdjacentHTML("beforeend",`<div class="ov" data-a="closeCopy"><div class="dlg" style="padding:18px"><b>Copia el texto manualmente</b><textarea id="cpTa" rows="9" style="width:100%;margin-top:8px">${esc(text)}</textarea><p class="sm muted">Selecciónalo y usa Ctrl+C.</p><button class="btn" data-a="closeCopy">Cerrar</button></div></div>`);const t=$("#cpTa");t.focus();t.select()};
@@ -665,6 +665,11 @@ function ofApplyLocal(){const o=UI.of,u=me(),V=S.props.filter(vendible),R=V.filt
  R.forEach(r=>{const p=r.p;if(o.tc==="oferta"){p.of=r.n;p.ofDesde=o.desde;p.ofHasta=hs;p.camp=k.id}else{p.lista=r.n;if(p.of&&p.of>=r.n){p.of=null;p.ofHasta=null;p.ofDesde=null;p.camp=null}}});
  S.precioLog.push({t:iso(NOW),por:u.n,x:`${o.tc==="oferta"?"Descuento":"Cambio de precio de Venta"} «${k.nombre}»: ${R.length} propiedades${o.tc==="oferta"?(hs?`, del ${fd(o.desde)} al ${fd(hs)}`:`, desde el ${fd(o.desde)} hasta nuevo aviso`):""}`});
  return R.length}
+function ofDone(n,o){
+ if(!n){toast("No se aplicó a ninguna propiedad: revisa el piso mínimo, las fechas o que tengan precio de Venta");render(1);return}
+ if(o.tc!=="oferta"){toast(`Listo: ${n} propiedades con precio de Venta nuevo`);render(1);return}
+ if(o.desde&&dleft(o.desde)>0){toast(`Programado: ${n} propiedades con descuento desde el ${fd(o.desde)}. Ese día entran solas a la hot list.`);render(1);return}
+ UI.tab="hot";toast(`Listo: ${n} propiedades con descuento. Ya están en la hot list y en la página pública.`);render();scrollTo(0,0)}
 function ofItems(){const o=UI.of;return S.props.filter(vendible).filter(p=>o.sel[p.c]).map(p=>({p,...ofCalc(p)})).filter(r=>r.ok).map(r=>({codigo:r.p.c,precio:r.n}))}
 
 /* ---------- Usuarios ---------- */
@@ -782,8 +787,8 @@ document.addEventListener("click",e=>{
  else if(a==="ofEdit"){const k=S.campanas.find(x=>x.id===v);UI.of.sel={};UI.of.over={};S.props.filter(p=>p.camp===v&&p.of).forEach(p=>{UI.of.sel[p.c]=true;UI.of.over[p.c]=p.of});Object.assign(UI.of,{tc:"oferta",nombre:k.nombre,desde:k.desde||iso(NOW),hasta:k.hasta||plus(30),conf:false});toast("Oferta cargada: ajusta los precios y vuelve a aplicar");render(1);scrollTo(0,0)}
  else if(a==="ofApply"){if(!can("precios"))return;const o=UI.of;
   if(o.tc==="oferta"&&(!o.desde||(!o.sinFin&&(!o.hasta||o.hasta<o.desde)))){toast("Revisa las fechas del descuento");return}
-  if(sbOn()){after(rpc("aplicar_oferta",{p_nombre:(o.nombre||"Oferta").trim(),p_tipo:o.tc,p_desde:o.desde,p_hasta:o.tc==="oferta"&&!o.sinFin?o.hasta:null,p_items:ofItems()}).then(n=>{UI.of.sel={};UI.of.over={};UI.of.conf=false;toast(`Listo: ${n} propiedades actualizadas`)}));return}
-  const n=ofApplyLocal();UI.of.sel={};UI.of.over={};UI.of.conf=false;save();toast(`Listo: ${n} propiedades actualizadas`);render(1)}
+  if(sbOn()){after(rpc("aplicar_oferta",{p_nombre:(o.nombre||"Oferta").trim(),p_tipo:o.tc,p_desde:o.desde,p_hasta:o.tc==="oferta"&&!o.sinFin?o.hasta:null,p_items:ofItems()}).then(n=>{UI.of.sel={};UI.of.over={};UI.of.conf=false;ofDone(n,o)}));return}
+  const n=ofApplyLocal();UI.of.sel={};UI.of.over={};UI.of.conf=false;save();ofDone(n,o);render(1)}
  else if(a==="ofExt"){if(sbOn()){after(rpc("extender_campana",{p_id:v,p_dias:7}).then(()=>toast("Oferta extendida 7 días")));return}
   const k=S.campanas.find(x=>x.id===v);k.hasta=iso(+new Date((k.hasta||iso(NOW))+"T00:00")+7*DAY);S.props.filter(p=>p.camp===v&&p.of).forEach(p=>p.ofHasta=iso(+new Date((p.ofHasta||iso(NOW))+"T00:00")+7*DAY));S.precioLog.push({t:iso(NOW),por:me().n,x:`Oferta «${k.nombre}» extendida 7 días`});save();toast("Oferta extendida 7 días");render(1)}
  else if(a==="ofEnd"){if(sbOn()){after(rpc("terminar_campana",{p_id:v}).then(()=>toast("Oferta terminada")));return}
