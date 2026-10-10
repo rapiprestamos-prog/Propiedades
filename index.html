@@ -57,6 +57,7 @@ section{padding-block:56px}section.alt{background:var(--bg2)}
 .ph{position:relative;aspect-ratio:4/3;background-size:cover;background-position:center}
 .ph::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(7,26,92,.55))}
 .ph .tags{position:absolute;top:10px;left:10px;display:flex;gap:6px;flex-wrap:wrap;z-index:1}
+.card.sold{cursor:default}.card.sold .ph{filter:saturate(.75)}.card.sold .ph::after{content:"VENDIDA";position:absolute;inset:auto;width:auto;height:auto;line-height:1;background-image:none;left:50%;top:50%;z-index:2;transform:translate(-50%,-50%) rotate(-12deg);font:800 26px var(--f-b);letter-spacing:.14em;color:#fff;background:rgba(200,40,40,.88);padding:8px 22px;border:3px solid #fff;border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,.25)}
 .ph .code{position:absolute;right:10px;bottom:10px;z-index:1;font:600 11px var(--f-b);color:#fff;background:rgba(7,26,92,.55);padding:3px 8px;border-radius:6px;letter-spacing:.06em}
 .pill{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:99px;font-size:12px;font-weight:600;background:var(--blue-soft);color:var(--blue)}
 .pill.red{background:var(--crit);color:#fff}.pill.gold{background:var(--gold-l);color:#1a1200}.pill.ok{background:#dff5e9;color:#0a6b3c}.pill.grey{background:var(--line);color:var(--mute)}
@@ -122,6 +123,8 @@ footer{padding:28px 0 48px;color:var(--mute);font-size:13px;border-top:1px solid
 
 <section id="negocios"><div class="wrap"><div class="sec-h"><div><span class="eyebrow">Negocios</span><h2>Terrenos para negocios y proyectos</h2><p>Terrenos de mayor tamaño y valor, aptos para desarrollos, bodegas o proyectos comerciales.</p></div></div><div class="grid" id="gneg"></div></div></section>
 
+<section id="vendidas" hidden><div class="wrap"><div class="sec-h"><div><span class="eyebrow">Ya tienen dueño</span><h2>Vendidas recientemente</h2><p>Propiedades que ya encontraron comprador con nuestros corredores. Escríbenos y te avisamos cuando tengamos una parecida.</p></div></div><div class="grid" id="gvend"></div></div></section>
+
 <section class="alt" id="como"><div class="wrap"><div class="sec-h"><div><span class="eyebrow">Proceso</span><h2>Cómo comprar</h2><p>Cuatro pasos, con un corredor con licencia acompañándote en cada uno.</p></div></div>
 <div class="steps"><div class="step"><div class="n">1</div><h3>Elige y agenda</h3><p>Escoge la propiedad y coordina la visita por WhatsApp con un corredor acreditado.</p></div><div class="step"><div class="n">2</div><h3>Revisa la ficha</h3><p>Recibes la ficha técnica, el avalúo y la situación legal de la propiedad antes de ofertar.</p></div><div class="step"><div class="n">3</div><h3>Presenta tu oferta</h3><p>Puedes pagar de contado o con financiamiento. Te orientamos con el banco.</p></div><div class="step"><div class="n">4</div><h3>Firma y recibe</h3><p>Promesa de compraventa, escritura e inscripción en el Registro Público. Entrega de llaves.</p></div></div></div></section>
 
@@ -166,6 +169,8 @@ const CFG=window.SITIO_CONFIG||{};const WA_NUM=String(CFG.whatsapp||"").replace(
 const WA=`https://wa.me/${WA_NUM}?text=`;
 const UI={q:"",t:"",prov:"",max:"",tab:"todas",ficha:null};
 function toast(t){const e=$("#toast");e.textContent=t;e.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>e.hidden=true,2600)}
+function cardVendida(p){return `<div class="card sold"><div class="ph" style="background-image:${bg(p)}"><span class="code">${p.c}</span></div><div class="body"><b>${esc(p.n)}</b><div class="meta"><span>${esc(p.dist)}${p.dist&&p.prov?", ":""}${esc(p.prov)}</span><span>${esc(p.t)}</span></div><div class="row"><a class="btn s wa" target="_blank" rel="noopener" href="${WA+encodeURIComponent(`Hola, vi que ${p.n} (${p.c}) ya se vendió. Me interesa algo parecido, ¿me avisan?`)}">Quiero una parecida</a></div></div></div>`}
+function pintarVendidas(L){const s=$("#vendidas"),g=$("#gvend");if(!s||!g)return;if(!L||!L.length){s.hidden=true;return}g.innerHTML=L.map(cardVendida).join("");s.hidden=false}
 function card(p){return `<div class="card" tabindex="0" data-f="${p.c}"><div class="ph" style="background-image:${bg(p)}"><div class="tags">${act(p)?`<span class="pill red">Oferta −${off(p)}%</span>`:""}${p.inv&&MOSTRAR_INVERSION?`<span class="pill gold">Inversión</span>`:""}</div><span class="code">${p.c}</span></div>
 <div class="body"><div class="price">${money(precio(p))}${act(p)?`<s>${money(p.lista)}</s>${p.ofHasta?`<em>Hasta el ${fd(p.ofHasta)}</em>`:""}`:""}</div><b>${esc(p.n)}</b><div class="meta"><span>${esc(p.dist)}, ${esc(p.prov)}</span><span>${p.t}</span>${p.m2?`<span>${m2txt(p)}</span>`:""}</div><div class="row"><button class="btn s p" data-f="${p.c}">Ver ficha</button><a class="btn s wa" target="_blank" rel="noopener" href="${WA+encodeURIComponent(`Hola, me interesa ${p.n} (${p.c}) publicada en Propiedades, oportunidades de inversión y negocios.`)}">WhatsApp</a></div></div></div>`}
 function filt(){const q=UI.q.toLowerCase();return [...PROPS].sort((a,b)=>(fotoN(b)?1:0)-(fotoN(a)?1:0)).filter(p=>(!q||(p.n+p.c+p.dist+p.prov).toLowerCase().includes(q))&&(!UI.t||p.t===UI.t)&&(!UI.prov||p.prov===UI.prov)&&(!UI.max||precio(p)<=+UI.max)&&(UI.tab==="todas"||(UI.tab==="ofertas"&&act(p))||(UI.tab==="inv"&&p.inv)||(UI.tab==="casas"&&/mejoras|Apartamento/.test(p.t))||(UI.tab==="lotes"&&p.t==="Terreno")))}
@@ -242,7 +247,8 @@ let SB=null;
   $("#cP").innerHTML="";$("#ci").innerHTML='<option value="">¿Qué te interesa?</option>';
   const keep=sel=>{const f=$(sel).options[0];$(sel).innerHTML="";$(sel).appendChild(f)};keep("#ft");keep("#fp");
   $("#ft").innerHTML+=[...new Set(PROPS.map(p=>p.t))].map(t=>`<option>${esc(t)}</option>`).join("");$("#fp").innerHTML+=[...new Set(PROPS.map(p=>p.prov))].map(t=>`<option>${esc(t)}</option>`).join("");
-  render();abrirDeep()}catch(e){}};
+  render();abrirDeep();
+  SB.from("propiedades_vendidas").select("*").then(({data:V})=>{if(Array.isArray(V))pintarVendidas(V.map(r=>({c:r.codigo,n:r.nombre||r.codigo,t:r.tipo||"",prov:r.provincia||"",dist:r.corregimiento||"",hue:r.hue??210,fdb:Array.isArray(r.fotos)?r.fotos.filter(x=>typeof x==="string"):[],fbd:r.fotos_bd===true,fmini:r.foto_mini||null})))}).catch(()=>{})}catch(e){}};
  document.head.appendChild(sc)})();
 </script>
 
