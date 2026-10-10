@@ -86,7 +86,7 @@ label{display:grid;gap:3px;font-size:12px;font-weight:600;color:var(--mute)}
 .rk-hero::after{content:"";position:absolute;right:-60px;top:-60px;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.22),transparent 70%)}
 .rk-hero h2{color:#fff;font-size:30px}.rk-hero .big{font:700 48px/1 var(--f-d)}.rk-hero p{margin:0;color:rgba(255,255,255,.85)}
 .ring.l{width:124px;height:124px;background:conic-gradient(#fff var(--p),rgba(255,255,255,.22) 0)}.ring.l div{width:100px;height:100px;background:rgba(0,0,0,.28);color:#fff;font-size:26px;backdrop-filter:blur(2px)}.ring.l small{color:rgba(255,255,255,.8)}
-.ladder{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+.ladder{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
 .step .prz{border-radius:10px;padding:10px;background:color-mix(in srgb,var(--c) 13%,var(--panel));display:grid;gap:3px;border:1px solid color-mix(in srgb,var(--c) 35%,transparent)}.step .prz .ic{font-size:26px;line-height:1}
 .step{border:1px solid var(--line);border-radius:12px;padding:14px;background:var(--panel);display:grid;gap:8px;align-content:start;position:relative;min-width:0}
 .step .gem{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;color:#fff;font:700 15px var(--f-d);background:linear-gradient(135deg,var(--c2),var(--c))}
@@ -106,6 +106,7 @@ label{display:grid;gap:3px;font-size:12px;font-weight:600;color:var(--mute)}
 .pz{border-radius:14px;overflow:hidden;border:1px solid var(--line);background:var(--panel);display:grid;grid-template-rows:auto 1fr auto}
 .pz .top-c{padding:18px;color:#fff;display:flex;justify-content:space-between;align-items:flex-start;font-size:30px;background:linear-gradient(135deg,var(--c),color-mix(in srgb,var(--c) 60%,#000))}
 .pz .in{padding:12px 14px;display:grid;gap:3px}.pz .ft{padding:0 14px 14px}
+@media (max-width:1280px){.ladder{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media (max-width:860px){.ladder{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:700px){.rk-hero{grid-template-columns:1fr}.ladder{grid-template-columns:1fr}}
 .ring{width:96px;height:96px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--gold) var(--p),var(--line) 0)}
@@ -222,6 +223,7 @@ const m2txt=p=>p.m2?p.m2.toLocaleString("en-US",{maximumFractionDigits:2})+" m²
 const NIVELES=[
  {n:"Bronce",v:0,c:"#a8683a",c2:"#d9a070",premio:null,ben:["Comisión del 5% en cada venta","Fichas, fotos del avalúo y teasers a un clic","Sumas puntos desde tu primera visita"]},
  {n:"Plata",v:1,c:"#7f8c99",c2:"#c4ccd4",premio:{id:"lv1",n:"Tarjeta de regalo de B/. 100",d:"Supermercado o combustible, a tu elección",ico:"🎁"},ben:["Aviso anticipado de cada nuevo descuento","Tu nombre en el ranking del mes"]},
+ {n:"Rubí",v:2,c:"#9b1b30",c2:"#e8798c",premio:{id:"lv1b",n:"Cena de lujo para dos",d:"En un restaurante exclusivo",ico:"🍷"},ben:[]},
  {n:"Oro",v:3,c:"#b8860b",c2:"#f0c75e",premio:{id:"lv2",n:"Fin de semana para dos en Panamá",d:"2 noches en playa o montaña, hotel aliado",ico:"🌴"},ben:["Teasers y volantes con tu marca personal","Prioridad para pedir manejo exclusivo"]},
  {n:"Platino",v:6,c:"#2f7f78",c2:"#7cc8bf",premio:{id:"lv3",n:"Cupón de B/. 500",d:"Tienda, electrónica o agencia de viajes, además de tu comisión",ico:"💳"},ben:["Corredor destacado en nuestras redes","Primero en recibir propiedades nuevas"]},
  {n:"Diamante",v:10,c:"#1d3f9a",c2:"#7aa2ff",premio:{id:"lv4",n:"Viaje para dos",d:"4 días y 3 noches con vuelo y hotel, destino en la región",ico:"✈️"},ben:["Reconocimiento «Corredor del año»","Invitación a la reunión anual de la dirección"]}];
@@ -1061,7 +1063,7 @@ document.addEventListener("click",e=>{
   const k=S.campanas.find(x=>x.id===v);let n=0;S.props.filter(p=>p.camp===v&&p.of).forEach(p=>{p.of=null;p.ofHasta=null;p.ofDesde=null;p.camp=null;n++});k.activa=false;S.precioLog.push({t:iso(NOW),por:me().n,x:`Descuento «${k.nombre}» terminado: ${n} propiedades vuelven a la Venta`});save();toast("Oferta terminada");render(1)}
  else if(a==="ofQuick"){const o=UI.of,V=S.props.filter(p=>ofrecible(p)&&p.lista>0);o.tc="oferta";o.modo="pct";o.val=+o.qPct||0;o.base="lista";o.piso="ninguno";o.sinFin=o.qFin!=="fecha";o.hasta=o.qHasta;o.desde=iso(NOW);o.nombre=`Descuento general ${o.val}%`;o.sel=Object.fromEntries(V.map(p=>[p.c,true]));o.over={};o.conf=true;render(1);setTimeout(()=>{const c=document.querySelector(".confirm");if(c)c.scrollIntoView({behavior:"smooth",block:"center"})},60)}
  else if(a==="lvClaim"){const u=me(),x=NIVELES[+v];if(!x||!x.premio||ventas(u.id)<x.v||S.canjes.some(c=>c.u===u.id&&c.r===x.premio.id))return;
-  if(sbOn()){after(rpc("reclamar_nivel",{p_nivel:+v}).then(()=>toast("Premio reclamado. La administración te contactará para entregarlo.")));return}
+  if(sbOn()){after(rpc("reclamar_nivel",{p_nivel:{lv1:1,lv2:2,lv3:3,lv4:4,lv1b:5}[x.premio.id]}).then(()=>toast("Premio reclamado. La administración te contactará para entregarlo.")));return}
   S.canjes.push({u:u.id,r:x.premio.id,t:Date.now(),st:"Solicitado"});S.log.push({u:u.id,t:iso(NOW),x:"Premio de nivel "+x.n+": "+x.premio.n,pts:0});save();toast("Premio reclamado. La administración te contactará para entregarlo.");render(1)}
  else if(a==="adSub"){if(!canTab("adm"))return;UI.tab="adm";UI.sub=v;render();scrollTo(0,0)}
  else if(a==="pView"){UI.pv=v;render(1)}
