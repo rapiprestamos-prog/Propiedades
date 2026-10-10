@@ -3,5 +3,5 @@
 window.SITIO_CONFIG = {
   supabaseUrl: "https://uvdkmfjkoolmvmooulfc.supabase.co",
   supabaseAnonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV2ZGttZmprb29sbXZtb291bGZjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE0MDE2MzUsImV4cCI6MjEwNjk3NzYzNX0.BAd_3E_bvZzlsi6x0X2OgSrJozdNuZse0Bi17nBX-GU",
-  whatsapp: ""           // número para los botones de WhatsApp de la página pública, con código de país, ej. "5076XXXXXXX"
+  whatsapp: "50762292850" // WhatsApp de la página pública (6229-2850), con código de país 507
 };
