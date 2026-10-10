@@ -1074,12 +1074,12 @@ document.addEventListener("click",e=>{
   let puede=false;if(a==="waImg"){try{puede=!!navigator.canShare&&navigator.canShare({files:[new File([""],"x.png",{type:"image/png"})]})}catch(er){}}
   if(puede){c.toBlob(bl=>{if(!bl){toast("No se pudo preparar la imagen");return}const file=new File([bl],name,{type:"image/png"});
     navigator.share({files:[file],text:txt}).then(()=>toast("Listo")).catch(er=>{if(er&&er.name==="AbortError")return;toast("Tu equipo no dejó compartir. Usa «Copiar imagen y abrir WhatsApp Web».")})},"image/png");return}
-  const blobP=new Promise(res=>c.toBlob(res,"image/png"));let cop=null;
-  try{cop=navigator.clipboard.write([new ClipboardItem({"image/png":blobP})])}catch(er){cop=Promise.reject(er)}
-  const msg=$("#waImgMsg");
-  cop.then(()=>{if(msg)msg.innerHTML="<b>✓ La imagen ya está copiada.</b> En WhatsApp Web: 1) elige el chat, 2) presiona <b>Ctrl+V</b> (sale la imagen con su vista previa), 3) pega o escribe el texto en el pie de la imagen y envía. El texto también quedó escrito en el chat.";toast("Imagen copiada: en el chat presiona Ctrl+V")},
-   ()=>blobP.then(bl=>{if(bl)bajar(bl,name);if(msg)msg.innerHTML="<b>La imagen se descargó</b> en tu carpeta Descargas. En WhatsApp toca el clip, elige la imagen y envía.";toast("La imagen se descargó en Descargas")}));
-  window.open("https://web.whatsapp.com/send?text="+encodeURIComponent(txt),"_blank","noopener")}
+  const msg=$("#waImgMsg"),url="https://web.whatsapp.com/send?text="+encodeURIComponent(txt);
+  (async()=>{const bl=await new Promise(res=>c.toBlob(res,"image/png"));if(!bl){toast("No se pudo preparar la imagen");return}
+   let ok=false;try{window.focus();await navigator.clipboard.write([new ClipboardItem({"image/png":bl})]);ok=true}catch(er){}
+   if(!ok){bajar(bl,name);if(msg)msg.innerHTML=`<b>Tu navegador no dejó copiar la imagen, así que se descargó</b> en tu carpeta Descargas. En WhatsApp Web toca el <b>+</b> (o el clip) → <b>Fotos y videos</b> → elige <b>${esc(name)}</b> y envía. <a class="btn s wa" target="_blank" rel="noopener" href="${esc(url)}">Abrir WhatsApp Web</a>`;toast("La imagen se descargó en Descargas");return}
+   if(msg)msg.innerHTML=`<b>✓ La imagen está copiada.</b> En WhatsApp Web: 1) elige el chat, 2) haz clic en la caja donde se escribe, 3) presiona <b>Ctrl+V</b>: aparece la imagen con su vista previa, 4) envía. <a class="btn s wa" target="_blank" rel="noopener" href="${esc(url)}">Abrir WhatsApp Web</a>`;
+   const w=window.open(url,"_blank");if(w)try{w.opener=null}catch(er){}toast(w===null?"Imagen copiada. Toca «Abrir WhatsApp Web» y pégala con Ctrl+V":"Imagen copiada: en el chat presiona Ctrl+V")})()}
  else if(a==="cpInv")clip($("#inv").value,"Mensaje copiado");
 });
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&(UI.ficha||UI.cliForm)){UI.ficha=null;UI.cliForm=false;render(1)}if((e.key==="Enter"||e.key===" ")&&e.target.classList&&e.target.classList.contains("card")){e.preventDefault();e.target.click()}});
