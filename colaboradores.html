@@ -356,12 +356,13 @@ function gate(){
   <label>Contraseña<span class="pw"><input id="lgPin" type="password" autocomplete="current-password" placeholder="Tu contraseña"><button type="button" class="btn s" data-a="verPw" data-v="lgPin">Ver</button></span></label>
   ${UI.err?`<div class="pill red" style="white-space:normal">${esc(UI.err)}</div>`:""}<button class="btn p" type="submit">Entrar</button>
   ${PRODUCCION&&!sbOn()?`<div class="pill red" style="white-space:normal">Sin conexión a la base de datos. Revisa tu internet o el archivo config.js.</div>`:`<div class="sm muted">¿Olvidaste tu contraseña? Pide a la administración que la restablezca.</div>`}</form>
- <form class="panel grid" id="fReg"><h3>Registrarme como corredor</h3>
-  <label>Nombre completo<input id="rgN" required autocomplete="name"></label><label>Número de licencia<input id="rgL" placeholder="Obligatorio" required></label>
+ <form class="panel grid" id="fReg"><h3>Registrarme</h3>
+  <div class="chips" role="radiogroup" aria-label="Me registro como">${[["corredor","Soy corredor con licencia"],["interno","Soy colaborador (equipo interno)"]].map(x=>`<button type="button" class="chip" role="radio" data-a="rgRol" data-v="${x[0]}" aria-pressed="${(UI.rgRol||"corredor")===x[0]}" aria-checked="${(UI.rgRol||"corredor")===x[0]}">${x[1]}</button>`).join("")}</div>
+  <label>Nombre completo<input id="rgN" required autocomplete="name"></label><label>${UI.rgRol==="interno"?"Usuario (por ejemplo tu cédula)":"Número de licencia"}<input id="rgL" placeholder="Obligatorio" required></label>
   <div class="row"><label>Teléfono<input id="rgT" required autocomplete="tel"></label><label>Correo<input id="rgE" type="email" required autocomplete="email"></label></div>
   <div class="row"><label style="flex:1;min-width:160px">Crea tu contraseña<span class="pw"><input id="rgP" type="password" required autocomplete="new-password"><button type="button" class="btn s" data-a="verPw" data-v="rgP">Ver</button></span></label><label style="flex:1;min-width:160px">Repítela<input id="rgP2" type="password" required autocomplete="new-password"></label></div>
   <div class="sm muted">${REQ} Se guarda encriptada: nadie puede verla, ni la administración.</div>
-  <label class="chk"><input type="checkbox" id="rgC"> Declaro que mi licencia de corredor está vigente</label>
+  <label class="chk"><input type="checkbox" id="rgC"> ${UI.rgRol==="interno"?"Declaro que formo parte del equipo de colaboradores":"Declaro que mi licencia de corredor está vigente"}</label><div class="sm muted">Te llega un correo de que tu registro está en espera, y otro cuando la administración te apruebe.</div>
   ${r?`<div class="pill ${r.ok?"":"red"}" style="white-space:normal">${esc(r.m)}</div>`:""}
   <button class="btn p" type="submit">Enviar solicitud</button></form></div>
  <div class="lock sm" style="border-color:var(--line);color:var(--mute)">Acceso solo para colaboradores y corredores con licencia vigente aprobados por la administración. La administración puede pedirte copia de tu licencia.</div></div>`;
@@ -943,7 +944,7 @@ function vAdm(){
  const s=UI.sub;let b="";
  if(s==="cor"){
   const P=S.users.filter(x=>x.st==="Pendiente");
-  b=`<div class="grid g2"><div class="panel"><div class="row" style="justify-content:space-between;margin-bottom:6px"><span class="sm muted">Para crear usuarios o cambiar roles usa la pestaña Usuarios.</span>${canTab("usr")?`<button class="btn s" data-a="tab" data-v="usr">Ir a Usuarios</button>`:""}</div><h3 style="font-size:15px;margin-bottom:8px">Solicitudes de registro ${P.length?`<span class="pill red">${P.length}</span>`:""}</h3>${P.map(x=>`<div class="rw" style="margin-bottom:8px"><b>${esc(x.n)}</b><div class="sm muted">Licencia ${esc(x.lic)} · ${esc(x.tel)} · ${esc(x.em)}</div><div class="row"><button class="btn s p" data-a="ap" data-v="${x.id}" ${can("aprobar")?"":"disabled"}>Aprobar</button><button class="btn s d" data-a="rj" data-v="${x.id}" ${can("aprobar")?"":"disabled"}>Rechazar</button></div></div>`).join("")||`<p class="muted sm">No hay solicitudes pendientes.</p>`}</div>
+  b=`<div class="grid g2"><div class="panel"><div class="row" style="justify-content:space-between;margin-bottom:6px"><span class="sm muted">Para crear usuarios o cambiar roles usa la pestaña Usuarios.</span>${canTab("usr")?`<button class="btn s" data-a="tab" data-v="usr">Ir a Usuarios</button>`:""}</div><h3 style="font-size:15px;margin-bottom:8px">Solicitudes de registro ${P.length?`<span class="pill red">${P.length}</span>`:""}</h3>${P.map(x=>`<div class="rw" style="margin-bottom:8px"><b>${esc(x.n)}</b> <span class="pill ${x.rol==="interno"?"blue":"gold"}">${x.rol==="interno"?"Colaborador":"Corredor"}</span><div class="sm muted">${x.rol==="interno"?"Usuario":"Licencia"} ${esc(x.lic)} · ${esc(x.tel)} · ${esc(x.em)}</div><div class="row"><button class="btn s p" data-a="ap" data-v="${x.id}" ${can("aprobar")?"":"disabled"}>Aprobar</button><button class="btn s d" data-a="rj" data-v="${x.id}" ${can("aprobar")?"":"disabled"}>Rechazar</button></div></div>`).join("")||`<p class="muted sm">No hay solicitudes pendientes.</p>`}</div>
   <div class="panel"><h3 style="font-size:15px;margin-bottom:8px">Captar más corredores</h3><p class="sm muted">Mensaje de invitación para WhatsApp, Instagram o Facebook.</p><textarea id="inv" rows="6" style="width:100%">Corredores con licencia: accede a una cartera de propiedades con ficha técnica y avalúo a un clic, precios de oportunidad, comisión del 5% y premios por nivel. Regístrate con tu licencia en la sección Colaboradores.</textarea><div class="row" style="margin-top:8px"><button class="btn p" data-a="cpInv">Copiar</button><a class="btn wa" target="_blank" rel="noopener" href="${waLink("Corredores con licencia: accede a una cartera de propiedades con ficha técnica y avalúo a un clic, precios de oportunidad, comisión del 5% y premios por nivel. Regístrate con tu licencia en la sección Colaboradores.")}">WhatsApp</a></div></div></div>
   <div class="panel tbl" style="margin-top:14px"><table><thead><tr><th>Corredor</th><th>Licencia</th><th>Estado</th><th>Nivel</th><th>Puntos</th><th>Ventas</th><th></th></tr></thead><tbody>${S.users.filter(x=>x.rol==="corredor").map(x=>`<tr><td><b>${esc(x.n)}</b><div class="sm muted">${esc(x.tel||"")}</div></td><td class="num">${esc(x.lic)}</td><td><span class="pill ${x.st==="Activo"?"":"amber"}">${x.st}</span></td><td>${x.st==="Activo"?nivelU(x.id).n:"—"}</td><td class="num">${x.st==="Activo"?pts(x.id):"—"}</td><td class="num">${x.cie}</td><td>${x.st==="Activo"?`<button class="btn s" data-a="corDet" data-v="${x.id}">Detalle</button>`:""}</td></tr>`).join("")}</tbody></table></div>`;
  }
@@ -1013,6 +1014,7 @@ document.addEventListener("click",e=>{
  const b=e.target.closest("[data-a]");if(!b)return;const a=b.dataset.a,v=b.dataset.v;
  if((a==="closeInv"||a==="closeF"||a==="closeCopy"||a==="closeCli"||a==="closeVta"||a==="closeFirma"||a==="closeDet")&&e.target!==b&&b.classList.contains("ov"))return;
  if(a==="closeFirma"){UI.firmaEd=false;UI.firmaTmp=null;UI.volTmp=null;render(1);return}
+ if(a==="rgRol"){const keep=["rgN","rgL","rgT","rgE"].map(i=>[i,($("#"+i)||{}).value||""]);UI.rgRol=v;render();keep.forEach(([i,x])=>{const el=$("#"+i);if(el)el.value=x});return}
  if(a==="hotK"){hotMostrar(+v);return}
  if(a==="permDescartar"){UI.permP={};render(1);return}
  if(a==="permGuardar"){const P=UI.permP||{},L=Object.entries(P);if(!L.length)return;
@@ -1194,11 +1196,11 @@ document.addEventListener("submit",e=>{
    hashClave(n1).then(hh=>{u.ph=hh;u.cambiar=false;UI.mustChange=null;UI.err="";UI.me=u.id;if(!m.vol)UI.tab="hot";save();toast("Contraseña guardada");render()})});return}
  if(id==="fReg"){const l=$("#rgL").value.trim().toUpperCase(),pw=$("#rgP").value,pw2=$("#rgP2").value,nom=$("#rgN").value.trim(),tel=$("#rgT").value.trim(),em=$("#rgE").value.trim();
   const fail=m=>{UI.reg={ok:0,m};render()};
-  if(!l||!$("#rgC").checked)return fail("Escribe tu número de licencia y confirma que está vigente.");
+  const rol=UI.rgRol==="interno"?"interno":"corredor";if(!l||!$("#rgC").checked)return fail(rol==="interno"?"Escribe tu usuario y marca la casilla de confirmación.":"Escribe tu número de licencia y confirma que está vigente.");if(!em)return fail("Escribe tu correo: ahí te avisamos cuando te aprueben.");
   if(pw!==pw2)return fail("Las dos contraseñas no coinciden.");
   if(!claveOk(pw))return fail("La contraseña es muy corta. "+REQ);
-  const okMsg="Solicitud enviada. Cuando la administración la apruebe podrás entrar con tu licencia y la contraseña que creaste.";
-  if(sbOn()){sb.rpc("registrar_corredor",{p_lic:l,p_nombre:nom,p_tel:tel,p_email:em,p_pin:pw}).then(({error})=>{UI.reg=error?{ok:0,m:error.message.replace(/^.*?: /,"")}:{ok:1,m:okMsg};render()});return}
+  const okMsg=`Solicitud enviada. Te mandamos un correo a ${em} confirmando que tu registro está en espera de aprobación. Cuando la administración lo apruebe te llega otro correo y podrás entrar con tu ${rol==="interno"?"usuario":"licencia"} y la contraseña que creaste.`;
+  if(sbOn()){sb.rpc("registrar_usuario",{p_lic:l,p_nombre:nom,p_tel:tel,p_email:em,p_pin:pw,p_rol:rol}).then(({error})=>{UI.reg=error?{ok:0,m:error.message.replace(/^.*?: /,"")}:{ok:1,m:okMsg};render()});return}
   if(S.users.find(x=>x.lic&&x.lic.toUpperCase()===l))return fail("Esa licencia ya está registrada.");
   hashClave(pw).then(hh=>{S.users.push({id:"u"+Date.now(),ph:hh,cambiar:false,n:nom,rol:"corredor",lic:l,tel,em,st:"Pendiente",base:0,cie:0});save();UI.reg={ok:1,m:okMsg};render()});return}
  if(id==="fUsr"){const n=$("#nuN").value.trim(),l=$("#nuL").value.trim().toUpperCase(),r=$("#nuR").value,pin=$("#nuP").value.trim();
