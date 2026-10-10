@@ -500,7 +500,7 @@ function vMat(){
  <label>Foto de la propiedad<input type="file" id="mFoto" accept="image/*"></label><div class="sm muted">La foto se usa solo aquí, no se sube a ningún servidor.</div>
  <div class="sm" style="border-top:1px solid var(--line);padding-top:10px"><b>Datos en el diseño</b><div class="muted">${(()=>{const v=volData(u);return [v.n,v.lic,v.tel,v.extra].filter(Boolean).map(esc).join(" · ")})()}</div><div class="sm muted" style="margin-top:4px">Salen de tu registro. Cámbialos en <button type="button" class="btn s" data-a="miFirma">Mi firma</button></div></div></div>
  <div class="grid"><div class="panel grid"><canvas id="cv" width="1080" height="1080" aria-label="Vista previa del tizer"></canvas><div class="row"><button class="btn p" data-a="cpImg">Copiar imagen</button><span class="sm muted">Si no se copia, clic derecho sobre la imagen y Guardar imagen.</span></div>
- <label>Texto de la publicación<textarea id="cap" rows="8">${esc(caption(p,u,m.canal))}</textarea></label><div class="row"><button class="btn p" data-a="cpCap">Copiar texto</button><a class="btn wa" id="waCap" target="_blank" rel="noopener" href="${waLink(caption(p,u,"whatsapp"))}">Enviar por WhatsApp</a></div></div></div></div>
+ <label>Texto de la publicación<textarea id="cap" rows="8">${esc(caption(p,u,m.canal))}</textarea></label><div class="row"><button class="btn p" data-a="cpCap">Copiar texto</button><button class="btn wa" id="waCap" data-a="waImg">Enviar por WhatsApp con la imagen</button></div><div class="sm muted" id="waImgMsg">En el celular se abre WhatsApp con la imagen y el texto. En la computadora se abre WhatsApp con el texto y la imagen queda copiada: en el chat pégala con Ctrl+V.</div></div></div></div>
  <h3 style="margin:22px 0 8px">Plan semanal de publicaciones sugerido</h3><div class="grid g3">${plan.map(x=>`<div class="rw"><span class="sm muted">${x[0]}</span><b>${x[1]?esc(x[1].n):"Sin propiedad"}</b>${x[1]?`<button class="btn s" data-a="tizer" data-v="${x[1].c}">Crear tizer</button>`:""}</div>`).join("")}</div>${vLote()}`;
 }
 
@@ -1070,6 +1070,14 @@ document.addEventListener("click",e=>{
  else if(a==="ltZip"){if(!window.JSZip){toast("No se pudo cargar el compresor ZIP");return}const z=new JSZip();Promise.all(UI.lote.items.map(t=>fetch(t.url).then(r=>r.blob()).then(b=>z.file(`teaser-${t.c.replace(/[^A-Za-z0-9]+/g,"-")}.jpg`,b)))).then(()=>z.generateAsync({type:"blob"})).then(b=>{const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="teasers.zip";document.body.appendChild(a);a.click();a.remove();toast("Descargando teasers.zip")})}
  else if(a==="cpImg"){const c=$("#cv");c.toBlob(bl=>{try{navigator.clipboard.write([new ClipboardItem({"image/png":bl})]).then(()=>toast("Imagen copiada"),()=>toast("No se pudo copiar. Clic derecho sobre la imagen y Guardar imagen."))}catch(er){toast("No se pudo copiar. Clic derecho sobre la imagen y Guardar imagen.")}})}
  else if(a==="cpCap")clip($("#cap").value,"Texto copiado");
+ else if(a==="waImg"){const c=$("#cv");if(!c)return;const txt=($("#cap")||{}).value||"",pp=PR(UI.mat.p),name=`tizer-${(pp?pp.c:"propiedad").replace(/[^A-Za-z0-9]+/g,"-")}.png`;
+  const movil=/Android|iPhone|iPad|Mobile/i.test(navigator.userAgent);let puede=false;try{puede=movil&&!!navigator.canShare&&navigator.canShare({files:[new File([""],"x.png",{type:"image/png"})]})}catch(er){}
+  if(puede){c.toBlob(bl=>{if(!bl){toast("No se pudo preparar la imagen");return}const file=new File([bl],name,{type:"image/png"});
+    navigator.share({files:[file],text:txt}).catch(er=>{if(!er||er.name!=="AbortError"){bajar(bl,name);toast("No se pudo compartir: la imagen se descargó; adjúntala en WhatsApp")}})},"image/png");return}
+  const blobP=new Promise(res=>c.toBlob(res,"image/png"));let cop=null;
+  try{cop=navigator.clipboard.write([new ClipboardItem({"image/png":blobP})])}catch(er){cop=Promise.reject(er)}
+  window.open(waLink(txt),"_blank","noopener");
+  cop.then(()=>toast("Imagen copiada. En el chat de WhatsApp pégala con Ctrl+V; el texto ya va escrito."),()=>blobP.then(bl=>{if(bl)bajar(bl,name);toast("La imagen se descargó: en WhatsApp adjúntala con el clip; el texto ya va escrito.")}))}
  else if(a==="cpInv")clip($("#inv").value,"Mensaje copiado");
 });
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&(UI.ficha||UI.cliForm)){UI.ficha=null;UI.cliForm=false;render(1)}if((e.key==="Enter"||e.key===" ")&&e.target.classList&&e.target.classList.contains("card")){e.preventDefault();e.target.click()}});
