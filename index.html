@@ -156,8 +156,8 @@ const FOTOS={"F-1016":4,"F-10456":4,"F-10684":4,"F-114090":4,"F-118113":4,"F-125
 /* Sección Inversión oculta. Para volver a mostrarla, cambia false por true. */
 const MOSTRAR_INVERSION=false;
 const fotoGH=(p,k)=>`fotos/${p.c.replace(/[^A-Za-z0-9]+/g,"-").replace(/^-|-$/g,"")}/${k}.jpg`;
-const fotoN=p=>p?((p.fdb&&p.fdb.length)||0)+(FOTOS[p.c]||0):0;
-const fotoUrl=(p,k)=>{const d=(p&&p.fdb)||[];if(k===0)return d.length?d[0]:fotoGH(p,0);return k<=d.length?d[k-1]:fotoGH(p,k-d.length)};
+const fotoN=p=>p?((p.fdb&&p.fdb.length)||0)+(p.fbd?0:(FOTOS[p.c]||0)):0;
+const fotoUrl=(p,k)=>{const d=(p&&p.fdb)||[];if(k===0)return d.length?(p.fmini||d[0]):fotoGH(p,0);return k<=d.length?d[k-1]:fotoGH(p,k-d.length)};
 const GRIS="linear-gradient(#e4e8ee,#e4e8ee)";
 const bg=(p,big)=>fotoN(p)?(big?`url('${fotoUrl(p,1)}'), url('${fotoUrl(p,0)}'), ${GRIS}`:`url('${fotoUrl(p,0)}'), ${GRIS}`):art(p);
 const ART={};const art=p=>ART[p.c]||(ART[p.c]="url('data:image/svg+xml;charset=utf-8,"+encodeURIComponent(svgArt(p)).replace(/'/g,"%27")+"')");
@@ -233,7 +233,7 @@ let SB=null;
   const old=Object.fromEntries(PROPS.map(p=>[p.c,p]));
   PROPS=data.filter(r=>+r.precio_lista>0).map(r=>{const o=old[r.codigo]||{},lista=+r.precio_lista,of=r.precio_oferta!=null&&+r.precio_oferta<lista?+r.precio_oferta:null;
    return {c:r.codigo,finca:r.finca||o.finca||"",n:r.nombre||o.n||r.codigo,t:r.tipo||o.t||"Terreno",prov:r.provincia||o.prov||"",dist:r.corregimiento||o.dist||"",est:r.estado||o.est||"",lista,of,ofHasta:of?r.oferta_hasta||null:null,
-    m2:r.m2!=null?+r.m2:null,dsc:r.descripcion||o.dsc||"",inv:!!r.inversion,rent:o.rent??null,vis:0,con:0,hue:r.hue??o.hue??210,hot:!!r.hot,fdb:Array.isArray(r.fotos)?r.fotos.filter(x=>typeof x==="string"):[]}});
+    m2:r.m2!=null?+r.m2:null,dsc:r.descripcion||o.dsc||"",inv:!!r.inversion,rent:o.rent??null,vis:0,con:0,hue:r.hue??o.hue??210,hot:!!r.hot,fdb:Array.isArray(r.fotos)?r.fotos.filter(x=>typeof x==="string"):[],fbd:r.fotos_bd===true,fmini:r.foto_mini||null}});
   $("#cP").innerHTML="";$("#ci").innerHTML='<option value="">¿Qué te interesa?</option>';
   const keep=sel=>{const f=$(sel).options[0];$(sel).innerHTML="";$(sel).appendChild(f)};keep("#ft");keep("#fp");
   $("#ft").innerHTML+=[...new Set(PROPS.map(p=>p.t))].map(t=>`<option>${esc(t)}</option>`).join("");$("#fp").innerHTML+=[...new Set(PROPS.map(p=>p.prov))].map(t=>`<option>${esc(t)}</option>`).join("");

@@ -185,7 +185,7 @@ function sesBorrar(){try{localStorage.removeItem(SESKEY)}catch(e){}}
 function sesLeer(){try{const x=JSON.parse(localStorage.getItem(SESKEY)||"null");return x&&x.lic&&x.tok?x:null}catch(e){return null}}
 function sesTomar(lic,data,pw){CRED.lic=lic;if(data&&data.token){CRED.pin="tok:"+data.token;sesGuardar()}else CRED.pin=pw}
 function sesFin(msg){CRED.lic=CRED.pin=null;UI.difSel=null;UI.difDest="clientes";sesBorrar();UI.me=null;UI.mustChange=null;UI.ficha=null;UI.cliForm=null;UI.firmaEd=false;UI.corDet=null;if(msg)UI.err=msg;Object.assign(S,{clientes:[],leads:[],log:[],canjes:[],reqs:[],views:[],users:[]});save();if(sb)sbLoad().then(()=>render());render()}
-function fromRow(r){return {c:r.codigo,finca:r.finca,n:r.nombre,t:r.tipo,prov:r.provincia||"",dist:r.corregimiento||"",est:r.estado,lista:r.precio_lista!=null&&+r.precio_lista>0?+r.precio_lista:null,of:r.precio_oferta!=null?+r.precio_oferta:null,ofHasta:r.oferta_hasta,m2:r.m2!=null?+r.m2:null,av:r.avaluo!=null?+r.avaluo:null,avd:r.avaluo_fecha,dsc:r.descripcion||"",inv:!!r.inversion,rent:null,vis:0,con:0,enc:r.encargada||"Por asignar",man:r.manejo||"Abierta",hue:r.hue||200,hot:!!r.hot,camp:r.campana||null,ofNom:r.oferta_nombre||null,ofDesde:r.oferta_desde||null,ced:r.cedida,lanz:r.lanzamiento,avu:r.avaluo_url||null,fdb:Array.isArray(r.fotos)?r.fotos:[],cpor:r.creado_por||"",cen:r.creado_en||null,epor:r.editado_por||"",een:r.editado_en||null,int:{g:+(r.costo_indirecto||0),gd:r.avaluo_fecha?Math.max(0,Math.round((NOW-new Date(r.avaluo_fecha+"T00:00"))/DAY)):null,li:r.valor_libros!=null?+r.valor_libros:null,vr:r.venta_rapida!=null?+r.venta_rapida:null,ref:r.ref_avaluo||"",sug:r.valor_sugerido!=null?+r.valor_sugerido:null}}}
+function fromRow(r){return {c:r.codigo,finca:r.finca,n:r.nombre,t:r.tipo,prov:r.provincia||"",dist:r.corregimiento||"",est:r.estado,lista:r.precio_lista!=null&&+r.precio_lista>0?+r.precio_lista:null,of:r.precio_oferta!=null?+r.precio_oferta:null,ofHasta:r.oferta_hasta,m2:r.m2!=null?+r.m2:null,av:r.avaluo!=null?+r.avaluo:null,avd:r.avaluo_fecha,dsc:r.descripcion||"",inv:!!r.inversion,rent:null,vis:0,con:0,enc:r.encargada||"Por asignar",man:r.manejo||"Abierta",hue:r.hue||200,hot:!!r.hot,camp:r.campana||null,ofNom:r.oferta_nombre||null,ofDesde:r.oferta_desde||null,ced:r.cedida,lanz:r.lanzamiento,avu:r.avaluo_url||null,fdb:Array.isArray(r.fotos)?r.fotos:[],fbd:r.fotos_bd===true,cpor:r.creado_por||"",cen:r.creado_en||null,epor:r.editado_por||"",een:r.editado_en||null,int:{g:+(r.costo_indirecto||0),gd:r.avaluo_fecha?Math.max(0,Math.round((NOW-new Date(r.avaluo_fecha+"T00:00"))/DAY)):null,li:r.valor_libros!=null?+r.valor_libros:null,vr:r.venta_rapida!=null?+r.venta_rapida:null,ref:r.ref_avaluo||"",sug:r.valor_sugerido!=null?+r.valor_sugerido:null}}}
 async function sbLoad(){if(!sb)return false;
  const old=Object.fromEntries(S.props.map(p=>[p.c,p]));const keep=p=>{if(old[p.c]){p.vis=old[p.c].vis;p.con=old[p.c].con}return p};
  if(!CRED.lic){const {data,error}=await sb.from("propiedades_publicas").select("*");if(error){toast("Base de datos: "+error.message);return false}S.props=data.map(r=>keep(fromRow(r)));save();return true}
@@ -235,7 +235,7 @@ const TABPERM={ofe:"precios",usr:"usuarios",edit:"editar"};
 const P0={administrador:{...ALL},coadmin:{...ALL,perm:false,precios:false,usuarios:false,int:false},corredor:{hot:1,props:1,cli:1,seg:1,rec:1,mat:1,dif:1,inv:1,arq:1},interno:{hot:1,props:1,inv:1,mat:1}};
 
 const FOTOS={"F-1016":4,"F-10456":4,"F-10684":4,"F-114090":4,"F-118113":4,"F-12593":4,"F-13333":4,"F-137666":4,"F-147116":3,"F-15350":4,"F-15554":4,"F-15627":4,"F-15757":4,"F-15758,  16675":4,"F-159989":4,"F-16037":4,"F-187538":2,"F-18986":4,"F-19442":4,"F-195381":3,"F-197279":4,"F-20602":4,"F-20811, 20812":4,"F-2091":4,"F-211149":4,"F-21141":4,"F-21897":4,"F-21968":4,"F-225650":4,"F-229295":4,"F-23384":4,"F-234726":3,"F-24144":4,"F-24147":4,"F-243052":4,"F-24466":3,"F-24669":4,"F-252662":3,"F-253274":4,"F-25332":4,"F-25529":4,"F-258344":4,"F-259939":4,"F-26094":4,"F-26095":4,"F-268596":4,"F-27540":4,"F-27847":4,"F-279652":4,"F-284025":4,"F-28762, 28763, 28764":4,"F-28773":2,"F-291629":4,"F-29561":2,"F-29705":3,"F-30131248":4,"F-30132049":2,"F-30132050":2,"F-30132898":4,"F-30141822":4,"F-30143950":4,"F-30148850":2,"F-30152742":4,"F-30158750":4,"F-30159213":4,"F-30166375":4,"F-30166430":4,"F-30169212":3,"F-30172189":4,"F-30185655":4,"F-30191084":4,"F-30202702":4,"F-30203718":4,"F-30204250":4,"F-30204252":4,"F-30218033":4,"F-30221649":4,"F-30236643":3,"F-30237125":4,"F-316321-44123":4,"F-316712":4,"F-318519":4,"F-319488":4,"F-322012":4,"F-32392":2,"F-325358":4,"F-338003":4,"F-34187":4,"F-34249":4,"F-34676":2,"F-35167":4,"F-351921":4,"F-359993":2,"F-36252":4,"F-372960":4,"F-38180":4,"F-38330":4,"F-391302":4,"F-39517":4,"F-39735":4,"F-397673":4,"F-41873":4,"F-420729":4,"F-425381":4,"F-441470":4,"F-44378, 13460":4,"F-463855":3,"F-46852":3,"F-469154":4,"F-47877":4,"F-483209":4,"F-49640":4,"F-50432":4,"F-51584":4,"F-52727":3,"F-55075":4,"F-55178":4,"F-55232- 318968":4,"F-55660":4,"F-57161":4,"F-57792":2,"F-58908":4,"F-6024":4,"F-64084":3,"F-71227":4,"F-75381":4,"F-75609":4,"F-85132":4,"F-89344":4,"F-90225":4,"F-9089":3,"F-91575":4,"F-9718":4};
-function pickHot(ps){const ok=p=>VENDIBLE.includes(p.est)&&p.of;const L=ps.filter(p=>ok(p)&&FOTOS[p.c]).sort((a,b)=>(a.of/a.lista)-(b.of/b.lista));ps.forEach(p=>p.hot=false);L.slice(0,10).forEach(p=>p.hot=true);return ps}
+function pickHot(ps){const ok=p=>VENDIBLE.includes(p.est)&&p.of;const L=ps.filter(p=>ok(p)&&fotoN(p)).sort((a,b)=>(a.of/a.lista)-(b.of/b.lista));ps.forEach(p=>p.hot=false);L.slice(0,10).forEach(p=>p.hot=true);return ps}
 function seed(){
  const P=(c,n,t,prov,dist,est,lista,of,dias,m2,av,avd,dsc,inv,rent,vis,con,enc,man,hue,hot,g,gd,li)=>({c,n,t,prov,dist,est,lista,of,ofHasta:of?plus(dias):null,m2,av,avd,dsc,inv,rent,vis,con,enc,man,hue,hot,int:{g,gd,li}});
  return {
@@ -290,8 +290,8 @@ function svgArt(p){
 }
 const ART={};const art=p=>ART[p.c]||(ART[p.c]="url('data:image/svg+xml;charset=utf-8,"+encodeURIComponent(svgArt(p)).replace(/'/g,"%27")+"')");
 const fotoGH=(p,k)=>`fotos/${p.c.replace(/[^A-Za-z0-9]+/g,"-").replace(/^-|-$/g,"")}/${k}.jpg`;
-const fotoN=p=>p?((p.fdb&&p.fdb.length)||0)+(FOTOS[p.c]||0):0;
-const fotoUrl=(p,k)=>{const d=(p&&p.fdb)||[];if(k===0)return d.length?d[0].url:fotoGH(p,0);return k<=d.length?d[k-1].url:fotoGH(p,k-d.length)};
+const fotoN=p=>p?((p.fdb&&p.fdb.length)||0)+(p.fbd?0:(FOTOS[p.c]||0)):0;
+const fotoUrl=(p,k)=>{const d=(p&&p.fdb)||[];if(k===0)return d.length?(d[0].mini||d[0].url):fotoGH(p,0);return k<=d.length?d[k-1].url:fotoGH(p,k-d.length)};
 const hue=(p,big)=>!p?"background:linear-gradient(160deg,#061236,#0a1f5c 55%,#10307f)":fotoN(p)?`background:url('${fotoUrl(p,big?1:0)}') center/cover no-repeat, ${big?`url('${fotoUrl(p,0)}') center/cover no-repeat, `:""}#e4e8ee`:`background:${art(p)} center/cover no-repeat`;
 const score=p=>vis(p)+p.con*3+off(p)*2;
 function toast(t){const e=$("#toast");e.textContent=t;e.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>e.hidden=true,Math.max(2400,String(t).length*55))}
@@ -728,11 +728,13 @@ function vEdit(){if(!sbOn())return `<div class="lock">El inventario necesita la 
 function vInvEd(){const ed=UI.inv.ed,nuevo=ed==="nuevo",p=nuevo?{}:PR(ed)||{};const I=p.int||{},ci=can("int"),cp=nuevo||can("precios");
  const tipos=[...new Set(TIPOS_BASE.concat(S.props.map(x=>x.t)).filter(Boolean))];
  const fv=v=>v==null?"":esc(String(v));
- const fotos=nuevo?"":`<div class="panel" style="margin-top:12px"><div class="row" style="justify-content:space-between;align-items:center"><b>Fotos</b><span class="sm muted">La primera es la portada. JPG o PNG; se ajustan solas a 1600 px.</span></div>
-   <div class="gal" style="margin-top:10px;display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px">
-   ${(p.fdb||[]).map((f,i)=>`<div style="border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--panel)"><div style="aspect-ratio:4/3;background:url('${esc(f.url)}') center/cover"></div><div class="row" style="gap:4px;padding:6px">${i?`<button type="button" class="btn s" data-a="fotoP" data-v="${f.id}">Portada</button>`:`<span class="pill">Portada</span>`}<button type="button" class="btn s d" data-a="fotoQ" data-v="${f.id}">Quitar</button></div></div>`).join("")}
-   ${[...Array(FOTOS[p.c]||0)].map((_,i)=>`<div style="border:1px solid var(--line);border-radius:10px;overflow:hidden;opacity:.85"><div style="aspect-ratio:4/3;background:url('${fotoGH(p,i+1)}') center/cover"></div><div class="sm muted" style="padding:6px">Foto del avalúo</div></div>`).join("")}
-   <label style="border:2px dashed var(--line);border-radius:10px;display:grid;place-items:center;text-align:center;min-height:120px;cursor:pointer;padding:10px" class="sm"><input type="file" id="invFotos" accept="image/jpeg,image/png,image/webp" multiple hidden><span><b style="font-size:22px">+</b><br>Subir fotos</span></label></div>
+ const fotos=nuevo?"":`<div class="panel" style="margin-top:12px"><div class="row" style="justify-content:space-between;align-items:center"><b>Fotos</b><span class="sm muted">La primera es la portada. ◀ ▶ cambian el orden; «Cambiar» la reemplaza por otra. JPG o PNG.</span></div>
+   <div class="gal" style="margin-top:10px;display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px">
+   ${(()=>{const d=p.fdb||[],n=d.length;return d.map((f,i)=>`<div style="border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--panel);display:flex;flex-direction:column"><div style="aspect-ratio:4/3;background:url('${esc(f.url)}') center/cover;position:relative">${i?"":`<span class="pill" style="position:absolute;left:6px;top:6px">Portada</span>`}</div>
+    <div class="row" style="gap:4px;padding:6px 6px 0;flex-wrap:nowrap"><button type="button" class="btn s" data-a="fotoL" data-v="${f.id}" ${i?"":"disabled"} title="Mover a la izquierda" aria-label="Mover a la izquierda">◀</button><button type="button" class="btn s" data-a="fotoR" data-v="${f.id}" ${i<n-1?"":"disabled"} title="Mover a la derecha" aria-label="Mover a la derecha">▶</button>${i?`<button type="button" class="btn s" data-a="fotoP" data-v="${f.id}" style="flex:1">Portada</button>`:""}</div>
+    <div class="row" style="gap:4px;padding:6px;flex-wrap:nowrap"><button type="button" class="btn s" data-a="fotoC" data-v="${f.id}" style="flex:1">Cambiar</button><button type="button" class="btn s d" data-a="fotoQ" data-v="${f.id}" style="flex:1">Borrar</button></div></div>`).join("")})()}
+   ${p.fbd?"":[...Array(FOTOS[p.c]||0)].map((_,i)=>`<div style="border:1px solid var(--line);border-radius:10px;overflow:hidden;opacity:.85"><div style="aspect-ratio:4/3;background:url('${fotoGH(p,i+1)}') center/cover"></div><div class="sm muted" style="padding:6px">Foto del avalúo · para cambiarla corre el SQL nuevo</div></div>`).join("")}
+   <label style="border:2px dashed var(--line);border-radius:10px;display:grid;place-items:center;text-align:center;min-height:120px;cursor:pointer;padding:10px" class="sm"><input type="file" id="invFotos" accept="image/jpeg,image/png,image/webp" multiple hidden><input type="file" id="invRep" accept="image/jpeg,image/png,image/webp" hidden><span><b style="font-size:22px">+</b><br>Subir fotos</span></label></div>
    ${UI.inv.msg?`<div class="sm" style="margin-top:8px">${esc(UI.inv.msg)}</div>`:""}</div>`;
  return `<div class="ov" data-a="closeInv"><form class="dlg" id="fInv" role="dialog" aria-modal="true" aria-label="${nuevo?"Nueva propiedad":"Editar "+esc(ed)}">
  <div style="background:var(--brand);color:var(--brand-ink);padding:14px 18px;display:flex;justify-content:space-between;align-items:center"><b style="font:700 18px var(--f-d)">${nuevo?"Nueva propiedad":"Editar "+esc(ed)}</b><button type="button" class="btn s" data-a="closeInv" style="background:transparent;color:inherit;border-color:rgba(255,255,255,.4)">Cerrar</button></div>
@@ -757,13 +759,13 @@ function vInvEd(){const ed=UI.inv.ed,nuevo=ed==="nuevo",p=nuevo?{}:PR(ed)||{};co
  </div></form></div>`}
 async function reducirFoto(file){const bmp=await createImageBitmap(file);const k=Math.min(1,1600/Math.max(bmp.width,bmp.height));const c=document.createElement("canvas");c.width=Math.round(bmp.width*k);c.height=Math.round(bmp.height*k);
  c.getContext("2d").drawImage(bmp,0,0,c.width,c.height);return await new Promise(r=>c.toBlob(r,"image/jpeg",.85))}
-async function subirFotos(cod,files){const fs=[...files].filter(f=>/^image\//.test(f.type));if(!fs.length)return;UI.inv.busy=true;
+async function subirFotos(cod,files,reemplaza){const fs=[...files].filter(f=>/^image\//.test(f.type));if(!fs.length)return;UI.inv.busy=true;
  try{const b=await rpc("boleto_subida",{p_codigo:cod});let n=0;
   for(const f of fs){UI.inv.msg=`Subiendo foto ${n+1} de ${fs.length}…`;render(1);
    const blob=await reducirFoto(f);const path=`${b}/${Date.now()}-${n}.jpg`;
    const {error}=await sb.storage.from("fotos").upload(path,blob,{contentType:"image/jpeg",upsert:false});if(error)throw new Error(error.message||"No se pudo subir la foto");
-   const url=sb.storage.from("fotos").getPublicUrl(path).data.publicUrl;await rpc("registrar_foto",{p_codigo:cod,p_ruta:path,p_url:url});n++}
-  UI.inv.msg=`${n} ${n===1?"foto subida":"fotos subidas"}.`;await sbLoad();toast(UI.inv.msg)}
+   const url=sb.storage.from("fotos").getPublicUrl(path).data.publicUrl;const nid=await rpc("registrar_foto",{p_codigo:cod,p_ruta:path,p_url:url});if(reemplaza)await rpc("foto_reemplazar",{p_vieja:reemplaza,p_nueva:nid});n++}
+  UI.inv.msg=reemplaza?"Foto cambiada.":`${n} ${n===1?"foto subida":"fotos subidas"}.`;await sbLoad();toast(UI.inv.msg)}
  catch(e){UI.inv.msg="No se pudo subir: "+(e.message||e);toast(UI.inv.msg)}
  UI.inv.busy=false;render(1)}
 
@@ -855,8 +857,10 @@ document.addEventListener("click",e=>{
  if(a==="closeInv"){if(UI.inv.busy)return;UI.inv.ed=null;UI.inv.msg="";render(1);return}
  if(a==="invNew"){UI.inv.ed="nuevo";UI.inv.msg="";render(1);return}
  if(a==="invEd"){UI.inv.ed=v;UI.inv.msg="";render(1);return}
- if((a==="fotoQ"||a==="fotoP")&&sbOn()){if(a==="fotoQ"&&!confirm("¿Quitar esta foto? Deja de verse en el portal y en la página pública."))return;
-  rpc("foto_accion",{p_id:+v,p_accion:a==="fotoQ"?"quitar":"portada"}).then(()=>sbLoad()).then(()=>{toast(a==="fotoQ"?"Foto quitada":"Foto puesta como portada");render(1)}).catch(()=>{});return}
+ if(a==="fotoC"&&sbOn()){if(UI.inv.busy)return;UI.inv.rep=+v;const i=$("#invRep");if(i){i.value="";i.click()}return}
+ if(["fotoQ","fotoP","fotoL","fotoR"].includes(a)&&sbOn()){if(UI.inv.busy)return;if(a==="fotoQ"&&!confirm("¿Borrar esta foto? Deja de verse en el portal y en la página pública."))return;
+  const acc={fotoQ:"quitar",fotoP:"portada",fotoL:"izq",fotoR:"der"}[a],msj={fotoQ:"Foto borrada",fotoP:"Foto puesta como portada",fotoL:"Foto movida",fotoR:"Foto movida"}[a];
+  UI.inv.busy=true;rpc("foto_accion",{p_id:+v,p_accion:acc}).then(()=>sbLoad()).then(()=>{UI.inv.msg="";toast(msj)}).catch(()=>{}).finally(()=>{UI.inv.busy=false;render(1)});return}
  if(a==="tab"){UI.tab=v;render();scrollTo(0,0)}
  else if(a==="ofSet"){UI.of[b.dataset.k]=v==="true"?true:v==="false"?false:v;UI.of.conf=false;if(b.dataset.k==="modo"){UI.of.val=v==="pct"?10:v==="fijo"?5000:50000;UI.of.over={}}render(1)}
  else if(a==="ofAll"){ofFilt().forEach(p=>UI.of.sel[p.c]=true);UI.of.conf=false;render(1)}
@@ -1003,6 +1007,7 @@ document.addEventListener("input",e=>{const t=e.target;
 document.addEventListener("change",e=>{
  if(e.target.dataset&&e.target.dataset.f==="invE"){UI.inv.est=e.target.value;render(1);return}
  if(e.target.id==="invFotos"){const fl=e.target.files;if(fl&&fl.length&&UI.inv.ed&&UI.inv.ed!=="nuevo")subirFotos(UI.inv.ed,fl);return}
+ if(e.target.id==="invRep"){const fl=e.target.files;if(fl&&fl.length&&UI.inv.rep&&UI.inv.ed&&UI.inv.ed!=="nuevo")subirFotos(UI.inv.ed,[fl[0]],UI.inv.rep);UI.inv.rep=null;return}
  const t=e.target,f=t.dataset.f,id=t.id;
  if(id==="swUser"){UI.me=t.value;UI.ficha=null;render()}
  else if(id==="ft"){UI.tipo=t.value;render(1)}else if(id==="fp"){UI.prov=t.value;render(1)}else if(id==="fm"){UI.max=t.value;render(1)}else if(id==="fo"){UI.soloOf=t.checked;render(1)}else if(id==="fi"){UI.soloInv=t.checked;render(1)}
