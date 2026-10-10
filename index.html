@@ -125,7 +125,7 @@ footer{padding:28px 0 48px;color:var(--mute);font-size:13px;border-top:1px solid
 <section class="alt" id="como"><div class="wrap"><div class="sec-h"><div><span class="eyebrow">Proceso</span><h2>Cómo comprar</h2><p>Cuatro pasos, con un corredor con licencia acompañándote en cada uno.</p></div></div>
 <div class="steps"><div class="step"><div class="n">1</div><h3>Elige y agenda</h3><p>Escoge la propiedad y coordina la visita por WhatsApp con un corredor acreditado.</p></div><div class="step"><div class="n">2</div><h3>Revisa la ficha</h3><p>Recibes la ficha técnica, el avalúo y la situación legal de la propiedad antes de ofertar.</p></div><div class="step"><div class="n">3</div><h3>Presenta tu oferta</h3><p>Puedes pagar de contado o con financiamiento. Te orientamos con el banco.</p></div><div class="step"><div class="n">4</div><h3>Firma y recibe</h3><p>Promesa de compraventa, escritura e inscripción en el Registro Público. Entrega de llaves.</p></div></div></div></section>
 
-<section id="contacto"><div class="wrap"><div class="cta"><div><span class="eyebrow" style="color:var(--gold-l)">Contacto</span><h2>¿Te interesa una propiedad? Te llamamos.</h2><p>Déjanos tus datos y un corredor con licencia te contacta el mismo día. También puedes escribirnos directo por WhatsApp.</p><div style="margin-top:16px"><a class="btn wa" id="waMain" target="_blank" rel="noopener" href="#">Escribir por WhatsApp</a></div></div>
+<section id="contacto"><div class="wrap"><div class="cta"><div><span class="eyebrow" style="color:var(--gold-l)">Contacto</span><h2>¿Te interesa una propiedad? Te llamamos.</h2><p>Déjanos tus datos y un corredor con licencia te contacta el mismo día. También puedes escribirnos directo por WhatsApp.</p><div style="margin-top:16px"><a class="btn wa" id="waMain" target="_blank" rel="noopener" href="#">Escribir por WhatsApp</a><a class="btn w" id="waCanal" hidden target="_blank" rel="noopener" href="#" style="margin-left:8px">Seguir nuestro canal de WhatsApp</a></div></div>
 <form id="fc"><input id="cn" placeholder="Nombre" required><input id="ct" type="tel" placeholder="Teléfono" autocomplete="tel"><input id="ce" type="email" placeholder="Correo electrónico" autocomplete="email"><select id="ci"><option value="">¿Qué te interesa?</option></select><button class="btn w" type="submit">Quiero que me contacten</button><span id="cmsg" style="font-size:13px;color:var(--gold-l)"></span></form></div></div></section>
 
 <footer><div class="wrap" style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center"><span class="logo" style="font-size:15px"><span class="mark" style="width:30px;height:30px"><svg viewBox="0 0 64 64" role="img" aria-label="Logotipo"><defs><linearGradient id="lg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#10307f"/><stop offset="1" stop-color="#050f33"/></linearGradient><linearGradient id="lg2" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#d4a62a"/><stop offset="1" stop-color="#f6d27a"/></linearGradient></defs><rect x="2" y="2" width="60" height="60" rx="16" fill="url(#lg1)"/><rect x="2.75" y="2.75" width="58.5" height="58.5" rx="15.5" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="1.5"/><path d="M14 36 L32 18 L50 36" fill="none" stroke="#fff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 33 V47 H44 V33" fill="none" stroke="#fff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" opacity=".92"/><path d="M26 41 L31 36 L35 39 L42 31" fill="none" stroke="url(#lg2)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M37 30 H43 V36" fill="none" stroke="url(#lg2)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Propiedades, oportunidades de inversión y negocios</span><span>Precios en balboas (B/.). Las propiedades en trámite legal no se publican.</span><a class="flink" href="colaboradores.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Acceso colaboradores</a></div></footer>
@@ -212,6 +212,10 @@ $("#fc").addEventListener("submit",async e=>{e.preventDefault();const n=$("#cn")
  window.open(WA+encodeURIComponent(`Hola, soy ${n} (${via}). ${nota?nota+". ":""}Quiero que me contacten.`),"_blank","noopener");$("#cmsg").textContent="Te abrimos WhatsApp para enviar tu solicitud.";$("#fc").reset()});
 $("#ft").innerHTML+=[...new Set(PROPS.map(p=>p.t))].map(t=>`<option>${t}</option>`).join("");$("#fp").innerHTML+=[...new Set(PROPS.map(p=>p.prov))].map(t=>`<option>${t}</option>`).join("");
 render();
+/* Enlace directo a una ficha: index.html?p=F-12345 (lo usan los textos de difusión) */
+let DEEP=null;try{DEEP=new URLSearchParams(location.search).get("p")}catch(e){}
+function abrirDeep(){if(DEEP&&PROPS.find(x=>x.c===DEEP)){const c=DEEP;DEEP=null;ficha(c)}}
+abrirDeep();
 /* Secciones: cada opción del menú muestra solo su sección (Propiedades, Inversión, Negocios, Cómo comprar, Contacto) */
 const VISTAS=["catalogo","inversion","negocios","como","contacto"].filter(v=>MOSTRAR_INVERSION||v!=="inversion");
 if(!MOSTRAR_INVERSION){const sec=document.getElementById("inversion");if(sec)sec.hidden=true;document.querySelectorAll('a[href="#inversion"]').forEach(a=>a.remove())}
@@ -229,6 +233,7 @@ let SB=null;
 (function(){const u=(CFG.supabaseUrl||"").trim(),k=(CFG.supabaseAnonKey||"").trim();if(!u||!k)return;
  const sc=document.createElement("script");sc.src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js";
  sc.onload=async()=>{try{SB=window.supabase.createClient(u,k);
+  SB.rpc("config_publica").then(({data})=>{if(data&&data.wa_canal){const x=$("#waCanal");x.href=data.wa_canal;x.hidden=false}}).catch(()=>{});
   const {data,error}=await SB.from("propiedades_publicas").select("*");if(error||!Array.isArray(data)||!data.length)return;
   const old=Object.fromEntries(PROPS.map(p=>[p.c,p]));
   PROPS=data.filter(r=>+r.precio_lista>0).map(r=>{const o=old[r.codigo]||{},lista=+r.precio_lista,of=r.precio_oferta!=null&&+r.precio_oferta<lista?+r.precio_oferta:null;
@@ -237,7 +242,7 @@ let SB=null;
   $("#cP").innerHTML="";$("#ci").innerHTML='<option value="">¿Qué te interesa?</option>';
   const keep=sel=>{const f=$(sel).options[0];$(sel).innerHTML="";$(sel).appendChild(f)};keep("#ft");keep("#fp");
   $("#ft").innerHTML+=[...new Set(PROPS.map(p=>p.t))].map(t=>`<option>${esc(t)}</option>`).join("");$("#fp").innerHTML+=[...new Set(PROPS.map(p=>p.prov))].map(t=>`<option>${esc(t)}</option>`).join("");
-  render()}catch(e){}};
+  render();abrirDeep()}catch(e){}};
  document.head.appendChild(sc)})();
 </script>
 
