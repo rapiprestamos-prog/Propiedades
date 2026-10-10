@@ -185,7 +185,7 @@ function sesBorrar(){try{localStorage.removeItem(SESKEY)}catch(e){}}
 function sesLeer(){try{const x=JSON.parse(localStorage.getItem(SESKEY)||"null");return x&&x.lic&&x.tok?x:null}catch(e){return null}}
 function sesTomar(lic,data,pw){CRED.lic=lic;if(data&&data.token){CRED.pin="tok:"+data.token;sesGuardar()}else CRED.pin=pw}
 function sesFin(msg){CRED.lic=CRED.pin=null;UI.difSel=null;UI.difDest="clientes";sesBorrar();UI.me=null;UI.mustChange=null;UI.ficha=null;UI.cliForm=null;UI.firmaEd=false;UI.corDet=null;if(msg)UI.err=msg;Object.assign(S,{clientes:[],leads:[],log:[],canjes:[],reqs:[],views:[],users:[]});save();if(sb)sbLoad().then(()=>render());render()}
-function fromRow(r){return {c:r.codigo,finca:r.finca,n:r.nombre,t:r.tipo,prov:r.provincia||"",dist:r.corregimiento||"",est:r.estado,lista:r.precio_lista!=null&&+r.precio_lista>0?+r.precio_lista:null,of:r.precio_oferta!=null?+r.precio_oferta:null,ofHasta:r.oferta_hasta,m2:r.m2!=null?+r.m2:null,av:r.avaluo!=null?+r.avaluo:null,avd:r.avaluo_fecha,dsc:r.descripcion||"",inv:!!r.inversion,rent:null,vis:0,con:0,enc:r.encargada||"Por asignar",man:r.manejo||"Abierta",hue:r.hue||200,hot:!!r.hot,camp:r.campana||null,ofNom:r.oferta_nombre||null,ofDesde:r.oferta_desde||null,ced:r.cedida,lanz:r.lanzamiento,avu:r.avaluo_url||null,int:{g:+(r.costo_indirecto||0),gd:r.avaluo_fecha?Math.max(0,Math.round((NOW-new Date(r.avaluo_fecha+"T00:00"))/DAY)):null,li:r.valor_libros!=null?+r.valor_libros:null,vr:r.venta_rapida!=null?+r.venta_rapida:null,ref:r.ref_avaluo||"",sug:r.valor_sugerido!=null?+r.valor_sugerido:null}}}
+function fromRow(r){return {c:r.codigo,finca:r.finca,n:r.nombre,t:r.tipo,prov:r.provincia||"",dist:r.corregimiento||"",est:r.estado,lista:r.precio_lista!=null&&+r.precio_lista>0?+r.precio_lista:null,of:r.precio_oferta!=null?+r.precio_oferta:null,ofHasta:r.oferta_hasta,m2:r.m2!=null?+r.m2:null,av:r.avaluo!=null?+r.avaluo:null,avd:r.avaluo_fecha,dsc:r.descripcion||"",inv:!!r.inversion,rent:null,vis:0,con:0,enc:r.encargada||"Por asignar",man:r.manejo||"Abierta",hue:r.hue||200,hot:!!r.hot,camp:r.campana||null,ofNom:r.oferta_nombre||null,ofDesde:r.oferta_desde||null,ced:r.cedida,lanz:r.lanzamiento,avu:r.avaluo_url||null,fdb:Array.isArray(r.fotos)?r.fotos:[],cpor:r.creado_por||"",cen:r.creado_en||null,epor:r.editado_por||"",een:r.editado_en||null,int:{g:+(r.costo_indirecto||0),gd:r.avaluo_fecha?Math.max(0,Math.round((NOW-new Date(r.avaluo_fecha+"T00:00"))/DAY)):null,li:r.valor_libros!=null?+r.valor_libros:null,vr:r.venta_rapida!=null?+r.venta_rapida:null,ref:r.ref_avaluo||"",sug:r.valor_sugerido!=null?+r.valor_sugerido:null}}}
 async function sbLoad(){if(!sb)return false;
  const old=Object.fromEntries(S.props.map(p=>[p.c,p]));const keep=p=>{if(old[p.c]){p.vis=old[p.c].vis;p.con=old[p.c].con}return p};
  if(!CRED.lic){const {data,error}=await sb.from("propiedades_publicas").select("*");if(error){toast("Base de datos: "+error.message);return false}S.props=data.map(r=>keep(fromRow(r)));save();return true}
@@ -226,12 +226,12 @@ const ETAPAS=[["nuevo","Nuevo contacto",0],["contactado","Contactado",0],["visit
 /* Cupones que se canjean con puntos (visitas +10, ofertas +50, ventas +300). */
 const PREMIOS=[{id:"r1",n:"Tarjeta de combustible B/. 25",d:"Estación a elección",p:250,ico:"⛽",c:"#2a6cc0"},{id:"r2",n:"Tarjeta de supermercado B/. 50",d:"Supermercado a elección",p:500,ico:"🛒",c:"#0f5c4c"},{id:"r3",n:"Cena para dos",d:"Restaurante aliado en la ciudad",p:800,ico:"🍽",c:"#8a4b33"},{id:"r4",n:"Tarjeta de regalo B/. 100",d:"Tienda a elección",p:1200,ico:"🎁",c:"#b8860b"}];
 const premioN=id=>{const r=PREMIOS.find(x=>x.id===id)||(NIVELES.find(l=>l.premio&&l.premio.id===id)||{}).premio;return r?r.n:id};
-const TABS=[["hot","Hot list"],["ofe","Ofertas y rebajas"],["props","Propiedades"],["cli","Clientes"],["seg","Seguimiento"],["rec","Mi nivel y premios"],["mat","Tizers y redes"],["dif","Difusión masiva"],["inv","Inversión"],["usr","Usuarios"],["adm","Administración"],["perm","Permisos"],["arq","Cómo se conecta"]];
-const PERMS=[["hot","Hot list"],["props","Propiedades"],["cli","Clientes"],["seg","Seguimiento"],["rec","Mi nivel y premios"],["mat","Tizers y redes"],["dif","Difusión masiva"],["inv","Inversión"],["adm","Administración"],["perm","Permisos"],["arq","Cómo se conecta"],["int","Ver datos internos"],["precios","Ofrecer rebajas y cambiar precios"],["usuarios","Crear y editar usuarios"],["noventa","Ver propiedades no vendibles"],["aprobar","Aprobar corredores"],["segall","Ver seguimiento de todos"]];
+const TABS=[["hot","Hot list"],["ofe","Ofertas y rebajas"],["props","Propiedades"],["edit","Inventario"],["cli","Clientes"],["seg","Seguimiento"],["rec","Mi nivel y premios"],["mat","Tizers y redes"],["dif","Difusión masiva"],["inv","Inversión"],["usr","Usuarios"],["adm","Administración"],["perm","Permisos"],["arq","Cómo se conecta"]];
+const PERMS=[["hot","Hot list"],["props","Propiedades"],["editar","Crear y editar propiedades (Inventario)"],["cli","Clientes"],["seg","Seguimiento"],["rec","Mi nivel y premios"],["mat","Tizers y redes"],["dif","Difusión masiva"],["inv","Inversión"],["adm","Administración"],["perm","Permisos"],["arq","Cómo se conecta"],["int","Ver datos internos"],["precios","Ofrecer rebajas y cambiar precios"],["usuarios","Crear y editar usuarios"],["noventa","Ver propiedades no vendibles"],["aprobar","Aprobar corredores"],["segall","Ver seguimiento de todos"]];
 const CANALES=["Instagram","Facebook","Marketplace","WhatsApp","Referido","Llamada","Otro"];
 const ROLES=[["administrador","Administrador"],["coadmin","Coadministrador"],["corredor","Corredor"],["interno","Equipo interno"]];
 const ALL=Object.fromEntries(PERMS.map(p=>[p[0],true]));
-const TABPERM={ofe:"precios",usr:"usuarios"};
+const TABPERM={ofe:"precios",usr:"usuarios",edit:"editar"};
 const P0={administrador:{...ALL},coadmin:{...ALL,perm:false,precios:false,usuarios:false,int:false},corredor:{hot:1,props:1,cli:1,seg:1,rec:1,mat:1,dif:1,inv:1,arq:1},interno:{hot:1,props:1,inv:1,mat:1}};
 
 const FOTOS={"F-1016":4,"F-10456":4,"F-10684":4,"F-114090":4,"F-118113":4,"F-12593":4,"F-13333":4,"F-137666":4,"F-147116":3,"F-15350":4,"F-15554":4,"F-15627":4,"F-15757":4,"F-15758,  16675":4,"F-159989":4,"F-16037":4,"F-187538":2,"F-18986":4,"F-19442":4,"F-195381":3,"F-197279":4,"F-20602":4,"F-20811, 20812":4,"F-2091":4,"F-211149":4,"F-21141":4,"F-21897":4,"F-21968":4,"F-225650":4,"F-229295":4,"F-23384":4,"F-234726":3,"F-24144":4,"F-24147":4,"F-243052":4,"F-24466":3,"F-24669":4,"F-252662":3,"F-253274":4,"F-25332":4,"F-25529":4,"F-258344":4,"F-259939":4,"F-26094":4,"F-26095":4,"F-268596":4,"F-27540":4,"F-27847":4,"F-279652":4,"F-284025":4,"F-28762, 28763, 28764":4,"F-28773":2,"F-291629":4,"F-29561":2,"F-29705":3,"F-30131248":4,"F-30132049":2,"F-30132050":2,"F-30132898":4,"F-30141822":4,"F-30143950":4,"F-30148850":2,"F-30152742":4,"F-30158750":4,"F-30159213":4,"F-30166375":4,"F-30166430":4,"F-30169212":3,"F-30172189":4,"F-30185655":4,"F-30191084":4,"F-30202702":4,"F-30203718":4,"F-30204250":4,"F-30204252":4,"F-30218033":4,"F-30221649":4,"F-30236643":3,"F-30237125":4,"F-316321-44123":4,"F-316712":4,"F-318519":4,"F-319488":4,"F-322012":4,"F-32392":2,"F-325358":4,"F-338003":4,"F-34187":4,"F-34249":4,"F-34676":2,"F-35167":4,"F-351921":4,"F-359993":2,"F-36252":4,"F-372960":4,"F-38180":4,"F-38330":4,"F-391302":4,"F-39517":4,"F-39735":4,"F-397673":4,"F-41873":4,"F-420729":4,"F-425381":4,"F-441470":4,"F-44378, 13460":4,"F-463855":3,"F-46852":3,"F-469154":4,"F-47877":4,"F-483209":4,"F-49640":4,"F-50432":4,"F-51584":4,"F-52727":3,"F-55075":4,"F-55178":4,"F-55232- 318968":4,"F-55660":4,"F-57161":4,"F-57792":2,"F-58908":4,"F-6024":4,"F-64084":3,"F-71227":4,"F-75381":4,"F-75609":4,"F-85132":4,"F-89344":4,"F-90225":4,"F-9089":3,"F-91575":4,"F-9718":4};
@@ -255,7 +255,7 @@ if(!S.campanas)S.campanas=[];
 if(!S.tz)S.tz={};
 for(const r in P0)if(S.perm&&S.perm[r]){if(S.perm[r].cli===undefined)S.perm[r].cli=P0[r].cli||false;if(S.perm[r].dif===undefined)S.perm[r].dif=P0[r].dif||false;if(S.perm[r].precios===undefined)S.perm[r].precios=P0[r].precios||false}
 if(!S.precioLog)S.precioLog=[];
-const UI={me:null,tab:"hot",sub:"cor",of:{tc:"oferta",modo:"pct",val:10,sinFin:false,qPct:20,qFin:"sin",qHasta:plus(30),base:"lista",red:100,piso:"ninguno",pisoPct:70,nombre:"Oferta de "+new Date().toLocaleDateString("es-PA",{month:"long"}),desde:iso(NOW),hasta:plus(30),f:{tipo:"",prov:"",q:"",min:"",max:"",solo:"todas"},sel:{},over:{},conf:false},newPin:genClave(),mustChange:null,pinShow:{},mas:{modo:"pct",val:5,dias:7,tipo:"",prov:"",solo:"todas"},masPrev:false,cliCanal:"",cliForm:false,difSel:null,difCanal:"wa",difDest:"clientes",q:"",tipo:"",prov:"",max:"",soloOf:false,soloInv:false,ficha:null,mat:{p:"F-243052",fmt:"teaser",canal:"instagram",foto:null},tzFoto:{},lote:{set:"hot",items:[],busy:false},leadP:"",fl:"",reg:null,err:""};
+const UI={inv:{q:"",est:"",ed:null,busy:false,msg:""},me:null,tab:"hot",sub:"cor",of:{tc:"oferta",modo:"pct",val:10,sinFin:false,qPct:20,qFin:"sin",qHasta:plus(30),base:"lista",red:100,piso:"ninguno",pisoPct:70,nombre:"Oferta de "+new Date().toLocaleDateString("es-PA",{month:"long"}),desde:iso(NOW),hasta:plus(30),f:{tipo:"",prov:"",q:"",min:"",max:"",solo:"todas"},sel:{},over:{},conf:false},newPin:genClave(),mustChange:null,pinShow:{},mas:{modo:"pct",val:5,dias:7,tipo:"",prov:"",solo:"todas"},masPrev:false,cliCanal:"",cliForm:false,difSel:null,difCanal:"wa",difDest:"clientes",q:"",tipo:"",prov:"",max:"",soloOf:false,soloInv:false,ficha:null,mat:{p:"F-243052",fmt:"teaser",canal:"instagram",foto:null},tzFoto:{},lote:{set:"hot",items:[],busy:false},leadP:"",fl:"",reg:null,err:""};
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
 const U=id=>S.users.find(u=>u.id===id), PR=c=>S.props.find(p=>p.c===c);
 const me=()=>U(UI.me);
@@ -289,8 +289,9 @@ function svgArt(p){
  return s+"</svg>";
 }
 const ART={};const art=p=>ART[p.c]||(ART[p.c]="url('data:image/svg+xml;charset=utf-8,"+encodeURIComponent(svgArt(p)).replace(/'/g,"%27")+"')");
-const fotoN=p=>p&&FOTOS[p.c]||0;
-const fotoUrl=(p,k)=>`fotos/${p.c.replace(/[^A-Za-z0-9]+/g,"-").replace(/^-|-$/g,"")}/${k}.jpg`;
+const fotoGH=(p,k)=>`fotos/${p.c.replace(/[^A-Za-z0-9]+/g,"-").replace(/^-|-$/g,"")}/${k}.jpg`;
+const fotoN=p=>p?((p.fdb&&p.fdb.length)||0)+(FOTOS[p.c]||0):0;
+const fotoUrl=(p,k)=>{const d=(p&&p.fdb)||[];if(k===0)return d.length?d[0].url:fotoGH(p,0);return k<=d.length?d[k-1].url:fotoGH(p,k-d.length)};
 const hue=(p,big)=>!p?"background:linear-gradient(160deg,#061236,#0a1f5c 55%,#10307f)":fotoN(p)?`background:url('${fotoUrl(p,big?1:0)}') center/cover no-repeat, ${big?`url('${fotoUrl(p,0)}') center/cover no-repeat, `:""}#e4e8ee`:`background:${art(p)} center/cover no-repeat`;
 const score=p=>vis(p)+p.con*3+off(p)*2;
 function toast(t){const e=$("#toast");e.textContent=t;e.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>e.hidden=true,Math.max(2400,String(t).length*55))}
@@ -515,7 +516,7 @@ function tzEditor(p,u){const d=tzData(p,u),a=tzAuto(p,u),n=fotoN(p),fi=UI.tzFoto
  ${TZF.map(([k,l,multi])=>`<label>${l}${d[k]!==a[k]?' <span class="pill blue" style="font-size:10px">editado</span>':""}${multi?`<textarea data-tz="${k}" rows="4">${esc(d[k])}</textarea>`:`<input data-tz="${k}" value="${esc(d[k])}">`}</label>`).join("")}</div>`}
 const TZIMG={};
 function tzImg(p,k,cb){const key=p.c+"#"+k;if(TZIMG[key]){if(TZIMG[key].complete&&TZIMG[key].naturalWidth)return TZIMG[key];return null}
- const im=new Image();im.onload=()=>cb&&cb();im.onerror=()=>{TZIMG[key]={complete:true,naturalWidth:0}};im.src=fotoUrl(p,k);TZIMG[key]=im;return null}
+ const im=new Image();im.crossOrigin="anonymous";im.onload=()=>cb&&cb();im.onerror=()=>{TZIMG[key]={complete:true,naturalWidth:0}};im.src=fotoUrl(p,k);TZIMG[key]=im;return null}
 let TZNOISE=null;
 function tzNoise(){if(TZNOISE)return TZNOISE;const c=document.createElement("canvas");c.width=c.height=256;const x=c.getContext("2d"),d=x.createImageData(256,256);for(let i=0;i<d.data.length;i+=4){const v=Math.random()*60;d.data[i]=d.data[i+1]=d.data[i+2]=v;d.data[i+3]=60}x.putImageData(d,0,0);TZNOISE=c;return c}
 function drawTeaser(cv,p,u,photo,onload){
@@ -559,7 +560,7 @@ function vLote(){const L=loteSet(),it=UI.lote.items;
  ${it.length?`<div class="sm muted">Clic en un teaser para editarlo. Para guardar uno: clic derecho sobre la imagen → Guardar imagen. La descarga en ZIP funciona en la página publicada en GitHub Pages.</div><div class="lote">${it.map(t=>`<figure><img src="${t.url}" alt="Teaser ${t.c}" data-a="tizer" data-v="${t.c}"><figcaption class="sm">${t.c}</figcaption></figure>`).join("")}</div>`:""}</div>`}
 function loteSet(){const s=UI.lote.set;return S.props.filter(p=>vendible(p)&&fotoN(p)&&(s==="foto"||((s==="hot"||s==="ofer")&&ofAct(p)))).slice(0,60)}
 async function loteGo(){const L=loteSet(),u=me();UI.lote.busy=true;UI.lote.items=[];render(1);
- for(const p of L){const im=await new Promise(res=>{const i=new Image();i.onload=()=>res(i);i.onerror=()=>res(null);i.src=fotoUrl(p,UI.tzFoto[p.c]||1)});
+ for(const p of L){const im=await new Promise(res=>{const i=new Image();i.crossOrigin="anonymous";i.onload=()=>res(i);i.onerror=()=>res(null);i.src=fotoUrl(p,UI.tzFoto[p.c]||1)});
   const c=document.createElement("canvas");drawTeaser(c,p,u,im);const url=await new Promise(res=>c.toBlob(b=>res(b?URL.createObjectURL(b):""),"image/jpeg",.9));UI.lote.items.push({c:p.c,url})}
  UI.lote.busy=false;render(1);toast(`${L.length} teasers listos`)}
 
@@ -576,8 +577,8 @@ function drawCv(){
  const g=x.createLinearGradient(0,0,W,H);g.addColorStop(0,`hsl(${p.hue} 40% 20%)`);g.addColorStop(1,`hsl(${(p.hue+40)%360} 46% 40%)`);x.fillStyle=g;x.fillRect(0,0,W,H);
  const ph=m.fmt==="story"?[0,0,W,H*.62]:[0,0,W,H*.58];
  if(IMG){const r=Math.max(ph[2]/IMG.width,ph[3]/IMG.height),w=IMG.width*r,h=IMG.height*r;x.save();x.beginPath();x.rect(...ph);x.clip();x.drawImage(IMG,(ph[2]-w)/2,(ph[3]-h)/2,w,h);x.restore()}
- else{const k=p.c;if(fotoN(p)&&!ARTIMG[k]){const im=new Image();im.onload=()=>drawCv();im.onerror=()=>{ARTIMG[k]=null;delete FOTOS[k];drawCv()};im.src=fotoUrl(p,1);ARTIMG[k]=im}
-  if(ARTIMG[k]&&ARTIMG[k].complete&&ARTIMG[k].naturalWidth){const im=ARTIMG[k],r=Math.max(ph[2]/im.width,ph[3]/im.height),w=im.width*r,hh=im.height*r;x.save();x.beginPath();x.rect(...ph);x.clip();x.drawImage(im,(ph[2]-w)/2,(ph[3]-hh)/2,w,hh);x.restore()}else if(!ARTIMG[k]){const im=new Image();im.onload=()=>drawCv();im.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(svgArt(p));ARTIMG[k]=im}
+ else{const k=p.c;if(fotoN(p)&&!ARTIMG[k]){const im=new Image();im.crossOrigin="anonymous";im.onload=()=>drawCv();im.onerror=()=>{ARTIMG[k]=null;delete FOTOS[k];drawCv()};im.src=fotoUrl(p,1);ARTIMG[k]=im}
+  if(ARTIMG[k]&&ARTIMG[k].complete&&ARTIMG[k].naturalWidth){const im=ARTIMG[k],r=Math.max(ph[2]/im.width,ph[3]/im.height),w=im.width*r,hh=im.height*r;x.save();x.beginPath();x.rect(...ph);x.clip();x.drawImage(im,(ph[2]-w)/2,(ph[3]-hh)/2,w,hh);x.restore()}else if(!ARTIMG[k]){const im=new Image();im.crossOrigin="anonymous";im.onload=()=>drawCv();im.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(svgArt(p));ARTIMG[k]=im}
   if(!fotoN(p)){x.fillStyle="rgba(255,255,255,.7)";x.font="500 22px 'DM Mono',monospace";x.fillText("ILUSTRACIÓN · SUSTITUIR POR FOTO REAL",56,150)}}
  const gr=x.createLinearGradient(0,ph[3]*.4,0,H);gr.addColorStop(0,"rgba(0,0,0,0)");gr.addColorStop(.35,"rgba(0,0,0,.72)");gr.addColorStop(1,"rgba(0,0,0,.9)");x.fillStyle=gr;x.fillRect(0,ph[3]*.4,W,H);
  const o=ofAct(p);
@@ -705,6 +706,67 @@ function vUsr(){
  <td><div class="row" style="gap:4px;flex-wrap:nowrap">${x.st==="Pendiente"?`<button class="btn s p" data-a="ap" data-v="${x.id}">Aprobar</button><button class="btn s d" data-a="rj" data-v="${x.id}">Rechazar</button>`:x.st==="Activo"?`<button class="btn s d" data-a="uEst" data-v="${x.id}" data-e="Inactivo" ${self||lastAdm?"disabled":""}>Desactivar</button>`:`<button class="btn s" data-a="uEst" data-v="${x.id}" data-e="Activo">Activar</button>`}</div></td></tr>`}).join("")}</tbody></table></div>`;
 }
 
+
+/* ---------- Inventario: crear y editar propiedades y sus fotos ---------- */
+const TIPOS_BASE=["Terreno","Terreno y mejoras","Casa","Apartamento","Local comercial","Galera","Finca","Lote","Oficina","Otro"];
+const PROVS_PA=["Bocas del Toro","Chiriquí","Coclé","Colón","Darién","Herrera","Los Santos","Panamá","Panamá Oeste","Veraguas","Guna Yala","Emberá","Ngäbe-Buglé"];
+const fdt=s=>{if(!s)return"";const d=new Date(s);return isNaN(d)?"":d.toLocaleDateString("es-PA",{day:"numeric",month:"short",year:"numeric"})};
+function vEdit(){if(!sbOn())return `<div class="lock">El inventario necesita la conexión a la base de datos.</div>`;
+ const q=UI.inv.q.toLowerCase(),L=S.props.filter(p=>(!q||(p.c+" "+p.n+" "+(p.finca||"")+" "+p.prov+" "+p.dist).toLowerCase().includes(q))&&(!UI.inv.est||p.est===UI.inv.est))
+   .sort((a,b)=>String(b.een||b.cen||"").localeCompare(String(a.een||a.cen||""))||a.c.localeCompare(b.c));
+ const sinF=S.props.filter(p=>!fotoN(p)).length;
+ return `<div class="head"><div><span class="eyebrow">Inventario</span><h2>Crear y editar propiedades</h2><p>Agrega propiedades nuevas, corrige sus datos y sube sus fotos. Lo que guardes aquí se ve al instante en el portal y, si está en venta, en la página pública.</p></div><button class="btn p" data-a="invNew">+ Nueva propiedad</button></div>
+ <div class="kpis"><div class="kpi"><b>${S.props.length}</b><span>propiedades</span></div><div class="kpi"><b>${S.props.filter(p=>p.cen).length}</b><span>creadas en el portal</span></div><div class="kpi"><b>${S.props.filter(p=>p.fdb&&p.fdb.length).length}</b><span>con fotos subidas</span></div><div class="kpi"><b>${sinF}</b><span>sin ninguna foto</span></div></div>
+ <div class="panel" style="margin-bottom:12px"><div class="row" style="gap:10px;align-items:end"><label style="flex:1;min-width:200px">Buscar<input data-f="invQ" value="${esc(UI.inv.q)}" placeholder="Código, nombre, finca, provincia o corregimiento"></label>
+ <label>Estado<select data-f="invE"><option value="">Todos</option>${ESTADOS.map(e=>`<option ${UI.inv.est===e?"selected":""}>${e}</option>`).join("")}</select></label><span class="sm muted">${L.length} de ${S.props.length}</span></div></div>
+ <div class="panel tbl" style="max-height:70vh;overflow:auto"><table><thead><tr><th>Código</th><th>Propiedad</th><th>Tipo</th><th>Ubicación</th><th>Finca</th><th>Estado</th><th>Venta</th><th>Fotos</th><th>Última edición</th><th></th></tr></thead><tbody>
+ ${L.map(p=>`<tr><td class="num"><b>${p.c}</b></td><td style="min-width:200px">${esc(p.n)}</td><td class="sm">${esc(p.t)}</td><td class="sm">${esc([p.dist,p.prov].filter(Boolean).join(", "))}</td><td class="num sm">${esc(p.finca||"")}</td>
+  <td><span class="pill ${p.est==="Vendida"?"red":vendible(p)?"":"amber"}">${esc(p.est)}</span></td><td class="num">${p.lista?money(p.lista):"—"}</td>
+  <td class="num">${fotoN(p)?`<span class="pill">${fotoN(p)}</span>`:`<span class="pill amber">0</span>`}</td><td class="sm muted">${p.een?esc(p.epor)+" · "+fdt(p.een):p.cen?esc(p.cpor)+" · "+fdt(p.cen):"Carga inicial"}</td>
+  <td><button class="btn s" data-a="invEd" data-v="${p.c}">Editar</button></td></tr>`).join("")||`<tr><td colspan="10" class="muted">Ninguna propiedad coincide.</td></tr>`}
+ </tbody></table></div>`}
+function vInvEd(){const ed=UI.inv.ed,nuevo=ed==="nuevo",p=nuevo?{}:PR(ed)||{};const I=p.int||{},ci=can("int"),cp=nuevo||can("precios");
+ const tipos=[...new Set(TIPOS_BASE.concat(S.props.map(x=>x.t)).filter(Boolean))];
+ const fv=v=>v==null?"":esc(String(v));
+ const fotos=nuevo?"":`<div class="panel" style="margin-top:12px"><div class="row" style="justify-content:space-between;align-items:center"><b>Fotos</b><span class="sm muted">La primera es la portada. JPG o PNG; se ajustan solas a 1600 px.</span></div>
+   <div class="gal" style="margin-top:10px;display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px">
+   ${(p.fdb||[]).map((f,i)=>`<div style="border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--panel)"><div style="aspect-ratio:4/3;background:url('${esc(f.url)}') center/cover"></div><div class="row" style="gap:4px;padding:6px">${i?`<button type="button" class="btn s" data-a="fotoP" data-v="${f.id}">Portada</button>`:`<span class="pill">Portada</span>`}<button type="button" class="btn s d" data-a="fotoQ" data-v="${f.id}">Quitar</button></div></div>`).join("")}
+   ${[...Array(FOTOS[p.c]||0)].map((_,i)=>`<div style="border:1px solid var(--line);border-radius:10px;overflow:hidden;opacity:.85"><div style="aspect-ratio:4/3;background:url('${fotoGH(p,i+1)}') center/cover"></div><div class="sm muted" style="padding:6px">Foto del avalúo</div></div>`).join("")}
+   <label style="border:2px dashed var(--line);border-radius:10px;display:grid;place-items:center;text-align:center;min-height:120px;cursor:pointer;padding:10px" class="sm"><input type="file" id="invFotos" accept="image/jpeg,image/png,image/webp" multiple hidden><span><b style="font-size:22px">+</b><br>Subir fotos</span></label></div>
+   ${UI.inv.msg?`<div class="sm" style="margin-top:8px">${esc(UI.inv.msg)}</div>`:""}</div>`;
+ return `<div class="ov" data-a="closeInv"><form class="dlg" id="fInv" role="dialog" aria-modal="true" aria-label="${nuevo?"Nueva propiedad":"Editar "+esc(ed)}">
+ <div style="background:var(--brand);color:var(--brand-ink);padding:14px 18px;display:flex;justify-content:space-between;align-items:center"><b style="font:700 18px var(--f-d)">${nuevo?"Nueva propiedad":"Editar "+esc(ed)}</b><button type="button" class="btn s" data-a="closeInv" style="background:transparent;color:inherit;border-color:rgba(255,255,255,.4)">Cerrar</button></div>
+ <div class="in">
+  <div class="grid g2"><label>Nombre o título<input id="ivN" required maxlength="140" value="${fv(p.n)}" placeholder="Ej.: Terreno en Los Naranjos"></label><label>No. de finca o folio real<input id="ivF" value="${fv(p.finca)}" placeholder="Ej.: 57161"></label>
+  <label>Tipo<input id="ivT" list="ivTl" value="${fv(p.t||"Terreno")}"><datalist id="ivTl">${tipos.map(t=>`<option value="${esc(t)}">`).join("")}</datalist></label>
+  <label>Estado<select id="ivE">${ESTADOS.map(e=>`<option ${(p.est||"Disponible para la venta")===e?"selected":""}>${e}</option>`).join("")}</select></label>
+  <label>Provincia<select id="ivP"><option value=""></option>${PROVS_PA.map(x=>`<option ${p.prov===x?"selected":""}>${x}</option>`).join("")}</select></label><label>Corregimiento o sector<input id="ivC" value="${fv(p.dist)}"></label>
+  <label>Precio de Venta (B/.)<input id="ivV" type="number" min="0" step="0.01" value="${fv(p.lista)}" ${cp?"":"disabled title='Solo quien tiene permiso de precios cambia la Venta'"}></label><label>Área (m²)<input id="ivM" type="number" min="0" step="0.01" value="${fv(p.m2)}"></label></div>
+  ${cp?"":`<div class="sm muted">La Venta solo la cambia quien tiene permiso de precios (Ofertas y rebajas).</div>`}
+  <label>Descripción<textarea id="ivD" rows="4" maxlength="4000">${fv(p.dsc)}</textarea></label>
+  <label class="chk"><input type="checkbox" id="ivI" ${p.inv?"checked":""}> Marcar como oportunidad de inversión</label>
+  ${ci?`<div class="int" style="margin-top:6px"><b>Datos internos · solo administración</b><div class="grid g2" style="margin-top:8px">
+   <label>Valor de mercado (avalúo)<input id="xA" type="number" min="0" step="0.01" value="${fv(p.av)}"></label><label>Fecha del avalúo<input id="xAd" type="date" value="${fv(p.avd)}"></label>
+   <label>Venta rápida<input id="xR" type="number" min="0" step="0.01" value="${fv(I.vr)}"></label><label>Valor en libros<input id="xL" type="number" min="0" step="0.01" value="${fv(I.li)}"></label>
+   <label>Costo indirecto<input id="xG" type="number" min="0" step="0.01" value="${fv(I.g||"")}"></label><label>Cedida / hipotecada<input id="xCe" value="${fv(p.ced)}"></label>
+   <label>Lanzamiento<input id="xLa" value="${fv(p.lanz)}"></label><label>Enlace del avalúo (PDF)<input id="xU" type="url" value="${fv(p.avu)}" placeholder="https://…"></label></div></div>`:""}
+  ${p.cen||p.een?`<div class="sm muted">${p.cen?"Creada por "+esc(p.cpor)+" el "+fdt(p.cen)+". ":""}${p.een?"Última edición: "+esc(p.epor)+" el "+fdt(p.een)+".":""}</div>`:""}
+  <div class="row" style="justify-content:flex-end"><button type="button" class="btn" data-a="closeInv">Cancelar</button><button class="btn p" type="submit" ${UI.inv.busy?"disabled":""}>${nuevo?"Crear propiedad":"Guardar cambios"}</button></div>
+  ${nuevo?`<div class="sm muted">Después de crearla puedes subir sus fotos aquí mismo.</div>`:""}
+  ${fotos}
+ </div></form></div>`}
+async function reducirFoto(file){const bmp=await createImageBitmap(file);const k=Math.min(1,1600/Math.max(bmp.width,bmp.height));const c=document.createElement("canvas");c.width=Math.round(bmp.width*k);c.height=Math.round(bmp.height*k);
+ c.getContext("2d").drawImage(bmp,0,0,c.width,c.height);return await new Promise(r=>c.toBlob(r,"image/jpeg",.85))}
+async function subirFotos(cod,files){const fs=[...files].filter(f=>/^image\//.test(f.type));if(!fs.length)return;UI.inv.busy=true;
+ try{const b=await rpc("boleto_subida",{p_codigo:cod});let n=0;
+  for(const f of fs){UI.inv.msg=`Subiendo foto ${n+1} de ${fs.length}…`;render(1);
+   const blob=await reducirFoto(f);const path=`${b}/${Date.now()}-${n}.jpg`;
+   const {error}=await sb.storage.from("fotos").upload(path,blob,{contentType:"image/jpeg",upsert:false});if(error)throw new Error(error.message||"No se pudo subir la foto");
+   const url=sb.storage.from("fotos").getPublicUrl(path).data.publicUrl;await rpc("registrar_foto",{p_codigo:cod,p_ruta:path,p_url:url});n++}
+  UI.inv.msg=`${n} ${n===1?"foto subida":"fotos subidas"}.`;await sbLoad();toast(UI.inv.msg)}
+ catch(e){UI.inv.msg="No se pudo subir: "+(e.message||e);toast(UI.inv.msg)}
+ UI.inv.busy=false;render(1)}
+
 /* ---------- Inversión ---------- */
 function vInv(){
  const L=visibles().filter(p=>p.inv).sort((a,b)=>(b.rent||0)-(a.rent||0)||off(b)-off(a)).slice(0,24);
@@ -769,8 +831,8 @@ function vArq(){
 /* ---------- Render ---------- */
 function render(keepScroll){
  const y=scrollY;drawTop();
- if(UI.cargando&&!UI.me){$("#app").innerHTML=`<div class="lock" style="margin:60px auto">Entrando…</div>`}else if(UI.mustChange){$("#app").innerHTML=vNewPass()}else if(!UI.me){gate()}else{const V={hot:vHot,ofe:vOfe,usr:vUsr,props:vProps,cli:vCli,dif:vDif,seg:vSeg,rec:vRec,mat:vMat,inv:vInv,adm:vAdm,perm:vPerm,arq:vArq};$("#app").innerHTML=canTab(UI.tab)?V[UI.tab]():`<div class="lock">Tu rol no tiene permiso para ver esta sección.</div>`}
- $("#modal").innerHTML=!UI.me?"":UI.ficha?vFicha(UI.ficha):UI.cliForm?vCliForm():UI.firmaEd?vFirma():UI.corDet?vCorDet(UI.corDet):"";
+ if(UI.cargando&&!UI.me){$("#app").innerHTML=`<div class="lock" style="margin:60px auto">Entrando…</div>`}else if(UI.mustChange){$("#app").innerHTML=vNewPass()}else if(!UI.me){gate()}else{const V={edit:vEdit,hot:vHot,ofe:vOfe,usr:vUsr,props:vProps,cli:vCli,dif:vDif,seg:vSeg,rec:vRec,mat:vMat,inv:vInv,adm:vAdm,perm:vPerm,arq:vArq};$("#app").innerHTML=canTab(UI.tab)?V[UI.tab]():`<div class="lock">Tu rol no tiene permiso para ver esta sección.</div>`}
+ $("#modal").innerHTML=!UI.me?"":UI.inv.ed?vInvEd():UI.ficha?vFicha(UI.ficha):UI.cliForm?vCliForm():UI.firmaEd?vFirma():UI.corDet?vCorDet(UI.corDet):"";
  if(UI.me&&UI.tab==="mat")drawCv();
  if(keepScroll)scrollTo(0,y);
 }
@@ -781,7 +843,7 @@ function award(u,e,l,p){const ex=ETAPAS.find(x=>x[0]===e);if(ex&&ex[2]&&!l.aw[e]
 document.addEventListener("click",e=>{
  if(e.target.closest("a[data-stop]"))return;
  const b=e.target.closest("[data-a]");if(!b)return;const a=b.dataset.a,v=b.dataset.v;
- if((a==="closeF"||a==="closeCopy"||a==="closeCli"||a==="closeFirma"||a==="closeDet")&&e.target!==b&&b.classList.contains("ov"))return;
+ if((a==="closeInv"||a==="closeF"||a==="closeCopy"||a==="closeCli"||a==="closeFirma"||a==="closeDet")&&e.target!==b&&b.classList.contains("ov"))return;
  if(a==="closeFirma"){UI.firmaEd=false;UI.firmaTmp=null;UI.volTmp=null;render(1);return}
  if(a==="corDet"){UI.corDet=v;render(1);return}
  if(a==="closeDet"){UI.corDet=null;render(1);return}
@@ -790,6 +852,11 @@ document.addEventListener("click",e=>{
  if(a==="closeCli"){UI.cliForm=false;render(1);return}
  if(a==="closeCopy"){b.closest(".ov").remove();return}
  if(a==="closeF"){UI.ficha=null;render(1);return}
+ if(a==="closeInv"){if(UI.inv.busy)return;UI.inv.ed=null;UI.inv.msg="";render(1);return}
+ if(a==="invNew"){UI.inv.ed="nuevo";UI.inv.msg="";render(1);return}
+ if(a==="invEd"){UI.inv.ed=v;UI.inv.msg="";render(1);return}
+ if((a==="fotoQ"||a==="fotoP")&&sbOn()){if(a==="fotoQ"&&!confirm("¿Quitar esta foto? Deja de verse en el portal y en la página pública."))return;
+  rpc("foto_accion",{p_id:+v,p_accion:a==="fotoQ"?"quitar":"portada"}).then(()=>sbLoad()).then(()=>{toast(a==="fotoQ"?"Foto quitada":"Foto puesta como portada");render(1)}).catch(()=>{});return}
  if(a==="tab"){UI.tab=v;render();scrollTo(0,0)}
  else if(a==="ofSet"){UI.of[b.dataset.k]=v==="true"?true:v==="false"?false:v;UI.of.conf=false;if(b.dataset.k==="modo"){UI.of.val=v==="pct"?10:v==="fijo"?5000:50000;UI.of.over={}}render(1)}
  else if(a==="ofAll"){ofFilt().forEach(p=>UI.of.sel[p.c]=true);UI.of.conf=false;render(1)}
@@ -870,6 +937,14 @@ document.addEventListener("click",e=>{
 });
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&(UI.ficha||UI.cliForm)){UI.ficha=null;UI.cliForm=false;render(1)}if((e.key==="Enter"||e.key===" ")&&e.target.classList&&e.target.classList.contains("card")){e.preventDefault();e.target.click()}});
 document.addEventListener("submit",e=>{
+ if(e.target.id==="fInv"){e.preventDefault();if(!sbOn()||UI.inv.busy)return;const g=id=>{const el=$("#"+id);return el?el.value.trim():undefined};
+  const d={nombre:g("ivN"),finca:g("ivF"),tipo:g("ivT"),estado:g("ivE"),provincia:g("ivP"),corregimiento:g("ivC"),m2:g("ivM"),descripcion:g("ivD"),inversion:$("#ivI").checked};
+  if(!$("#ivV").disabled)d.precio_lista=g("ivV");
+  if($("#xA")){Object.assign(d,{avaluo:g("xA"),avaluo_fecha:g("xAd"),venta_rapida:g("xR"),valor_libros:g("xL"),costo_indirecto:g("xG"),cedida:g("xCe"),lanzamiento:g("xLa"),avaluo_url:g("xU")})}
+  if(UI.inv.ed==="nuevo"&&!(+d.precio_lista>0)&&!confirm("No pusiste precio de Venta. Sin precio no aparece en la página pública. ¿Crear de todos modos?"))return;
+  UI.inv.busy=true;render(1);
+  rpc("guardar_propiedad",{p_codigo:UI.inv.ed==="nuevo"?null:UI.inv.ed,p_datos:d}).then(cod=>{const era=UI.inv.ed==="nuevo";UI.inv.ed=cod;UI.inv.msg=era?"Propiedad creada. Ahora puedes subir sus fotos.":"";return sbLoad().then(()=>toast(era?"Propiedad "+cod+" creada":"Cambios guardados"))})
+   .catch(()=>{}).finally(()=>{UI.inv.busy=false;render(1)});return}
  e.preventDefault();const id=e.target.id;
  if(id==="fFirma"){const u=me(),t=$("#fiTxt").value.trim().slice(0,300),val=t===firmaDef(u)?"":t;
   const g=i=>($(i)?$(i).value.trim():""),vol={n:g("#vfN"),tel:g("#vfT"),lic:g("#vfL"),extra:g("#vfX")};Object.keys(vol).forEach(k=>{if(!vol[k])delete vol[k]});
@@ -920,11 +995,14 @@ document.addEventListener("submit",e=>{
  if(id==="fPre"&&sbOn()){after(rpc("premiar",{p_corredor:$("#pU").value,p_puntos:+$("#pP").value||0,p_motivo:$("#pM").value.trim()}).then(()=>toast("Puntos otorgados")));return}
  if(id==="fPre"){const uu=$("#pU").value;S.log.push({u:uu,t:iso(NOW),x:"Premio: "+$("#pM").value.trim(),pts:+$("#pP").value||0});save();toast("Puntos otorgados");render(1)}
 });
-document.addEventListener("input",e=>{const t=e.target;if(t.id==="fiTxt"){const pv_=$("#fiPrev");if(pv_)pv_.textContent=t.value.trim()||firmaDef(me());return}
+document.addEventListener("input",e=>{const t=e.target;
+ if(t.dataset&&t.dataset.f==="invQ"){UI.inv.q=t.value;clearTimeout(UI.inv.tq);UI.inv.tq=setTimeout(()=>{render(1);const i=document.querySelector('[data-f="invQ"]');if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length)}},250);return}if(t.id==="fiTxt"){const pv_=$("#fiPrev");if(pv_)pv_.textContent=t.value.trim()||firmaDef(me());return}
  if(t.dataset&&t.dataset.tz){const p=PR(UI.mat.p);(S.tz[p.c]=S.tz[p.c]||{})[t.dataset.tz]=t.value;save();drawCv();return}
  if(t.id==="msVal"||t.id==="msDias"){if(t.id==="msVal")UI.mas.val=+t.value||0;else UI.mas.dias=+t.value||7;const m=UI.mas,info=$("#msInfo");if(info){const obj=S.props.filter(vendible).filter(p=>(!m.tipo||p.t===m.tipo)&&(!m.prov||p.prov===m.prov)&&(m.solo==="todas"||(m.solo==="hot"&&p.hot)||(m.solo==="sin"&&!(ofAct(p)))));info.innerHTML=msInfo(obj,p=>nuevoPrecio(p,m))}return}
  if(t.id==="fq"){UI.q=t.value;const p=t.selectionStart;render(1);const n=$("#fq");n.focus();n.setSelectionRange(p,p)}});
 document.addEventListener("change",e=>{
+ if(e.target.dataset&&e.target.dataset.f==="invE"){UI.inv.est=e.target.value;render(1);return}
+ if(e.target.id==="invFotos"){const fl=e.target.files;if(fl&&fl.length&&UI.inv.ed&&UI.inv.ed!=="nuevo")subirFotos(UI.inv.ed,fl);return}
  const t=e.target,f=t.dataset.f,id=t.id;
  if(id==="swUser"){UI.me=t.value;UI.ficha=null;render()}
  else if(id==="ft"){UI.tipo=t.value;render(1)}else if(id==="fp"){UI.prov=t.value;render(1)}else if(id==="fm"){UI.max=t.value;render(1)}else if(id==="fo"){UI.soloOf=t.checked;render(1)}else if(id==="fi"){UI.soloInv=t.checked;render(1)}
