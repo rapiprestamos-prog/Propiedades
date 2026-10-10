@@ -68,6 +68,8 @@ label{display:grid;gap:3px;font-size:12px;font-weight:600;color:var(--mute)}
 .hero{box-shadow:var(--sh2);border-radius:18px;overflow:hidden;position:relative;margin-bottom:14px;min-height:300px;display:flex;align-items:flex-end;color:#fff}
 .hero::before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(0,0,0,.05) 20%,rgba(10,20,16,.82))}
 .hero .gsl{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity 1.4s ease}.hero .gsl.on{opacity:1}
+.hstack{position:relative;z-index:2;display:grid;width:100%}.hstack>.hero-in{grid-area:1/1;opacity:0;visibility:hidden;transition:opacity .9s ease,visibility .9s}.hstack>.hero-in.on{opacity:1;visibility:visible}
+.hdots{position:absolute;right:18px;bottom:16px;z-index:3;display:flex;gap:7px}.hdots button{width:10px;height:10px;padding:0;border-radius:50%;border:0;background:rgba(255,255,255,.45);cursor:pointer}.hdots button.on{background:#f0c45c;width:26px;border-radius:6px}
 .hero .gcap{position:absolute;right:14px;top:14px;z-index:2;background:rgba(6,18,54,.72);color:#fff;font-size:12px;padding:5px 10px;border-radius:999px;max-width:70%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hero-in{position:relative;z-index:2;padding:28px;display:grid;gap:8px;max-width:680px}.hero-in h2{font-size:34px;color:#fff}.hero-in p{margin:0;color:rgba(255,255,255,.85)}
 .hr{display:grid;grid-template-columns:34px 78px minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 12px;background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--sh);transition:box-shadow .18s,border-color .18s}.hr:hover{box-shadow:var(--sh2);border-color:var(--brand)}
@@ -365,12 +367,16 @@ function gate(){
 }
 
 /* ---------- Vistas ---------- */
+function hotMostrar(k){const h=document.getElementById("hotHero");if(!h)return;const B=h.querySelectorAll(".gsl"),T=h.querySelectorAll(".hstack>.hero-in"),D=h.querySelectorAll(".hdots button");if(!T.length)return;k=((k%T.length)+T.length)%T.length;UI.hotK=k;
+ [B,T,D].forEach(L=>L.forEach((x,i)=>x.classList.toggle("on",i===k)))}
+function hotCarrusel(){if(UI.hotT)return;if(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+ UI.hotT=setInterval(()=>{const h=document.getElementById("hotHero");if(!h||document.hidden||h.matches(":hover"))return;hotMostrar((UI.hotK||0)+1)},6000)}
 function vHot(){
- const H=hotList(),L=H.slice(0,10),u=me();
+ const H=hotList(),L=H.slice(0,10),u=me();hotCarrusel();
  const V=S.props.filter(vendible),vv=V.reduce((a,p)=>a+vis(p),0),li=S.leads.filter(l=>l.e!=="cierre").length,ah=H.reduce((a,p)=>a+(p.lista-p.of),0);
  const prog=S.props.filter(p=>vendible(p)&&p.of&&p.ofDesde&&dleft(p.ofDesde)>0).length;
  return `<div class="head"><div><span class="eyebrow">Semana del ${fd(iso(NOW))}</span><h2>Hot list: propiedades con descuento</h2><p>Aquí entran solas las propiedades a las que la administración les pone descuento, ordenadas por el descuento más alto. Cuando la oferta termina, salen solas y vuelven al precio de Venta.</p></div>${can("precios")?`<button class="btn p" data-a="tab" data-v="ofe">Poner descuento</button>`:`<span class="pill grey">Descuentos definidos por la administración</span>`}</div>
-${L.length?(()=>{const p=L[0];return `<div class="hero" style="${hue(p,1)}"><div class="hero-in"><div class="row" style="gap:6px"><span class="pill gold">N.º 1 de la hot list</span><span class="pill red">Descuento −${off(p)}%</span>${p.inv&&MOSTRAR_INVERSION?`<span class="pill blue">Inversión</span>`:""}</div><h2>${esc(p.n)}</h2><p>${esc(p.dist)}, ${esc(p.prov)} · ${p.t}${p.m2?" · "+m2txt(p):""} · ${vis(p)} visitas</p><div class="price" style="color:#fff;font-size:34px">${pv(p)}<s style="color:rgba(255,255,255,.7)">Venta ${money(p.lista)}</s></div><div class="row"><button class="btn p" data-a="ficha" data-v="${p.c}">Ver ficha</button><a class="btn wa" target="_blank" rel="noopener" href="${waLink(shareText(p,u))}">Compartir por WhatsApp</a><button class="btn" style="background:rgba(255,255,255,.9)" data-a="tizer" data-v="${p.c}">Crear tizer</button></div></div></div>`})():""}
+${L.length?(()=>{const C=L.slice(0,5),k=(UI.hotK||0)%C.length;return `<div class="hero" id="hotHero" style="background:linear-gradient(160deg,#061236,#0a1f5c 55%,#10307f)">${C.map((p,i)=>`<div class="gsl${i===k?" on":""}" style="${hue(p,1)}"></div>`).join("")}<div class="hstack">${C.map((p,i)=>`<div class="hero-in${i===k?" on":""}"><div class="row" style="gap:6px"><span class="pill gold">N.º ${i+1} de la hot list</span><span class="pill red">Descuento −${off(p)}%</span>${p.inv&&MOSTRAR_INVERSION?`<span class="pill blue">Inversión</span>`:""}</div><h2>${esc(p.n)}</h2><p>${esc(p.dist)}, ${esc(p.prov)} · ${p.t}${p.m2?" · "+m2txt(p):""} · ${vis(p)} visitas</p><div class="price" style="color:#fff;font-size:34px">${pv(p)}<s style="color:rgba(255,255,255,.7)">Venta ${money(p.lista)}</s></div><div class="row"><button class="btn p" data-a="ficha" data-v="${p.c}">Ver ficha</button><a class="btn wa" target="_blank" rel="noopener" href="${waLink(shareText(p,u))}">Compartir por WhatsApp</a><button class="btn" style="background:rgba(255,255,255,.9)" data-a="tizer" data-v="${p.c}">Crear tizer</button></div></div>`).join("")}</div>${C.length>1?`<div class="hdots">${C.map((p,i)=>`<button class="${i===k?"on":""}" data-a="hotK" data-v="${i}" title="Ver N.º ${i+1}"></button>`).join("")}</div>`:""}</div>`})():""}
  <div class="kpis"><div class="kpi"><b>${H.length}</b><span>propiedades con descuento</span><i>${H.filter(p=>p.ofHasta&&dleft(p.ofHasta)<=3).length} vencen en 3 días</i></div><div class="kpi"><b>${money(ah)}</b><span>de ahorro para los compradores</span><i>${prog} descuentos programados</i></div><div class="kpi"><b>${vv}</b><span>visitas a fichas</span><i>${V.length} propiedades en venta</i></div><div class="kpi"><b>${li}</b><span>interesados en proceso</span><i>${S.leads.filter(l=>l.e==="oferta").length} con oferta</i></div></div>
  <div class="hot">${L.map((p,i)=>{const d=p.ofHasta?dleft(p.ofHasta):99;return `<div class="hr"><div class="rk">${i+1}</div><div class="th" style="${hue(p)}"></div>
  <div style="min-width:0"><b>${esc(p.n)}</b> <span class="muted sm">${p.c}</span><div class="muted sm">${esc(p.dist)}, ${esc(p.prov)} · ${p.t}${p.m2?" · "+m2txt(p):""}</div>
@@ -983,6 +989,7 @@ document.addEventListener("click",e=>{
  const b=e.target.closest("[data-a]");if(!b)return;const a=b.dataset.a,v=b.dataset.v;
  if((a==="closeInv"||a==="closeF"||a==="closeCopy"||a==="closeCli"||a==="closeFirma"||a==="closeDet")&&e.target!==b&&b.classList.contains("ov"))return;
  if(a==="closeFirma"){UI.firmaEd=false;UI.firmaTmp=null;UI.volTmp=null;render(1);return}
+ if(a==="hotK"){hotMostrar(+v);return}
  if(a==="corDet"){UI.corDet=v;render(1);return}
  if(a==="closeDet"){UI.corDet=null;render(1);return}
  if(a==="miFirma"){UI.firmaEd=true;UI.firmaTmp=null;UI.volTmp=null;render(1);return}
