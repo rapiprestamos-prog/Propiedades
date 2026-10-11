@@ -1,0 +1,18 @@
+# Mantiene despierta la base de datos de Supabase: cada día hace una consulta pequeña a la página pública.
+# (El plan gratis de Supabase pausa el proyecto si pasa 7 días sin uso.)
+name: Mantener activa la base de datos
+on:
+  schedule:
+    - cron: "17 13 * * *"   # todos los días 8:17 a. m. hora de Panamá
+  workflow_dispatch: {}
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Consultar Supabase
+        run: |
+          URL="$(grep -o 'https://[a-z0-9]*\.supabase\.co' <(curl -s https://raw.githubusercontent.com/${{ github.repository }}/${{ github.ref_name }}/config.js))"
+          KEY="$(curl -s https://raw.githubusercontent.com/${{ github.repository }}/${{ github.ref_name }}/config.js | grep -o 'supabaseAnonKey: *"[^"]*"' | sed 's/.*"\(.*\)"/\1/')"
+          code=$(curl -s -o /dev/null -w "%{http_code}" "$URL/rest/v1/propiedades_publicas?select=codigo&limit=1" -H "apikey: $KEY" -H "Authorization: Bearer $KEY")
+          echo "Respuesta de Supabase: $code"
+          test "$code" = "200"
