@@ -166,6 +166,7 @@ const bg=(p,big)=>fotoN(p)?(big?`url('${fotoUrl(p,1)}'), url('${fotoUrl(p,0)}'),
 const ART={};const art=p=>ART[p.c]||(ART[p.c]="url('data:image/svg+xml;charset=utf-8,"+encodeURIComponent(svgArt(p)).replace(/'/g,"%27")+"')");
 const off=p=>p.of?Math.round((1-p.of/p.lista)*100):0;const act=p=>!!p.of&&(!p.ofHasta||dleft(p.ofHasta)>=0);const precio=p=>act(p)?p.of:p.lista;
 const CFG=window.SITIO_CONFIG||{};const WA_NUM=String(CFG.whatsapp||"").replace(/\D/g,"");
+const telFmt=t=>{let d=String(t||"").replace(/\D/g,"");if(d.length===11&&d.startsWith("507"))d=d.slice(3);return d.length===8?`+507 ${d.slice(0,4)}-${d.slice(4)}`:d.length===7?`+507 ${d.slice(0,3)}-${d.slice(3)}`:String(t||"").trim()};
 const WA=`https://wa.me/${WA_NUM}?text=`;
 const UI={q:"",t:"",prov:"",max:"",tab:"todas",ficha:null};
 function toast(t){const e=$("#toast");e.textContent=t;e.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>e.hidden=true,2600)}
@@ -206,11 +207,11 @@ $("#fs").addEventListener("submit",e=>{e.preventDefault();UI.q=$("#q").value;UI.
 $("#fc").addEventListener("submit",async e=>{e.preventDefault();const n=$("#cn").value.trim(),t=$("#ct").value.trim(),em=$("#ce").value.trim(),c=$("#ci").value,b=$("#fc button");
  if(!n||(!t&&!em)){$("#cmsg").textContent="Escribe tu nombre y tu teléfono o tu correo.";return}
  if(em&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)){$("#cmsg").textContent="Revisa tu correo electrónico.";return}
- const via=[t,em].filter(Boolean).join(" o a ");
+ const tf=t?telFmt(t):"",via=[tf,em].filter(Boolean).join(" o a ");
  const cod=c&&c!=="asesoria"?c:null,nota=c==="asesoria"?"Asesoría general de inversión":(cod?"Interés en "+cod:"");
- if(SB){b.disabled=true;$("#cmsg").textContent="Enviando…";let {error}=await SB.rpc("contacto_web",{p_nombre:n,p_tel:t||null,p_codigo:cod,p_nota:nota,p_email:em||null});
+ if(SB){b.disabled=true;$("#cmsg").textContent="Enviando…";let {error}=await SB.rpc("contacto_web",{p_nombre:n,p_tel:tf||null,p_codigo:cod,p_nota:nota,p_email:em||null});
   /* Base de datos sin la columna de correo todavía: se envía el correo dentro de la nota. */
-  if(error&&/contacto_web|p_email|function/i.test(error.message||"")&&t)({error}=await SB.rpc("contacto_web",{p_nombre:n,p_tel:t,p_codigo:cod,p_nota:[nota,em?"Correo: "+em:""].filter(Boolean).join(" · ")}));
+  if(error&&/contacto_web|p_email|function/i.test(error.message||"")&&t)({error}=await SB.rpc("contacto_web",{p_nombre:n,p_tel:tf,p_codigo:cod,p_nota:[nota,em?"Correo: "+em:""].filter(Boolean).join(" · ")}));
   b.disabled=false;
   if(!error){$("#cmsg").textContent=`Gracias, ${n}. Un corredor te contactará ${t?"al ":"a "}${via}.`;$("#fc").reset();return}
   $("#cmsg").textContent="No pudimos enviar tu solicitud. Escríbenos por WhatsApp.";return}
