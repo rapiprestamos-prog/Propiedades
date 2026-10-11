@@ -759,7 +759,7 @@ function difRegistro(){const L=(S.dif||[]).slice(0,60);if(!L.length)return "";
 function vDif(){
  const u=me(),V=S.props.filter(ofrecible);if(!UI.difSel){const t=hotList().slice(0,10);UI.difSel=Object.fromEntries(t.map(p=>[p.c,true]))}
  if(UI.difDest==="corredores"&&!can("adm"))UI.difDest="clientes";
- if(!["wa","canal","mk","ig"].includes(UI.difCanal))UI.difCanal="wa";
+ if(!["wa","mk","ig"].includes(UI.difCanal))UI.difCanal="wa";
  const sel=V.filter(p=>UI.difSel[p.c]);const all=can("segall")||can("adm");const cfg=S.cfg||{};
  const dest=UI.difDest==="clientes"?S.clientes.filter(c=>all||c.u===u.id||!c.u).map(c=>({n:c.n,tel:c.tel,x:c.canal})):UI.difDest==="interesados"?S.leads.filter(l=>(all||l.u===u.id)&&l.e!=="cierre").map(l=>({n:l.n,tel:l.tel,x:ETAPAS.find(e=>e[0]===l.e)[1]})):S.users.filter(x=>x.rol==="corredor"&&x.st==="Activo").map(x=>({n:x.n,tel:x.tel,x:"Corredor"}));
  const cat=waCatalogo(sel,u);
@@ -831,8 +831,8 @@ function vDif(){
    <div class="panel grid" style="gap:10px;margin-top:14px;min-width:0"><h3 style="font-size:15px;margin:0">3. Datos del anuncio</h3><div class="grid g2" style="gap:10px">${campo("Título",l.titulo)}${campo("Precio",l.precio)}${campo("Tipo de propiedad",l.cat)}${campo("Ubicación",l.ubic)}</div>${campo("Descripción",l.desc,1)}</div>`:`<div class="panel muted">Elige al menos una propiedad arriba.</div>`}
   <div class="row" style="margin-top:12px"><button class="btn s" data-a="cpAll" data-v="${esc(todo)}">Copiar las ${L.length} publicaciones en un texto</button></div>`;
  }
- return `<div class="head"><div><span class="eyebrow">Marketing</span><h2>Difusión masiva</h2><p>Elige propiedades y mándalas por WhatsApp, publícalas en tu canal de WhatsApp o en tu Instagram, o déjalas listas para Marketplace. Cada quien usa sus propias cuentas; todo sale con su firma y queda anotado.</p></div></div>
- <div class="sub"><button data-a="difCanal" data-v="wa" aria-pressed="${UI.difCanal==="wa"}">WhatsApp</button><button data-a="difCanal" data-v="canal" aria-pressed="${UI.difCanal==="canal"}">Canal de WhatsApp</button><button data-a="difCanal" data-v="mk" aria-pressed="${UI.difCanal==="mk"}">Marketplace</button><button data-a="difCanal" data-v="ig" aria-pressed="${UI.difCanal==="ig"}">Instagram</button></div>
+ return `<div class="head"><div><span class="eyebrow">Marketing</span><h2>Difusión masiva</h2><p>Elige propiedades y mándalas por WhatsApp, publícalas en tu Instagram o déjalas listas para Marketplace. Cada quien usa sus propias cuentas; todo sale con su firma y queda anotado.</p></div></div>
+ <div class="sub"><button data-a="difCanal" data-v="wa" aria-pressed="${UI.difCanal==="wa"}">WhatsApp</button><button data-a="difCanal" data-v="mk" aria-pressed="${UI.difCanal==="mk"}">Marketplace</button><button data-a="difCanal" data-v="ig" aria-pressed="${UI.difCanal==="ig"}">Instagram</button></div>
  <div class="grid" style="margin-bottom:14px">${picker}</div>${body}${UI.difCanal!=="wa"?difRegistro():""}`;
 }
 
