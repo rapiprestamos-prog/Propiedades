@@ -1084,7 +1084,7 @@ document.addEventListener("click",e=>{
  else if(a==="verPw"){const i=document.getElementById(v);if(i){i.type=i.type==="password"?"text":"password";b.textContent=i.type==="password"?"Ver":"Ocultar"}}
  else if(a==="miClave"){UI.mustChange={vol:true};UI.err="";render()}
  else if(a==="npCancel"){UI.mustChange=null;UI.err="";render()}
- else if(a==="uPin"){const pin=genClave();if(sbOn()){after(rpc("reset_pin",{p_id:v,p_nuevo:pin}).then(()=>{UI.pinShow[v]=pin;toast("Contraseña temporal: "+pin)}));return}hashClave(pin).then(hh=>{const x=U(v);x.ph=hh;x.cambiar=true;UI.pinShow[v]=pin;save();toast("Contraseña temporal: "+pin);render(1)})}
+ else if(a==="uPin"){const pin=genClave();if(sbOn()){after(rpc("reset_pin",{p_id:v,p_nuevo:pin}).then(()=>{UI.pinShow[v]=pin;const x=U(v);toast(x&&x.em?`Contraseña temporal enviada a ${x.em}`:"Contraseña temporal: "+pin)}));return}hashClave(pin).then(hh=>{const x=U(v);x.ph=hh;x.cambiar=true;UI.pinShow[v]=pin;save();toast("Contraseña temporal: "+pin);render(1)})}
  else if(a==="uEst"){const e=b.dataset.e;if(sbOn()){after(rpc("editar_usuario",{p_id:v,p_rol:null,p_estado:e}).then(()=>toast(e==="Activo"?"Usuario activado":"Usuario desactivado")));return}U(v).st=e;save();toast(e==="Activo"?"Usuario activado":"Usuario desactivado");render(1)}
  else if(a==="sbSave"){const url=$("#sbUrl").value.trim().replace(/\/$/,""),key=$("#sbKey").value.trim();if(!url||!key){toast("Pega la URL y la llave anon");return}SBC={url,key};try{localStorage.setItem(SBKEY,JSON.stringify(SBC))}catch(e){}sbInit();if(!sb){toast("No se pudo crear la conexión");return}sbLoad().then(ok=>{if(ok){toast("Conectado a Supabase");UI.me=null;CRED.lic=CRED.pin=null}render()})}
  else if(a==="sbReload"){sbLoad().then(ok=>{if(ok)toast("Datos recargados");render(1)})}
@@ -1221,7 +1221,7 @@ document.addEventListener("submit",e=>{
  if(id==="fUsr"){const n=$("#nuN").value.trim(),l=$("#nuL").value.trim().toUpperCase(),r=$("#nuR").value,pin=$("#nuP").value.trim();
   if(!claveOk(pin)){toast("La contraseña temporal: "+REQ);return}
   if(S.users.some(x=>x.lic&&x.lic.toUpperCase()===l)){toast("Esa licencia o usuario ya existe");return}
-  const done=id=>{UI.newPin=genClave();if(id)UI.pinShow[id]=pin;toast(`Usuario ${l} creado. Contraseña temporal: ${pin}`)};
+  const em0=$("#nuE").value.trim(),done=id=>{UI.newPin=genClave();if(id)UI.pinShow[id]=pin;toast(em0?`Usuario ${l} creado. Le enviamos su acceso a ${em0}`:`Usuario ${l} creado. Contraseña temporal: ${pin} (no tiene correo: pásasela tú)`)};
   if(sbOn()){after(rpc("crear_usuario",{p_usuario:l,p_nombre:n,p_rol:r,p_tel:$("#nuT").value.trim(),p_email:$("#nuE").value.trim(),p_pin_nuevo:pin}).then(id=>done(id)));return}
   hashClave(pin).then(hh=>{const id="u"+Date.now();S.users.push({id,n,rol:r,lic:l,tel:$("#nuT").value.trim(),em:$("#nuE").value.trim(),st:"Activo",ph:hh,cambiar:true,base:0,cie:0});done(id);save();render(1)});return}
  if(id==="fVta"&&sbOn()){const V=UI.venta,ls=$("#vL"),lid=ls&&ls.value?ls.value:null,cli=$("#vC").value.trim();if(!lid&&!cli){toast("Escribe el nombre del cliente que compró");return}
