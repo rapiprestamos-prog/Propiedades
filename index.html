@@ -232,7 +232,7 @@ render();
 /* Enlace directo a una ficha: index.html?p=F-12345 (lo usan los textos de difusión) */
 let DEEP=null;try{DEEP=new URLSearchParams(location.search).get("p")}catch(e){}
 function abrirDeep(){if(DEEP&&PROPS.find(x=>x.c===DEEP)){const c=DEEP;DEEP=null;ficha(c)}}
-abrirDeep();
+if(!((CFG.supabaseUrl||"").trim()&&(CFG.supabaseAnonKey||"").trim()))abrirDeep();else setTimeout(abrirDeep,4000);
 /* Secciones: cada opción del menú muestra solo su sección (Propiedades, Inversión, Negocios, Cómo comprar, Contacto) */
 const VISTAS=["catalogo","inversion","negocios","como","contacto"].filter(v=>MOSTRAR_INVERSION||v!=="inversion");
 if(!MOSTRAR_INVERSION){const sec=document.getElementById("inversion");if(sec)sec.hidden=true;document.querySelectorAll('a[href="#inversion"]').forEach(a=>a.remove())}
