@@ -313,7 +313,7 @@ const waLink=t=>"https://wa.me/?text="+encodeURIComponent(t);
 const waTel=t=>{let d=String(t||"").replace(/\D/g,"");if(d.length===7||d.length===8)d="507"+d;return d.length>=10?d:""};
 const waTo=(tel,t)=>{const d=waTel(tel);return d?"https://wa.me/"+d+"?text="+encodeURIComponent(t):waLink(t)};
 const fHora=t=>{const d=new Date(t),hoy=new Date(),o={timeZone:"America/Panama"},k=x=>x.toLocaleDateString("es-PA",o),h=d.toLocaleTimeString("es-PA",{...o,hour:"numeric",minute:"2-digit"});const ay=new Date(hoy-864e5);return k(d)===k(hoy)?"hoy, "+h:k(d)===k(ay)?"ayer, "+h:d.toLocaleDateString("es-PA",{...o,day:"numeric",month:"short"})+", "+h};
-const ingTxt=x=>{if(x.ing===undefined)return "";const on=x.act&&(Date.now()-new Date(x.act))<15*6e4;return `<div class="sm" style="margin-top:3px">${on?`<span class="pill" style="background:#e3f6ea;color:#17703a">● En línea</span> `:""}<span class="muted">${x.ing?"Último ingreso: "+fHora(x.ing):"Todavía no ha entrado"}</span></div>`};
+const ingTxt=x=>{if(x.ing===undefined)return "";const on=x.act&&(Date.now()-new Date(x.act))<15*6e4;return `<div class="sm" style="margin-top:3px">${on?`<span class="pill" style="background:#e3f6ea;color:#17703a">● En línea</span> `:""}<span class="muted">${x.ing?"Último ingreso: "+fHora(x.ing):"Sin ingresos registrados"}</span></div>`};
 const firmaDef=u=>`${u.n}${u.lic?" · Lic. "+u.lic:""}${u.tel?" · "+u.tel:""}`;
 const firma=u=>(u&&u.firma&&String(u.firma).trim())||firmaDef(u||{n:""});
 const volData=u=>{const v=(u&&u.vol)||{};return {n:(v.n||"").trim()||u.n,tel:(v.tel||"").trim()||u.tel||"",lic:(v.lic||"").trim()||(u.lic?"Lic. "+u.lic:""),extra:(v.extra||"").trim()}};
