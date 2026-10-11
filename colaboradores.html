@@ -264,7 +264,7 @@ if(!S.campanas)S.campanas=[];
 if(!S.tz)S.tz={};
 for(const r in P0)if(S.perm&&S.perm[r]){if(S.perm[r].cli===undefined)S.perm[r].cli=P0[r].cli||false;if(S.perm[r].dif===undefined)S.perm[r].dif=P0[r].dif||false;if(S.perm[r].precios===undefined)S.perm[r].precios=P0[r].precios||false}
 if(!S.precioLog)S.precioLog=[];if(!S.dif)S.dif=[];if(!S.cfg)S.cfg={};
-const UI={fb:{st:"off",pages:[],page:null,usaFb:true,usaIg:true,run:null,err:""},mk:{i:0},inv:{q:"",est:"",ed:null,busy:false,msg:""},me:null,tab:"hot",sub:"cor",of:{tc:"oferta",modo:"pct",val:10,sinFin:false,qPct:20,qFin:"fecha",qHasta:plus(30),base:"lista",red:100,piso:"ninguno",pisoPct:70,nombre:"Oferta de "+new Date().toLocaleDateString("es-PA",{month:"long"}),desde:iso(NOW),hasta:plus(30),f:{tipo:"",prov:"",q:"",min:"",max:"",solo:"todas"},sel:{},over:{},conf:false},newPin:genClave(),mustChange:null,pinShow:{},mas:{modo:"pct",val:5,dias:7,tipo:"",prov:"",solo:"todas"},masPrev:false,cliCanal:"",cliForm:false,difSel:null,difCanal:"wa",difDest:"clientes",q:"",tipo:"",prov:"",max:"",soloOf:false,soloInv:false,ficha:null,mat:{p:"F-243052",fmt:"teaser",canal:"instagram",foto:null},tzFoto:{},lote:{set:"hot",items:[],busy:false},leadP:"",fl:"",reg:null,err:""};
+const UI={fb:{st:"off",pages:[],page:null,usaFb:true,usaIg:true,run:null,err:""},mk:{i:0},inv:{q:"",est:"",ed:null,busy:false,msg:""},me:null,tab:"hot",sub:"cor",of:{tc:"oferta",modo:"pct",val:10,sinFin:false,qPct:20,qFin:"fecha",qHasta:plus(30),base:"lista",red:100,piso:"ninguno",pisoPct:70,nombre:"Oferta de "+new Date().toLocaleDateString("es-PA",{month:"long"}),desde:iso(NOW),hasta:plus(30),f:{tipo:"",prov:"",q:"",min:"",max:"",solo:"todas"},sel:{},over:{},conf:false},newPin:genClave(),mustChange:null,pinShow:{},mas:{modo:"pct",val:5,dias:7,tipo:"",prov:"",solo:"todas"},masPrev:false,cliCanal:"",cliForm:false,difSel:null,difCanal:"wa",difDest:"clientes",q:"",tipo:"",prov:"",max:"",soloOf:false,soloInv:false,ficha:null,mat:{p:"F-243052",fmt:"teaser",canal:"instagram",foto:null},tzFoto:{},lote:{set:"hot",items:[],busy:false},difTz:{items:[],busy:false,key:""},leadP:"",fl:"",reg:null,err:""};
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
 const U=id=>S.users.find(u=>u.id===id), PR=c=>S.props.find(p=>p.c===c);
 const me=()=>U(UI.me);
@@ -613,6 +613,28 @@ async function loteGo(){const L=loteSet(),u=me();UI.lote.busy=true;UI.lote.items
   const c=document.createElement("canvas");drawTeaser(c,p,u,im);const url=await new Promise(res=>c.toBlob(b=>res(b?URL.createObjectURL(b):""),"image/jpeg",.9));UI.lote.items.push({c:p.c,url})}
  UI.lote.busy=false;render(1);toast(`${L.length} teasers listos`)}
 
+const esMovil=()=>/Android|iPhone|iPad|Mobile/i.test(navigator.userAgent);
+async function difTzGo(sel){const u=me(),L=sel.slice(0,30);UI.difTz={items:[],busy:true,key:L.map(p=>p.c).join(",")};render(1);
+ for(const p of L){const im=fotoN(p)?await new Promise(res=>{const i=new Image();i.crossOrigin="anonymous";i.onload=()=>res(i);i.onerror=()=>res(null);i.src=fotoUrl(p,UI.tzFoto[p.c]||1)}):null;
+  const c=document.createElement("canvas");drawTeaser(c,p,u,im);const blob=await new Promise(res=>c.toBlob(res,"image/jpeg",.9));if(blob)UI.difTz.items.push({c:p.c,blob,url:URL.createObjectURL(blob)})}
+ UI.difTz.busy=false;render(1);toast(`${UI.difTz.items.length} teasers listos`)}
+async function difTzWa(it){const p=PR(it.c),u=me(),txt=caption(p,u,"whatsapp"),name=`teaser-${it.c.replace(/[^A-Za-z0-9]+/g,"-")}.jpg`,file=new File([it.blob],name,{type:"image/jpeg"});
+ if(esMovil()){try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],text:txt});return}}catch(e){if(e&&e.name==="AbortError")return}}
+ const url="https://web.whatsapp.com/send?text="+encodeURIComponent(txt);
+ if(document.documentElement.dataset.propWaExt==="1"){const jpg=await new Promise(res=>{const r=new FileReader();r.onload=()=>res(r.result);r.readAsDataURL(it.blob)});
+  const ok=await new Promise(res=>{const on=e=>{if(e.source===window&&e.data&&e.data.tipo==="PROP_WA_LISTO"){window.removeEventListener("message",on);res(true)}};window.addEventListener("message",on);window.postMessage({tipo:"PROP_WA_ENVIAR",img:jpg,texto:txt},"*");setTimeout(()=>res(false),3000)});
+  if(ok){const w=window.open("https://web.whatsapp.com/","_blank");if(w)try{w.opener=null}catch(er){}toast("Abre el chat: la imagen y el texto se ponen solos");return}}
+ let ok=false;try{window.focus();const png=await new Promise(res=>{const i=new Image();i.onload=()=>{const k=document.createElement("canvas");k.width=i.naturalWidth;k.height=i.naturalHeight;k.getContext("2d").drawImage(i,0,0);k.toBlob(res,"image/png")};i.onerror=()=>res(null);i.src=it.url});
+  if(png){await navigator.clipboard.write([new ClipboardItem({"image/png":png})]);ok=true}}catch(er){}
+ if(!ok){bajar(it.blob,name);toast("La imagen se descargó en Descargas: adjúntala en WhatsApp con el clip")}
+ const w=window.open(url,"_blank");if(w)try{w.opener=null}catch(er){}
+ if(ok)toast("Imagen copiada: elige el chat y presiona Ctrl+V")}
+async function difTzTodas(){const its=UI.difTz.items,u=me();if(!its.length)return;
+ const files=its.map(it=>new File([it.blob],`teaser-${it.c.replace(/[^A-Za-z0-9]+/g,"-")}.jpg`,{type:"image/jpeg"}));
+ try{if(navigator.canShare&&navigator.canShare({files})){await navigator.share({files,text:waCatalogo(its.map(it=>PR(it.c)).filter(Boolean),u)});return}}catch(e){if(e&&e.name==="AbortError")return}
+ toast("Tu equipo no deja compartir varias imágenes juntas: envíalas una por una")}
+function difTzZip(){if(!window.JSZip){toast("No se pudo cargar el compresor ZIP");return}const z=new JSZip();UI.difTz.items.forEach(it=>z.file(`teaser-${it.c.replace(/[^A-Za-z0-9]+/g,"-")}.jpg`,it.blob));z.generateAsync({type:"blob"}).then(b=>{bajar(b,"teasers.zip");toast("Descargando teasers.zip")})}
+
 function caption(p,u,c){
  const o=ofAct(p), pr=o?`Oferta ${money(p.of)} (antes ${money(p.lista)})`:money(p.lista), tag=`#Panamá #BienesRaíces #${p.t.replace(/\s/g,"")} #${p.prov.replace(/\s/g,"")} #OportunidadesDeInversión`;
  const base=`${o?"OFERTA · ":""}${p.n}\n${p.dist}, ${p.prov} · ${p.t}${p.m2?", "+m2txt(p):""}\n${pr}\n\n${p.dsc}\n\nCódigo ${p.c}. Escríbeme para coordinar tu visita.\n${firma(u)}`;
@@ -741,7 +763,12 @@ function vDif(){
  <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(230px,1fr));margin-top:10px;max-height:420px;overflow:auto">${V.map(p=>`<label class="chk" style="border:1px solid var(--line);border-radius:8px;padding:6px 8px;align-items:flex-start"><input type="checkbox" data-f="difSel" data-v="${p.c}" ${UI.difSel[p.c]?"checked":""}><span style="min-width:0"><b class="sm">${esc(p.n)}</b><div class="sm muted">${pv(p)}${ofAct(p)?" · con descuento":""}${fotoN(p)?` · ${fotoN(p)} fotos`:" · sin fotos"}</div>${marca(p)}</span></label>`).join("")}</div></div>`;
  let body="";
  if(UI.difCanal==="wa"){
-  body=`<div class="grid g2"><div class="panel grid"><h3 style="font-size:15px">2. Mensaje de catálogo</h3><p class="sm muted" style="margin:0">Un solo mensaje con todas las propiedades elegidas. Se envía igual a cada persona.</p><textarea id="difMsg" rows="12">${esc(cat)}</textarea><div class="row"><button class="btn p" data-a="cpDif">Copiar mensaje</button><a class="btn wa" target="_blank" rel="noopener" href="${waLink(cat)}">Abrir en WhatsApp</a></div></div>
+  body=`<div class="grid g2"><div class="panel grid"><h3 style="font-size:15px">2. Mensaje de catálogo</h3><p class="sm muted" style="margin:0">Un solo mensaje con todas las propiedades elegidas. Se envía igual a cada persona.</p><textarea id="difMsg" rows="12">${esc(cat)}</textarea><div class="row"><button class="btn p" data-a="cpDif">Copiar mensaje</button><a class="btn wa" target="_blank" rel="noopener" href="${waLink(cat)}">Abrir en WhatsApp</a></div>${(()=>{const T=UI.difTz,key=sel.slice(0,30).map(p=>p.c).join(","),its=T.key===key?T.items:[];
+   return `<div class="grid" style="gap:8px;border-top:1px solid var(--line);padding-top:10px"><h3 style="font-size:15px">Con imagen: un teaser por propiedad</h3><p class="sm muted" style="margin:0">Se arma solo con la foto, el precio y tu firma. Si la propiedad está en oferta sale con el descuento, el precio anterior tachado y la fecha de fin.</p>
+   <div class="row"><button class="btn p" data-a="difTzGo" ${T.busy||!sel.length?"disabled":""}>${T.busy?"Creando…":its.length?"Volver a crear":`Crear ${Math.min(sel.length,30)} teaser${sel.length===1?"":"s"}`}</button>${its.length?`${esMovil()?`<button class="btn wa" data-a="difTzAll">Enviar todas por WhatsApp</button>`:""}<button class="btn" data-a="difTzZip">Descargar todas (ZIP)</button>`:""}</div>
+   ${sel.length>30?`<div class="sm muted">Se crean las primeras 30.</div>`:""}
+   ${its.length?`<div class="sm muted">${esMovil()?"Toca <b>WhatsApp</b> en una imagen: se abre WhatsApp con la imagen y el texto, y eliges a quién mandarla.":"Toca <b>WhatsApp</b>: la imagen se copia y se abre WhatsApp Web; elige el chat y presiona <b>Ctrl+V</b>."}</div>
+   <div class="lote">${its.map((t,i)=>`<figure><img src="${t.url}" alt="Teaser ${t.c}" data-a="tizer" data-v="${t.c}"><figcaption class="sm" style="display:flex;justify-content:space-between;align-items:center;gap:4px">${t.c}${ofAct(PR(t.c))?' <span class="pill red" style="font-size:10px">oferta</span>':""}</figcaption><div class="row" style="gap:4px;margin-top:4px"><button class="btn s wa" data-a="difTzWa" data-v="${i}">WhatsApp</button><button class="btn s" data-a="difTzDl" data-v="${i}">Bajar</button></div></figure>`).join("")}</div>`:""}</div>`})()}</div>
   <div class="panel grid"><h3 style="font-size:15px">3. Destinatarios</h3><div class="sub" style="margin:0">${[["clientes","Clientes de redes"],["interesados","Interesados"]].concat(can("adm")?[["corredores","Corredores"]]:[]).map(x=>`<button data-a="difDest" data-v="${x[0]}" aria-pressed="${UI.difDest===x[0]}">${x[1]}</button>`).join("")}</div>
   <div class="row"><button class="btn p" data-a="cpTels">Copiar los ${dest.length} números</button><span class="sm muted">Pégalos en una lista de difusión de WhatsApp Business y manda el mensaje a todos de una vez (hasta 256 por lista, y solo les llega a quienes tienen tu número guardado).</span></div>
   <div class="tbl" style="max-height:320px;overflow:auto"><table><thead><tr><th>Nombre</th><th>Teléfono</th><th>Origen</th><th></th></tr></thead><tbody>${dest.map(d=>`<tr><td>${esc(d.n)}</td><td class="num">${esc(d.tel||"")}</td><td class="sm muted">${esc(d.x)}</td><td><a class="btn s wa" target="_blank" rel="noopener" href="${waTo(d.tel,`Hola ${String(d.n||"").split(" ")[0]}, `+cat)}">Enviar</a></td></tr>`).join("")||`<tr><td colspan="4" class="muted">Sin destinatarios.</td></tr>`}</tbody></table></div></div></div>`;
@@ -1153,6 +1180,11 @@ document.addEventListener("click",e=>{
  else if(a==="tzReset"){delete S.tz[v];save();render(1)}
  else if(a==="tzFoto"){UI.tzFoto[UI.mat.p]=+v;IMG=null;render(1)}
  else if(a==="ltGo"){loteGo()}
+ else if(a==="difTzGo"){const V=S.props.filter(ofrecible).filter(p=>UI.difSel[p.c]);difTzGo(V)}
+ else if(a==="difTzWa"){const it=UI.difTz.items[+v];if(it)difTzWa(it)}
+ else if(a==="difTzDl"){const it=UI.difTz.items[+v];if(it){bajar(it.blob,`teaser-${it.c.replace(/[^A-Za-z0-9]+/g,"-")}.jpg`);toast("Imagen descargada")}}
+ else if(a==="difTzAll"){difTzTodas()}
+ else if(a==="difTzZip"){difTzZip()}
  else if(a==="ltZip"){if(!window.JSZip){toast("No se pudo cargar el compresor ZIP");return}const z=new JSZip();Promise.all(UI.lote.items.map(t=>fetch(t.url).then(r=>r.blob()).then(b=>z.file(`teaser-${t.c.replace(/[^A-Za-z0-9]+/g,"-")}.jpg`,b)))).then(()=>z.generateAsync({type:"blob"})).then(b=>{const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="teasers.zip";document.body.appendChild(a);a.click();a.remove();toast("Descargando teasers.zip")})}
  else if(a==="cpImg"){const c=$("#cv");c.toBlob(bl=>{try{navigator.clipboard.write([new ClipboardItem({"image/png":bl})]).then(()=>toast("Imagen copiada"),()=>toast("No se pudo copiar. Clic derecho sobre la imagen y Guardar imagen."))}catch(er){toast("No se pudo copiar. Clic derecho sobre la imagen y Guardar imagen.")}})}
  else if(a==="cpCap")clip($("#cap").value,"Texto copiado");
