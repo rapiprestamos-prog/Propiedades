@@ -859,7 +859,7 @@ function ofDone(n,o){
 function ofItems(){const o=UI.of;return S.props.filter(vendible).filter(p=>o.sel[p.c]).map(p=>({p,...ofCalc(p)})).filter(r=>r.ok).map(r=>({codigo:r.p.c,precio:r.n}))}
 
 /* ---------- Usuarios ---------- */
-const ROLDESC={admincor:"Aprueba a los corredores que se registran (le llega el correo de cada registro). Ve la Hot list, las propiedades y la pestaña Administración → Corredores.",administrador:"Todo: precios y ofertas, usuarios, permisos, aprobaciones.",coadmin:"Apoya a la administración: cambia precios y ofertas, ve los avalúos, aprueba corredores, ve todo el seguimiento y entrega premios. Ve también los datos internos (valor en libros, costos, venta rápida). No cambia usuarios ni permisos.",corredor:"Ve las propiedades en venta con el precio de Venta y su avalúo (monto, fecha y PDF), registra clientes y seguimiento, sube de nivel con cada venta.",interno:"Colaboradores de la empresa: ven las propiedades y la hot list con el precio de Venta y el avalúo, arman teasers y volantes con sus datos y hacen difusión con sus propias cuentas (WhatsApp, canal, Marketplace e Instagram). Lo demás se activa en Permisos."};
+const ROLDESC={admincor:"Aprueba a los corredores que se registran (le llega el correo de cada registro). Ve la Hot list, las propiedades y la pestaña Administración → Corredores / colaboradores.",administrador:"Todo: precios y ofertas, usuarios, permisos, aprobaciones.",coadmin:"Apoya a la administración: cambia precios y ofertas, ve los avalúos, aprueba corredores, ve todo el seguimiento y entrega premios. Ve también los datos internos (valor en libros, costos, venta rápida). No cambia usuarios ni permisos.",corredor:"Ve las propiedades en venta con el precio de Venta y su avalúo (monto, fecha y PDF), registra clientes y seguimiento, sube de nivel con cada venta.",interno:"Colaboradores de la empresa: ven las propiedades y la hot list con el precio de Venta y el avalúo, arman teasers y volantes con sus datos y hacen difusión con sus propias cuentas (WhatsApp, canal, Marketplace e Instagram). Lo demás se activa en Permisos."};
 function vUsr(){
  const u=me(),ord={administrador:0,coadmin:1,interno:2,corredor:3},L=[...S.users].sort((a,b)=>(a.st==="Pendiente"?-1:0)-(b.st==="Pendiente"?-1:0)||ord[a.rol]-ord[b.rol]||a.n.localeCompare(b.n));
  const nAdm=S.users.filter(x=>x.rol==="administrador"&&x.st==="Activo").length;
@@ -953,7 +953,7 @@ function vInv(){
 /* ---------- Administración ---------- */
 const nuevoPrecio=(p,m)=>{const v=+m.val||0;let n=m.modo==="pct"?Math.round(p.lista*(1-v/100)):p.lista-v;return Math.max(0,Math.round(n/100)*100)};
 const msInfo=(obj,nuevo)=>`Precio de oferta = precio de lista menos la rebaja, redondeado a la centena. ${obj.length?`Ej.: ${esc(obj[0].n)} pasa de ${money(obj[0].lista)} a ${money(nuevo(obj[0]))}.`:""}`;
-const SUBS=[["ven","Ventas por confirmar"],["cor","Corredores"],["asg","Asignaciones y manejo"],["hotm","Hot list"],["pre","Premios"],["act","Actividad"],["sbx","Conexión"]];
+const SUBS=[["ven","Ventas por confirmar"],["cor","Corredores / colaboradores"],["asg","Asignaciones y manejo"],["hotm","Hot list"],["pre","Premios"],["act","Actividad"],["sbx","Conexión"]];
 function vAdm(){
  if(!can("adm"))UI.sub="cor";const s=UI.sub;let b="";
  if(s==="cor"){
