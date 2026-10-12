@@ -151,7 +151,7 @@ canvas{max-width:100%;height:auto;border-radius:10px;border:1px solid var(--line
 <div id="modal"></div><div id="toast" class="toast" hidden></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js"></script>
 <script src="config.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script>
 const $=s=>document.querySelector(s);
 const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -614,12 +614,24 @@ async function loteGo(){const L=loteSet(),u=me();UI.lote.busy=true;UI.lote.items
  UI.lote.busy=false;render(1);toast(`${L.length} teasers listos`)}
 
 const _adm=()=>["administrador","coadmin"].includes((me()||{}).rol);
-function xlsBajar(hojas,nombre){if(!window.XLSX){toast("No se pudo cargar el generador de Excel; revisa la conexión y vuelve a intentar");return}const wb=XLSX.utils.book_new();hojas.forEach(([n,rows])=>{const ws=XLSX.utils.json_to_sheet(rows);ws["!cols"]=Object.keys(rows[0]||{}).map(k=>({wch:Math.min(60,Math.max(12,...rows.map(r=>String(r[k]??"").length),k.length))}));XLSX.utils.book_append_sheet(wb,ws,n)});XLSX.writeFile(wb,nombre);toast("Excel descargado")}
+async function xlsBajar(hojas,nombre,titulo){if(!window.ExcelJS){toast("No se pudo cargar el generador de Excel; revisa la conexión y vuelve a intentar");return}
+ const wb=new ExcelJS.Workbook();wb.creator="Propiedades · Colaboradores";wb.created=new Date();
+ const AZUL="FF071A5C",AZUL2="FF1F3A8A",CLARO="FFEEF2FB",BORDE="FFD9DFEE",ORO="FFD4A62A";
+ hojas.forEach(([n,rows])=>{const ws=wb.addWorksheet(n,{views:[{showGridLines:false,state:"frozen",ySplit:3}]});const cols=Object.keys(rows[0]||{});if(!cols.length)return;
+  ws.mergeCells(1,1,1,cols.length);const t=ws.getCell(1,1);t.value=`${titulo||n}`;t.font={name:"Calibri",size:16,bold:true,color:{argb:"FFFFFFFF"}};t.fill={type:"pattern",pattern:"solid",fgColor:{argb:AZUL}};t.alignment={vertical:"middle",indent:1};ws.getRow(1).height=30;
+  ws.mergeCells(2,1,2,cols.length);const st=ws.getCell(2,1);st.value=`${n} · ${rows.length} registro${rows.length===1?"":"s"} · generado el ${new Date().toLocaleString("es-PA",{timeZone:"America/Panama",day:"numeric",month:"long",year:"numeric",hour:"numeric",minute:"2-digit"})} por ${me().n}`;st.font={name:"Calibri",size:10,italic:true,color:{argb:"FF5B6475"}};st.alignment={vertical:"middle",indent:1};ws.getRow(2).height=18;
+  const h=ws.getRow(3);h.values=cols;h.height=22;h.eachCell(c=>{c.font={name:"Calibri",size:11,bold:true,color:{argb:"FFFFFFFF"}};c.fill={type:"pattern",pattern:"solid",fgColor:{argb:AZUL2}};c.alignment={vertical:"middle",horizontal:"center",wrapText:true};c.border={bottom:{style:"medium",color:{argb:ORO}}}});
+  rows.forEach((o,k)=>{const row=ws.addRow(cols.map(c=>o[c]));row.eachCell({includeEmpty:true},(c,ci)=>{const key=cols[ci-1];c.font={name:"Calibri",size:11,color:{argb:"FF14201C"}};c.alignment={vertical:"middle",horizontal:typeof c.value==="number"?"right":"left",wrapText:true};c.border={bottom:{style:"thin",color:{argb:BORDE}}};if(k%2)c.fill={type:"pattern",pattern:"solid",fgColor:{argb:CLARO}};
+   if(typeof c.value==="number"&&/precio/i.test(key))c.numFmt='"B/. "#,##0';if(key==="Atrasado"&&c.value==="Sí")c.font={name:"Calibri",size:11,bold:true,color:{argb:"FFB42318"}};if(/^(Nuevo contacto|Contactado|Visita|Oferta|Cierre|Atrasados|Total)$/.test(key))c.alignment={horizontal:"center",vertical:"middle"}})});
+  ws.autoFilter={from:{row:3,column:1},to:{row:3+rows.length,column:cols.length}};
+  cols.forEach((c,ci)=>{const w=Math.min(60,Math.max(12,c.length+2,...rows.map(o=>String(o[c]??"").length+2)));ws.getColumn(ci+1).width=w});
+  ws.pageSetup={orientation:"landscape",fitToPage:true,fitToWidth:1,fitToHeight:0};ws.headerFooter={oddFooter:"&LPropiedades · Colaboradores&RPágina &P de &N"}});
+ const buf=await wb.xlsx.writeBuffer();bajar(new Blob([buf],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}),nombre);toast("Excel descargado")}
 function xlsSeg(){const hoy=iso(NOW).slice(0,10),E=Object.fromEntries(ETAPAS);const rows=S.leads.map(l=>{const p=PR(l.p),u=U(l.u)||{},late=l.e!=="cierre"&&dleft(l.nx)<0;return {"Cliente":l.n,"Teléfono":l.tel||"","Quién lo atiende":u.n||"","Rol":(ROLES.find(r=>r[0]===u.rol)||["",u.rol||""])[1],"Etapa":E[l.e]||l.e,"Propiedad":l.p,"Nombre de la propiedad":p?p.n:"","Precio":p?precio(p):"","Próximo contacto":l.nx||"","Atrasado":late?"Sí":"No","Nota":l.nota||"","Registrado":String(l.t||"").slice(0,10)}});
  const res=S.users.filter(x=>(x.rol==="corredor"&&x.st==="Activo")||S.leads.some(l=>l.u===x.id)).sort((a,b)=>a.n.localeCompare(b.n)).map(b=>{const L=S.leads.filter(l=>l.u===b.id);const o={"Quién lo atiende":b.n,"Rol":(ROLES.find(r=>r[0]===b.rol)||["",b.rol])[1]};ETAPAS.forEach(e=>o[e[1]]=L.filter(l=>l.e===e[0]).length);o["Atrasados"]=L.filter(l=>l.e!=="cierre"&&dleft(l.nx)<0).length;o["Total"]=L.length;return o});
- xlsBajar([["Seguimiento",rows.length?rows:[{"Cliente":""}]],["Resumen por persona",res.length?res:[{"Quién lo atiende":""}]]],`seguimiento-${hoy}.xlsx`)}
+ xlsBajar([["Seguimiento",rows.length?rows:[{"Cliente":""}]],["Resumen por persona",res.length?res:[{"Quién lo atiende":""}]]],`seguimiento-${hoy}.xlsx`,"Seguimiento de interesados")}
 function xlsCli(){const hoy=iso(NOW).slice(0,10);const rows=S.clientes.map(c=>{const p=c.p?PR(c.p):null;return {"Cliente":c.n,"Teléfono":c.tel||"","Correo":c.em||"","Canal":c.canal,"Interés":p?`${p.c} · ${p.n}`:(c.p||""),"Corredor asignado":c.u?(U(c.u)||{}).n||"":"Sin asignar","En seguimiento":c.lead?"Sí":"No","Nota":c.nota||"","Fecha":String(c.t||"").slice(0,10)}});
- xlsBajar([["Clientes",rows.length?rows:[{"Cliente":""}]]],`clientes-${hoy}.xlsx`)}
+ xlsBajar([["Clientes",rows.length?rows:[{"Cliente":""}]]],`clientes-${hoy}.xlsx`,"Clientes de redes sociales y página")}
 const esMovil=()=>/Android|iPhone|iPad|Mobile/i.test(navigator.userAgent);
 async function difTzGo(sel){const u=me(),L=sel.slice(0,30);UI.difTz={items:[],busy:true,key:L.map(p=>p.c).join(",")};render(1);
  for(const p of L){const im=fotoN(p)?await new Promise(res=>{const i=new Image();i.crossOrigin="anonymous";i.onload=()=>res(i);i.onerror=()=>res(null);i.src=fotoUrl(p,UI.tzFoto[p.c]||1)}):null;
