@@ -189,7 +189,7 @@ const SESKEY="colab-sesion-v1";
 function sesGuardar(){try{if(CRED.lic&&String(CRED.pin||"").startsWith("tok:"))localStorage.setItem(SESKEY,JSON.stringify({lic:CRED.lic,tok:CRED.pin}))}catch(e){}}
 function sesBorrar(){try{localStorage.removeItem(SESKEY)}catch(e){}}
 function sesLeer(){try{const x=JSON.parse(localStorage.getItem(SESKEY)||"null");return x&&x.lic&&x.tok?x:null}catch(e){return null}}
-function sesTomar(lic,data,pw){CRED.lic=lic;if(data&&data.token){CRED.pin="tok:"+data.token;sesGuardar()}else CRED.pin=pw}
+function sesTomar(lic,data,pw){CRED.lic=lic;try{localStorage.setItem("colab-actividad-v1",String(Date.now()))}catch(e){}if(data&&data.token){CRED.pin="tok:"+data.token;sesGuardar()}else CRED.pin=pw}
 function sesFin(msg){CRED.lic=CRED.pin=null;UI.fb={st:"off",pages:[],page:null,usaFb:false,usaIg:true,run:null,err:""};UI.difSel=null;UI.difDest="clientes";sesBorrar();UI.me=null;UI.mustChange=null;UI.ficha=null;UI.cliForm=null;UI.firmaEd=false;UI.corDet=null;if(msg)UI.err=msg;Object.assign(S,{clientes:[],leads:[],log:[],canjes:[],reqs:[],views:[],users:[]});save();if(sb)sbLoad().then(()=>render());render()}
 function fromRow(r){return {c:r.codigo,finca:r.finca,n:r.nombre,t:r.tipo,prov:r.provincia||"",dist:r.corregimiento||"",est:r.estado,lista:r.precio_lista!=null&&+r.precio_lista>0?+r.precio_lista:null,of:r.precio_oferta!=null?+r.precio_oferta:null,ofHasta:r.oferta_hasta,m2:r.m2!=null?+r.m2:null,av:r.avaluo!=null?+r.avaluo:null,avd:r.avaluo_fecha,dsc:r.descripcion||"",inv:!!r.inversion,rent:null,vis:0,con:0,enc:r.encargada||"Por asignar",man:r.manejo||"Abierta",hue:r.hue||200,hot:!!r.hot,camp:r.campana||null,ofNom:r.oferta_nombre||null,ofDesde:r.oferta_desde||null,ced:r.cedida,lanz:r.lanzamiento,avu:r.avaluo_url||null,lat:r.lat!=null?+r.lat:null,lng:r.lng!=null?+r.lng:null,fdb:(Array.isArray(r.fotos)?r.fotos:[]).map((x,i)=>typeof x==="string"?{url:x,mini:i===0?(r.foto_mini||null):null}:x).filter(x=>x&&x.url),fbd:r.fotos_bd===true,cpor:r.creado_por||"",cen:r.creado_en||null,epor:r.editado_por||"",een:r.editado_en||null,int:{g:+(r.costo_indirecto||0),gd:r.avaluo_fecha?Math.max(0,Math.round((NOW-new Date(r.avaluo_fecha+"T00:00"))/DAY)):null,li:r.valor_libros!=null?+r.valor_libros:null,vr:r.venta_rapida!=null?+r.venta_rapida:null,ref:r.ref_avaluo||"",sug:r.valor_sugerido!=null?+r.valor_sugerido:null}}}
 async function sbLoad(){if(!sb)return false;
@@ -1346,10 +1346,19 @@ document.addEventListener("change",e=>{
  else if(f==="hot"){if(!can("adm"))return;PR(t.dataset.v).hot=t.checked;save();toast(t.checked?"Destacada en la hot list":"Ya no está destacada")}
 });
 try{if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{if(UI.me&&UI.tab==="mat")drawCv()})}catch(e){}
+/* Cierre por inactividad: 15 minutos sin tocar nada → se cierra la sesión (la hora de la última actividad se comparte entre pestañas) */
+const ACTKEY="colab-actividad-v1",INACT_MS=15*60*1000;
+const actLeer=()=>{try{return +localStorage.getItem(ACTKEY)||0}catch(e){return 0}};
+let actUlt=0;const actMarcar=()=>{const n=Date.now();if(!CRED.lic||n-actUlt<4000)return;actUlt=n;try{localStorage.setItem(ACTKEY,String(n))}catch(e){}};
+{const l=actLeer();if(sbOn()&&sesLeer()&&l&&Date.now()-l>INACT_MS){sesBorrar();UI.err="Tu sesión se cerró por 15 minutos de inactividad. Entra de nuevo."}}
 {const ss=sbOn()&&sesLeer();if(ss){CRED.lic=ss.lic;CRED.pin=ss.tok;UI.cargando=true}}
 if(sbOn()){sbLoad().then(ok=>{UI.cargando=false;if(!ok&&CRED.lic){CRED.lic=CRED.pin=null;sesBorrar();UI.me=null;UI.err="Tu sesión terminó. Vuelve a entrar.";return sbLoad()}}).then(()=>{UI.cargando=false;render()})}
 else{try{const id=localStorage.getItem(SESKEY+"-local");const u=id&&S.users.find(x=>x.id===id);if(u&&u.st==="Activo"&&!u.cambiar)UI.me=u.id}catch(e){}}
 render();
+["pointerdown","keydown","wheel","touchstart","input"].forEach(e=>document.addEventListener(e,actMarcar,{capture:true,passive:true}));document.addEventListener("scroll",actMarcar,{capture:true,passive:true});document.addEventListener("mousemove",actMarcar,{passive:true});
+let actAviso=false;setInterval(()=>{if(!CRED.lic)return;const l=actLeer()||Date.now(),q=Date.now()-l;
+ if(q>INACT_MS){actAviso=false;if(sbOn()&&String(CRED.pin||"").startsWith("tok:"))sb.rpc("cerrar_sesion",{p_lic:CRED.lic,p_pin:CRED.pin}).then(()=>{},()=>{});sesFin("Tu sesión se cerró por 15 minutos de inactividad. Entra de nuevo.");render()}
+ else if(q>INACT_MS-60000){if(!actAviso){actAviso=true;toast("Tu sesión se cerrará en 1 minuto por inactividad. Toca cualquier parte para seguir.")}}else actAviso=false},15000);
 </script>
 
 </body>
