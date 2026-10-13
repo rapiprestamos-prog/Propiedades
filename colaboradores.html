@@ -168,9 +168,9 @@ const b64=a=>btoa(String.fromCharCode(...new Uint8Array(a)));
 const unb64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
 async function hashClave(pw,saltB64,it=120000){const salt=saltB64?unb64(saltB64):crypto.getRandomValues(new Uint8Array(16));const k=await crypto.subtle.importKey("raw",new TextEncoder().encode(pw),"PBKDF2",false,["deriveBits"]);const bits=await crypto.subtle.deriveBits({name:"PBKDF2",salt,iterations:it,hash:"SHA-256"},k,256);return `pbkdf2$${it}$${b64(salt)}$${b64(bits)}`}
 async function verClave(pw,h){if(!h||!pw)return false;const p=h.split("$");return (await hashClave(pw,p[2],+p[1]))===h}
-const claveOk=p=>String(p||"").length>=12&&/[A-Za-z]/.test(p)&&/[0-9]/.test(p);
+const claveOk=p=>String(p||"").length>=8&&/[A-Za-z]/.test(p)&&/[0-9]/.test(p);
 function genClave(){const a="ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789";let s="";for(const x of crypto.getRandomValues(new Uint32Array(14)))s+=a[x%a.length];return claveOk(s)?s:genClave()}
-const REQ="Mínimo 12 caracteres, con letras y números.";
+const REQ="Mínimo 8 caracteres, con letras y números.";
 /* ---------- Supabase ---------- */
 const SBKEY="portal-sb-config";
 /* ▼▼ PRODUCCIÓN: pega aquí la URL y la llave anon (pública) de tu proyecto Supabase ▼▼ */
