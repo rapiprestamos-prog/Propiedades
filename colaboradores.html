@@ -130,7 +130,7 @@ label{display:grid;gap:3px;font-size:12px;font-weight:600;color:var(--mute)}
 .gal{display:flex;gap:8px;align-items:center;padding:10px 18px 0;flex-wrap:wrap}.gth{width:84px;height:60px;border-radius:8px;border:2px solid transparent;background-size:cover;background-position:center;cursor:pointer;padding:0}.gth[aria-pressed=true]{border-color:var(--gold)}
 .tzed{display:grid;gap:8px;border:1px solid var(--line);border-radius:12px;padding:10px;background:var(--bg)}
 .lote{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}.lote figure{margin:0;display:grid;gap:4px}.lote img{width:100%;aspect-ratio:2/3;object-fit:cover;border-radius:8px;border:1px solid var(--line);cursor:pointer}
-.pw{display:flex;gap:6px}.pw input{flex:1;min-width:0}
+.pw{display:flex;gap:6px}.pw input{flex:1;min-width:0;width:0}.pw .btn{flex:none;padding-inline:10px}
 .ofbox{display:flex;gap:12px;align-items:center;flex-wrap:wrap;border:1px solid var(--gold);background:var(--gold-soft);border-radius:12px;padding:10px 14px}
 .int{border:1px dashed var(--warn);border-radius:10px;padding:12px;background:color-mix(in srgb,var(--warn) 7%,var(--panel))}
 .gate{max-width:900px;margin:40px auto;display:grid;gap:16px}
@@ -168,6 +168,7 @@ const b64=a=>btoa(String.fromCharCode(...new Uint8Array(a)));
 const unb64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
 async function hashClave(pw,saltB64,it=120000){const salt=saltB64?unb64(saltB64):crypto.getRandomValues(new Uint8Array(16));const k=await crypto.subtle.importKey("raw",new TextEncoder().encode(pw),"PBKDF2",false,["deriveBits"]);const bits=await crypto.subtle.deriveBits({name:"PBKDF2",salt,iterations:it,hash:"SHA-256"},k,256);return `pbkdf2$${it}$${b64(salt)}$${b64(bits)}`}
 async function verClave(pw,h){if(!h||!pw)return false;const p=h.split("$");return (await hashClave(pw,p[2],+p[1]))===h}
+const EYE='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>',EYE_OFF='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.9 17.9A10.6 10.6 0 0 1 12 19C5.6 19 2 12 2 12a18 18 0 0 1 5.1-5.9M9.9 5.2A9.7 9.7 0 0 1 12 5c6.4 0 10 7 10 7a18 18 0 0 1-2.2 3.2M1 1l22 22"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>';
 const claveOk=p=>String(p||"").length>=8&&/[A-Za-z]/.test(p)&&/[0-9]/.test(p);
 function genClave(){const a="ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789";let s="";for(const x of crypto.getRandomValues(new Uint32Array(14)))s+=a[x%a.length];return claveOk(s)?s:genClave()}
 const REQ="Mínimo 8 caracteres, con letras y números.";
@@ -343,7 +344,7 @@ function vNewPass(){const m=UI.mustChange;
  return `<div class="gate" style="max-width:520px"><form class="panel grid" id="fNew" autocomplete="on"><h3>${m.vol?"Cambiar mi contraseña":"Crea tu contraseña"}</h3>
  <p class="sm muted" style="margin:0">${m.vol?"Escribe tu contraseña actual y la nueva.":"Entraste con una contraseña temporal. Crea la tuya para continuar."} ${REQ}</p>
  ${m.vol?`<label>Contraseña actual<input id="npA" type="password" autocomplete="current-password" required></label>`:""}
- <label>Contraseña nueva<span class="pw"><input id="npN" type="password" autocomplete="new-password" required><button type="button" class="btn s" data-a="verPw" data-v="npN">Ver</button></span></label>
+ <label>Contraseña nueva<span class="pw"><input id="npN" type="password" autocomplete="new-password" required><button type="button" class="btn s" data-a="verPw" data-v="npN" aria-label="Mostrar contraseña" title="Mostrar / ocultar contraseña">${EYE}</button></span></label>
  <label>Repítela<input id="npN2" type="password" autocomplete="new-password" required></label>
  ${UI.err?`<div class="pill red" style="white-space:normal">${esc(UI.err)}</div>`:""}
  <div class="row"><button class="btn p" type="submit">Guardar contraseña</button>${m.vol?`<button type="button" class="btn" data-a="npCancel">Cancelar</button>`:""}</div></form></div>`}
@@ -357,14 +358,14 @@ function gate(){
  $("#app").innerHTML=`<div class="gate"><div class="hero" id="gateHero" style="${SL.length?"background:linear-gradient(160deg,#061236,#0a1f5c 55%,#10307f)":hue(top[0],1)};min-height:340px">${SL.map((p,i)=>`<div class="gsl${i?"":" on"}" data-i="${i}" style="background-image:url('${esc(fotoUrl(p,1))}')"></div>`).join("")}${SL.length?`<span class="gcap" id="gateCap">${esc(SL[0].n)} · ${esc(pv(SL[0]))}</span>`:""}<div class="hero-in"><span class="pill gold" style="width:max-content">Acceso de colaboradores · corredores con licencia</span><h2 style="font-size:38px">Tu cartera de propiedades: ficha técnica, avalúo y precio de oportunidad a un clic</h2><p>${V.length} propiedades disponibles · ${ofs.length} con precio de oferta · comisión del 5% · premios por nivel</p><div class="row" style="gap:8px;margin-top:4px">${top.map(p=>`<span class="pill" style="background:rgba(255,255,255,.92);color:#14201c">${esc(p.n)} · ${pv(p)}</span>`).join("")}</div></div></div>
  <div class="grid g2">
  <form class="panel grid" id="fLogin" autocomplete="on"><h3>Ingresar</h3><label>Licencia, usuario, correo o nombre<input id="lgLic" autocomplete="username" placeholder="Cualquiera de los cuatro" value="${esc(UI.lastLic||"")}"></label>
-  <label>Contraseña<span class="pw"><input id="lgPin" type="password" autocomplete="current-password" placeholder="Tu contraseña"><button type="button" class="btn s" data-a="verPw" data-v="lgPin">Ver</button></span></label>
+  <label>Contraseña<span class="pw"><input id="lgPin" type="password" autocomplete="current-password" placeholder="Tu contraseña"><button type="button" class="btn s" data-a="verPw" data-v="lgPin" aria-label="Mostrar contraseña" title="Mostrar / ocultar contraseña">${EYE}</button></span></label>
   ${UI.err?`<div class="pill red" style="white-space:normal">${esc(UI.err)}</div>`:""}<button class="btn p" type="submit">Entrar</button>
   ${PRODUCCION&&!sbOn()?`<div class="pill red" style="white-space:normal">Sin conexión a la base de datos. Revisa tu internet o el archivo config.js.</div>`:`<div class="sm muted">¿Olvidaste tu contraseña? Pide a la administración que la restablezca.</div>`}</form>
  <form class="panel grid" id="fReg"><h3>Registrarme</h3>
   <div class="chips" role="radiogroup" aria-label="Me registro como">${[["corredor","Soy corredor con licencia"],["interno","Soy colaborador (equipo interno)"]].map(x=>`<button type="button" class="chip" role="radio" data-a="rgRol" data-v="${x[0]}" aria-pressed="${(UI.rgRol||"corredor")===x[0]}" aria-checked="${(UI.rgRol||"corredor")===x[0]}">${x[1]}</button>`).join("")}</div>
   <label>Nombre completo<input id="rgN" required autocomplete="name"></label><label>${UI.rgRol==="interno"?"Usuario (por ejemplo tu cédula)":"Número de licencia"}<input id="rgL" placeholder="Obligatorio" required></label>
   <div class="row"><label>Teléfono<input id="rgT" required autocomplete="tel"></label><label>Correo<input id="rgE" type="email" required autocomplete="email"></label></div>
-  <div class="row"><label style="flex:1;min-width:160px">Crea tu contraseña<span class="pw"><input id="rgP" type="password" required autocomplete="new-password"><button type="button" class="btn s" data-a="verPw" data-v="rgP">Ver</button></span></label><label style="flex:1;min-width:160px">Repítela<input id="rgP2" type="password" required autocomplete="new-password"></label></div>
+  <div class="row"><label style="flex:1;min-width:160px">Crea tu contraseña<span class="pw"><input id="rgP" type="password" required autocomplete="new-password"><button type="button" class="btn s" data-a="verPw" data-v="rgP" aria-label="Mostrar contraseña" title="Mostrar / ocultar contraseña">${EYE}</button></span></label><label style="flex:1;min-width:160px">Repítela<input id="rgP2" type="password" required autocomplete="new-password"></label></div>
   <div class="sm muted">${REQ} Se guarda encriptada: nadie puede verla, ni la administración.</div>
   <label class="chk"><input type="checkbox" id="rgC"> ${UI.rgRol==="interno"?"Declaro que formo parte del equipo de colaboradores":"Declaro que mi licencia de corredor está vigente"}</label><div class="sm muted">Te llega un correo de que tu registro está en espera, y otro cuando la administración te apruebe.</div>
   ${r?`<div class="pill ${r.ok?"":"red"}" style="white-space:normal">${esc(r.m)}</div>`:""}
@@ -1136,7 +1137,7 @@ document.addEventListener("click",e=>{
  else if(a==="adSub"){if(!canTab("adm"))return;UI.tab="adm";UI.sub=v;render();scrollTo(0,0)}
  else if(a==="pView"){UI.pv=v;render(1)}
  else if(a==="newPin"){UI.newPin=genClave();const i=$("#nuP");if(i)i.value=UI.newPin}
- else if(a==="verPw"){const i=document.getElementById(v);if(i){i.type=i.type==="password"?"text":"password";b.textContent=i.type==="password"?"Ver":"Ocultar"}}
+ else if(a==="verPw"){const i=document.getElementById(v);if(i){const t=i.type==="password"?"text":"password";i.type=t;if(v==="rgP"){const j=document.getElementById("rgP2");if(j)j.type=t}b.innerHTML=t==="password"?EYE:EYE_OFF;b.setAttribute("aria-label",t==="password"?"Mostrar contraseña":"Ocultar contraseña")}}
  else if(a==="miClave"){UI.mustChange={vol:true};UI.err="";render()}
  else if(a==="npCancel"){UI.mustChange=null;UI.err="";render()}
  else if(a==="uPin"){const pin=genClave();if(sbOn()){after(rpc("reset_pin",{p_id:v,p_nuevo:pin}).then(()=>{UI.pinShow[v]=pin;const x=U(v);toast(x&&x.em?`Contraseña temporal enviada a ${x.em}`:"Contraseña temporal: "+pin)}));return}hashClave(pin).then(hh=>{const x=U(v);x.ph=hh;x.cambiar=true;UI.pinShow[v]=pin;save();toast("Contraseña temporal: "+pin);render(1)})}
