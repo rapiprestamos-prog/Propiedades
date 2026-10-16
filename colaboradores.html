@@ -216,7 +216,8 @@ async function sbLoad(){if(!sb)return false;
  S.dif=(D.difusion||[]).map(r=>({p:r.codigo,canal:r.canal,u:r.usuario,n:r.nombre||"",link:r.enlace||"",t:r.fecha}));S.cfg=D.config||{};
  S.vtas=(D.ventas||[]).map(r=>({id:r.id,p:r.codigo,u:r.corredor,lead:r.interesado,cli:r.cliente||"",precio:r.precio!=null?+r.precio:null,f:r.fecha,nota:r.nota||"",st:r.estado,por:r.revisado_por||"",mot:r.motivo||"",t:r.creado}));
  UI.me=D.yo.id;{const y=S.users.find(x=>x.id===D.yo.id);if(y){y.firma=D.yo.firma||"";y.vol=D.yo.firma_volante||{};y.wac=D.yo.wa_canal||""}};save();return true}
-const after=p=>p.then(()=>sbLoad()).then(()=>render(1)).catch(()=>{});
+const libF=f=>{if(f){delete f.dataset.busy;f.querySelectorAll("button").forEach(b=>b.disabled=false)}};
+const after=p=>{const f=UI.envPend;UI.envPend=null;return p.then(()=>sbLoad()).then(()=>render(1)).catch(()=>{}).finally(()=>libF(f))};
 async function rpc(fn,args){const {data,error}=await sb.rpc(fn,{p_lic:CRED.lic,p_pin:CRED.pin,...args});if(error){if(/sesión terminó/i.test(error.message)){sesFin("Tu sesión terminó. Vuelve a entrar.")}else toast(error.message.replace(/^.*?: /,""));throw error}return data}
 
 
@@ -1329,6 +1330,7 @@ document.addEventListener("submit",e=>{
   rpc("guardar_propiedad",{p_codigo:UI.inv.ed==="nuevo"?null:UI.inv.ed,p_datos:d}).then(cod=>{const era=UI.inv.ed==="nuevo";UI.inv.ed=cod;UI.inv.msg=era?"Propiedad creada. Ahora puedes subir sus fotos.":"";return sbLoad().then(()=>toast(era?"Propiedad "+cod+" creada":"Cambios guardados"))})
    .catch(()=>{}).finally(()=>{UI.inv.busy=false;render(1)});return}
  e.preventDefault();const id=e.target.id;
+ if(["fLead","fCli","fVta","fPre","fUsr"].includes(id)&&sbOn()){const F=e.target;if(F.dataset.busy)return;F.dataset.busy=1;F.querySelectorAll("button").forEach(b=>b.disabled=true);UI.envPend=F;setTimeout(()=>{if(UI.envPend===F){UI.envPend=null;libF(F)}},0)}
  if(id==="fFirma"){const u=me(),t=$("#fiTxt").value.trim().slice(0,300),val=t===firmaDef(u)?"":t;
   const g=i=>($(i)?$(i).value.trim():""),vol={n:g("#vfN"),tel:g("#vfT"),lic:g("#vfL"),extra:g("#vfX")};Object.keys(vol).forEach(k=>{if(!vol[k])delete vol[k]});
   const ok=()=>{u.firma=val;u.vol=vol;UI.firmaEd=false;UI.firmaTmp=null;UI.volTmp=null;save();toast("Firma y datos de volantes guardados");render(1)};
