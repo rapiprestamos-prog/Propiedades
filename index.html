@@ -146,6 +146,30 @@ footer{padding:28px 0 48px;color:var(--mute);font-size:13px;border-top:1px solid
  .fx-bar .btn{justify-content:center;text-align:center}
 }
 @media(min-width:1500px){.dlg.fx{width:min(1120px,calc(100vw/1.5 - 40px))}}
+
+/* Buscador nuevo (bw) */
+.search#fs{display:none}
+.bw{position:relative;z-index:2;margin-top:-64px;background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:var(--sh);padding:16px;display:grid;gap:12px}
+.bw svg{position:static}
+.bw-r1{display:grid;grid-template-columns:1.6fr 1fr auto;gap:10px}
+.bw-q,.bw-sel{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:12px;padding:0 12px;background:var(--panel)}
+.bw-q:focus-within,.bw-sel:focus-within{border-color:var(--blue-l);box-shadow:0 0 0 3px rgba(42,79,184,.12)}
+.bw svg{width:18px;height:18px;flex:none;fill:none;stroke:var(--mute);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.bw-q input{flex:1;border:0;outline:0;background:transparent;font:500 15px var(--f-b);color:var(--ink);padding:12px 0}
+.bw-sel select{flex:1;border:0;outline:0;background:transparent;font:500 15px var(--f-b);color:var(--ink);padding:12px 0;cursor:pointer}
+.bw-go{background:var(--blue);color:#fff;border:0;border-radius:12px;padding:0 22px;font:700 15px var(--f-d);cursor:pointer;white-space:nowrap;box-shadow:0 8px 18px rgba(10,31,92,.25)}
+.bw-go:disabled{opacity:.55;cursor:not-allowed}
+.bw-r2{display:flex;gap:22px;flex-wrap:wrap;align-items:center;border-top:1px dashed var(--line);padding-top:12px}
+.bw-g{display:flex;align-items:center;gap:10px;min-width:0}
+.bw-l{font:600 11px var(--f-b);letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
+.bw-ps{display:flex;gap:6px;flex-wrap:wrap}
+.bw-p{border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:999px;padding:7px 13px;font:600 13px var(--f-b);cursor:pointer;white-space:nowrap}
+.bw-p:hover{border-color:var(--blue-l)}
+.bw-p[aria-pressed=true]{background:var(--blue);border-color:var(--blue);color:#fff}
+.bw-p:disabled{opacity:.4;cursor:not-allowed}
+@media(max-width:900px){.bw-r1{grid-template-columns:1fr 1fr}.bw-q{grid-column:1/-1}.bw-go{padding:12px}}
+@media(max-width:640px){.bw{margin-top:-48px}.bw-r1{display:contents}.bw-r2{order:2}.bw-go{order:3}.bw-r2{display:grid;gap:10px}.bw-g{display:grid;gap:6px}
+ .bw-ps{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-inline:-16px;padding-inline:16px}.bw-ps::-webkit-scrollbar{display:none}.bw-go{padding:14px}}
 </style>
 
 <header class="hdr"><div class="wrap"><div class="logo"><div class="mark"><svg viewBox="0 0 64 64" role="img" aria-label="Logotipo"><defs><linearGradient id="lg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#10307f"/><stop offset="1" stop-color="#050f33"/></linearGradient><linearGradient id="lg2" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#d4a62a"/><stop offset="1" stop-color="#f6d27a"/></linearGradient></defs><rect x="2" y="2" width="60" height="60" rx="16" fill="url(#lg1)"/><rect x="2.75" y="2.75" width="58.5" height="58.5" rx="15.5" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="1.5"/><path d="M14 36 L32 18 L50 36" fill="none" stroke="#fff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 33 V47 H44 V33" fill="none" stroke="#fff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" opacity=".92"/><path d="M26 41 L31 36 L35 39 L42 31" fill="none" stroke="url(#lg2)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M37 30 H43 V36" fill="none" stroke="url(#lg2)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div>Propiedades<small>Oportunidades de inversión y negocios</small></div></div>
@@ -161,6 +185,16 @@ footer{padding:28px 0 48px;color:var(--mute);font-size:13px;border-top:1px solid
 </div></div>
 
 <main class="wrap">
+<div class="bw" id="bp">
+<div class="bw-r1">
+ <div class="bw-q"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="bpQ" placeholder="Buscar por zona, código o nombre"></div>
+ <div class="bw-sel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg><select id="bpP"></select></div>
+ <button class="bw-go" id="bpGo" type="button">Ver propiedades</button>
+</div>
+<div class="bw-r2">
+ <div class="bw-g"><span class="bw-l">Tipo</span><div class="bw-ps" id="bpT"></div></div>
+ <div class="bw-g"><span class="bw-l">Precio</span><div class="bw-ps" id="bpR"></div></div>
+</div></div>
 <form class="search" id="fs"><label>Buscar<input id="q" placeholder="Zona, código o nombre"></label><label>Tipo<select id="ft"><option value="">Todos</option></select></label><label>Provincia<select id="fp"><option value="">Todas</option></select></label><label>Precio (B/.)<select id="fm"><option value="">Todos los precios</option><option value="0-25000">Hasta B/. 25,000</option><option value="25000-50000">B/. 25,000 a 50,000</option><option value="50000-100000">B/. 50,000 a 100,000</option><option value="100000-200000">B/. 100,000 a 200,000</option><option value="200000-">Más de B/. 200,000</option></select></label><button class="btn p" type="submit">Buscar</button></form>
 
 <section id="catalogo"><div class="sec-h"><div><span class="eyebrow">Propiedades</span><h2>Propiedades disponibles</h2><p>Toca una propiedad para ver la ficha completa con fotos, área y precio.</p></div><div class="tabs" id="tabs"></div></div><div class="grid" id="grid"></div></section>
@@ -216,7 +250,7 @@ const ART={};const art=p=>ART[p.c]||(ART[p.c]="url('data:image/svg+xml;charset=u
 const off=p=>p.of?Math.round((1-p.of/p.lista)*100):0;const act=p=>!!p.of&&(!p.ofHasta||dleft(p.ofHasta)>=0);const precio=p=>act(p)?p.of:p.lista;
 const RANGOS=[["0-25000","Hasta B/. 25,000"],["25000-50000","B/. 25,000 a 50,000"],["50000-100000","B/. 50,000 a 100,000"],["100000-200000","B/. 100,000 a 200,000"],["200000-","Más de B/. 200,000"]];
 const enRango=(v,r)=>{const [a,b]=String(r).split("-");v=+v||0;return v>+a&&(b===""||b===undefined||v<=+b)};
-function fillRangos(){const s=$("#fm");if(!s)return;const cur=s.value;s.innerHTML='<option value="">Todos los precios</option>'+RANGOS.map(([v,t])=>[v,t,PROPS.filter(p=>enRango(precio(p),v)).length]).filter(x=>x[2]>0||x[0]===cur).map(([v,t,n])=>`<option value="${v}">${t} (${n})</option>`).join("");s.value=cur}
+function fillRangos(){const s=$("#fm");if(!s)return;const cur=s.value;s.innerHTML='<option value="">Todos los precios</option>'+RANGOS.map(([v,t])=>[v,t,PROPS.filter(p=>enRango(precio(p),v)).length]).filter(x=>x[2]>0||x[0]===cur).map(([v,t,n])=>`<option value="${v}">${t} (${n})</option>`).join("");s.value=cur;if(window._bpPinta)window._bpPinta()}
 const CFG=window.SITIO_CONFIG||{};const WA_NUM=String(CFG.whatsapp||"").replace(/\D/g,"");
 const PAISES=[["507","🇵🇦 Panamá"],["506","🇨🇷 Costa Rica"],["57","🇨🇴 Colombia"],["58","🇻🇪 Venezuela"],["1","🇺🇸 EE. UU. / Canadá"],["52","🇲🇽 México"],["505","🇳🇮 Nicaragua"],["504","🇭🇳 Honduras"],["503","🇸🇻 El Salvador"],["502","🇬🇹 Guatemala"],["593","🇪🇨 Ecuador"],["51","🇵🇪 Perú"],["56","🇨🇱 Chile"],["54","🇦🇷 Argentina"],["55","🇧🇷 Brasil"],["53","🇨🇺 Cuba"],["34","🇪🇸 España"],["39","🇮🇹 Italia"],["49","🇩🇪 Alemania"],["33","🇫🇷 Francia"],["44","🇬🇧 Reino Unido"],["86","🇨🇳 China"]];
 const ZONAS={"America/Panama":"507","America/Costa_Rica":"506","America/Bogota":"57","America/Caracas":"58","America/Mexico_City":"52","America/Cancun":"52","America/Monterrey":"52","America/Tijuana":"52","America/Managua":"505","America/Tegucigalpa":"504","America/El_Salvador":"503","America/Guatemala":"502","America/Guayaquil":"593","America/Lima":"51","America/Santiago":"56","America/Sao_Paulo":"55","America/Havana":"53","Europe/Madrid":"34","Europe/Rome":"39","Europe/Berlin":"49","Europe/Paris":"33","Europe/London":"44","Asia/Shanghai":"86"};
@@ -338,6 +372,28 @@ let SB=null;
   render();abrirDeep();
   SB.from("propiedades_vendidas").select("*").then(({data:V})=>{if(Array.isArray(V))pintarVendidas(V.map(r=>({c:r.codigo,n:r.nombre||r.codigo,t:r.tipo||"",prov:r.provincia||"",dist:r.corregimiento||"",hue:r.hue??210,fdb:Array.isArray(r.fotos)?r.fotos.filter(x=>typeof x==="string"):[],fbd:r.fotos_bd===true,fmini:r.foto_mini||null})))}).catch(()=>{})}catch(e){}};
  document.head.appendChild(sc)})();
+</script>
+<script>
+(function(){
+const R=[["","Todos"],["0-25000","Hasta 25 mil"],["25000-50000","25 a 50 mil"],["50000-100000","50 a 100 mil"],["100000-200000","100 a 200 mil"],["200000-","Más de 200 mil"]];
+const st={t:"",p:"",r:"",q:""};
+const ok=(x,o)=>(!o.q||(x.n+x.c+x.dist+x.prov).toLowerCase().includes(o.q.toLowerCase()))&&(!o.t||x.t===o.t)&&(!o.p||x.prov===o.p)&&(!o.r||enRango(precio(x),o.r));
+const cnt=o=>PROPS.filter(x=>ok(x,o)).length;
+function pinta(){
+ const tipos=[...new Set(PROPS.map(x=>x.t))];
+ $("#bpT").innerHTML=["",...tipos].map(t=>`<button type="button" class="bw-p" data-bt="${esc(t)}" aria-pressed="${st.t===t}">${t?esc(t):"Todos"}</button>`).join("");
+ const provs=[...new Set(PROPS.map(x=>x.prov))].sort();
+ $("#bpP").innerHTML=`<option value="">Todas las provincias</option>`+provs.map(v=>`<option value="${esc(v)}" ${st.p===v?"selected":""}>${esc(v)}</option>`).join("");
+ $("#bpR").innerHTML=R.map(([v,l])=>`<button type="button" class="bw-p" data-br="${v}" aria-pressed="${st.r===v}" ${!v||cnt({...st,r:v})?"":"disabled"}>${l}</button>`).join("");
+ const n=cnt(st);$("#bpGo").textContent=n?`Ver ${n} ${n===1?"propiedad":"propiedades"}`:"Sin resultados";$("#bpGo").disabled=!n;
+}
+document.addEventListener("click",e=>{const t=e.target.closest("[data-bt]");if(t){st.t=t.dataset.bt;pinta();return}const r=e.target.closest("[data-br]");if(r&&!r.disabled){st.r=r.dataset.br;pinta()}});
+$("#bpP").addEventListener("change",e=>{st.p=e.target.value;pinta()});
+$("#bpQ").addEventListener("input",e=>{st.q=e.target.value;pinta()});
+$("#bpQ").addEventListener("keydown",e=>{if(e.key==="Enter")$("#bpGo").click()});
+$("#bpGo").addEventListener("click",()=>{$("#q").value=st.q;$("#ft").value=st.t;$("#fp").value=st.p;$("#fm").value=st.r;$("#fs").requestSubmit()});
+pinta();window._bpPinta=pinta;
+})();
 </script>
 
 </body>
