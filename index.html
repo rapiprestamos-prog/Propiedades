@@ -115,7 +115,7 @@ footer{padding:28px 0 48px;color:var(--mute);font-size:13px;border-top:1px solid
 </div></div>
 
 <main class="wrap">
-<form class="search" id="fs"><label>Buscar<input id="q" placeholder="Zona, código o nombre"></label><label>Tipo<select id="ft"><option value="">Todos</option></select></label><label>Provincia<select id="fp"><option value="">Todas</option></select></label><label>Precio hasta (B/.)<select id="fm"><option value="">Sin límite</option><option>25000</option><option>50000</option><option>100000</option><option>200000</option><option>400000</option></select></label><button class="btn p" type="submit">Buscar</button></form>
+<form class="search" id="fs"><label>Buscar<input id="q" placeholder="Zona, código o nombre"></label><label>Tipo<select id="ft"><option value="">Todos</option></select></label><label>Provincia<select id="fp"><option value="">Todas</option></select></label><label>Precio (B/.)<select id="fm"><option value="">Todos los precios</option><option value="0-25000">Hasta B/. 25,000</option><option value="25000-50000">B/. 25,000 a 50,000</option><option value="50000-100000">B/. 50,000 a 100,000</option><option value="100000-200000">B/. 100,000 a 200,000</option><option value="200000-">Más de B/. 200,000</option></select></label><button class="btn p" type="submit">Buscar</button></form>
 
 <section id="catalogo"><div class="sec-h"><div><span class="eyebrow">Propiedades</span><h2>Propiedades disponibles</h2><p>Toca una propiedad para ver la ficha completa con fotos, área y precio.</p></div><div class="tabs" id="tabs"></div></div><div class="grid" id="grid"></div></section>
 </main>
@@ -168,6 +168,9 @@ const GRIS="linear-gradient(#e4e8ee,#e4e8ee)";
 const bg=(p,big)=>fotoN(p)?(big?`url('${fotoUrl(p,1)}'), url('${fotoUrl(p,0)}'), ${GRIS}`:`url('${fotoUrl(p,0)}'), ${GRIS}`):art(p);
 const ART={};const art=p=>ART[p.c]||(ART[p.c]="url('data:image/svg+xml;charset=utf-8,"+encodeURIComponent(svgArt(p)).replace(/'/g,"%27")+"')");
 const off=p=>p.of?Math.round((1-p.of/p.lista)*100):0;const act=p=>!!p.of&&(!p.ofHasta||dleft(p.ofHasta)>=0);const precio=p=>act(p)?p.of:p.lista;
+const RANGOS=[["0-25000","Hasta B/. 25,000"],["25000-50000","B/. 25,000 a 50,000"],["50000-100000","B/. 50,000 a 100,000"],["100000-200000","B/. 100,000 a 200,000"],["200000-","Más de B/. 200,000"]];
+const enRango=(v,r)=>{const [a,b]=String(r).split("-");v=+v||0;return v>+a&&(b===""||b===undefined||v<=+b)};
+function fillRangos(){const s=$("#fm");if(!s)return;const cur=s.value;s.innerHTML='<option value="">Todos los precios</option>'+RANGOS.map(([v,t])=>[v,t,PROPS.filter(p=>enRango(precio(p),v)).length]).filter(x=>x[2]>0||x[0]===cur).map(([v,t,n])=>`<option value="${v}">${t} (${n})</option>`).join("");s.value=cur}
 const CFG=window.SITIO_CONFIG||{};const WA_NUM=String(CFG.whatsapp||"").replace(/\D/g,"");
 const PAISES=[["507","🇵🇦 Panamá"],["506","🇨🇷 Costa Rica"],["57","🇨🇴 Colombia"],["58","🇻🇪 Venezuela"],["1","🇺🇸 EE. UU. / Canadá"],["52","🇲🇽 México"],["505","🇳🇮 Nicaragua"],["504","🇭🇳 Honduras"],["503","🇸🇻 El Salvador"],["502","🇬🇹 Guatemala"],["593","🇪🇨 Ecuador"],["51","🇵🇪 Perú"],["56","🇨🇱 Chile"],["54","🇦🇷 Argentina"],["55","🇧🇷 Brasil"],["53","🇨🇺 Cuba"],["34","🇪🇸 España"],["39","🇮🇹 Italia"],["49","🇩🇪 Alemania"],["33","🇫🇷 Francia"],["44","🇬🇧 Reino Unido"],["86","🇨🇳 China"]];
 const ZONAS={"America/Panama":"507","America/Costa_Rica":"506","America/Bogota":"57","America/Caracas":"58","America/Mexico_City":"52","America/Cancun":"52","America/Monterrey":"52","America/Tijuana":"52","America/Managua":"505","America/Tegucigalpa":"504","America/El_Salvador":"503","America/Guatemala":"502","America/Guayaquil":"593","America/Lima":"51","America/Santiago":"56","America/Sao_Paulo":"55","America/Havana":"53","Europe/Madrid":"34","Europe/Rome":"39","Europe/Berlin":"49","Europe/Paris":"33","Europe/London":"44","Asia/Shanghai":"86"};
@@ -186,7 +189,7 @@ function cardVendida(p){return `<div class="card sold"><div class="ph" style="ba
 function pintarVendidas(L){const s=$("#vendidas"),g=$("#gvend");if(!s||!g)return;if(!L||!L.length){s.hidden=true;return}g.innerHTML=L.map(cardVendida).join("");s.hidden=false}
 function card(p){return `<div class="card" tabindex="0" data-f="${p.c}"><div class="ph" style="background-image:${bg(p)}"><div class="tags">${act(p)?`<span class="pill red">Oferta −${off(p)}%</span>`:""}${p.inv&&MOSTRAR_INVERSION?`<span class="pill gold">Inversión</span>`:""}</div><span class="code">${p.c}</span></div>
 <div class="body"><div class="price">${money(precio(p))}${act(p)?`<s>${money(p.lista)}</s>${p.ofHasta?`<em>Hasta el ${fd(p.ofHasta)}</em>`:""}`:""}</div><b>${esc(p.n)}</b><div class="meta"><span>${esc(p.dist)}, ${esc(p.prov)}</span><span>${p.t}</span>${p.m2?`<span>${m2txt(p)}</span>`:""}</div><div class="row"><button class="btn s p" data-f="${p.c}">Ver ficha</button><a class="btn s wa" target="_blank" rel="noopener" href="${WA+encodeURIComponent(`Hola, me interesa ${p.n} (${p.c}) publicada en Propiedades, oportunidades de inversión y negocios.`)}">WhatsApp</a></div></div></div>`}
-function filt(){const q=UI.q.toLowerCase();return [...PROPS].sort((a,b)=>(fotoN(b)?1:0)-(fotoN(a)?1:0)).filter(p=>(!q||(p.n+p.c+p.dist+p.prov).toLowerCase().includes(q))&&(!UI.t||p.t===UI.t)&&(!UI.prov||p.prov===UI.prov)&&(!UI.max||precio(p)<=+UI.max)&&(UI.tab==="todas"||(UI.tab==="ofertas"&&act(p))||(UI.tab==="inv"&&p.inv)||(UI.tab==="casas"&&/mejoras|Apartamento/.test(p.t))||(UI.tab==="lotes"&&p.t==="Terreno")))}
+function filt(){const q=UI.q.toLowerCase();return [...PROPS].sort((a,b)=>(fotoN(b)?1:0)-(fotoN(a)?1:0)).filter(p=>(!q||(p.n+p.c+p.dist+p.prov).toLowerCase().includes(q))&&(!UI.t||p.t===UI.t)&&(!UI.prov||p.prov===UI.prov)&&(!UI.max||enRango(precio(p),UI.max))&&(UI.tab==="todas"||(UI.tab==="ofertas"&&act(p))||(UI.tab==="inv"&&p.inv)||(UI.tab==="casas"&&/mejoras|Apartamento/.test(p.t))||(UI.tab==="lotes"&&p.t==="Terreno")))}
 function render(){
  const ofs=PROPS.filter(act);
  $("#stats").innerHTML=`<div><b>${PROPS.length}</b><span>propiedades</span></div><div><b>${ofs.length}</b><span>con descuento</span></div><div><b>${ofs.length?Math.max(...PROPS.map(off))+"%":"—"}</b><span>descuento máximo</span></div><div><b>${[...new Set(PROPS.map(p=>p.prov))].length}</b><span>provincias</span></div>`;
@@ -229,7 +232,7 @@ $("#fc").addEventListener("submit",async e=>{e.preventDefault();const n=$("#cn")
   if(!error){$("#cmsg").textContent=`Gracias, ${n}. Un corredor te contactará ${t?"al ":"a "}${via}.`;$("#fc").reset();return}
   $("#cmsg").textContent="No pudimos enviar tu solicitud. Escríbenos por WhatsApp.";return}
  window.open(WA+encodeURIComponent(`Hola, soy ${n} (${via}). ${nota?nota+". ":""}Quiero que me contacten.`),"_blank","noopener");$("#cmsg").textContent="Te abrimos WhatsApp para enviar tu solicitud.";$("#fc").reset()});
-$("#ft").innerHTML+=[...new Set(PROPS.map(p=>p.t))].map(t=>`<option>${t}</option>`).join("");$("#fp").innerHTML+=[...new Set(PROPS.map(p=>p.prov))].map(t=>`<option>${t}</option>`).join("");
+$("#ft").innerHTML+=[...new Set(PROPS.map(p=>p.t))].map(t=>`<option>${t}</option>`).join("");$("#fp").innerHTML+=[...new Set(PROPS.map(p=>p.prov))].map(t=>`<option>${t}</option>`).join("");fillRangos();
 render();
 /* Enlace directo a una ficha: index.html?p=F-12345 (lo usan los textos de difusión) */
 let DEEP=null;try{DEEP=new URLSearchParams(location.search).get("p")}catch(e){}
@@ -260,7 +263,7 @@ let SB=null;
     m2:r.m2!=null?+r.m2:null,dsc:r.descripcion||o.dsc||"",inv:!!r.inversion,rent:o.rent??null,vis:0,con:0,hue:r.hue??o.hue??210,hot:!!r.hot,fdb:Array.isArray(r.fotos)?r.fotos.filter(x=>typeof x==="string"):[],fbd:r.fotos_bd===true,fmini:r.foto_mini||null,lat:r.lat!=null?+r.lat:null,lng:r.lng!=null?+r.lng:null}});
   $("#cP").innerHTML="";$("#ci").innerHTML='<option value="">¿Qué te interesa?</option>';
   const keep=sel=>{const f=$(sel).options[0];$(sel).innerHTML="";$(sel).appendChild(f)};keep("#ft");keep("#fp");
-  $("#ft").innerHTML+=[...new Set(PROPS.map(p=>p.t))].map(t=>`<option>${esc(t)}</option>`).join("");$("#fp").innerHTML+=[...new Set(PROPS.map(p=>p.prov))].map(t=>`<option>${esc(t)}</option>`).join("");
+  $("#ft").innerHTML+=[...new Set(PROPS.map(p=>p.t))].map(t=>`<option>${esc(t)}</option>`).join("");$("#fp").innerHTML+=[...new Set(PROPS.map(p=>p.prov))].map(t=>`<option>${esc(t)}</option>`).join("");fillRangos();
   render();abrirDeep();
   SB.from("propiedades_vendidas").select("*").then(({data:V})=>{if(Array.isArray(V))pintarVendidas(V.map(r=>({c:r.codigo,n:r.nombre||r.codigo,t:r.tipo||"",prov:r.provincia||"",dist:r.corregimiento||"",hue:r.hue??210,fdb:Array.isArray(r.fotos)?r.fotos.filter(x=>typeof x==="string"):[],fbd:r.fotos_bd===true,fmini:r.foto_mini||null})))}).catch(()=>{})}catch(e){}};
  document.head.appendChild(sc)})();
