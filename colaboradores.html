@@ -145,6 +145,7 @@ canvas{max-width:100%;height:auto;border-radius:10px;border:1px solid var(--line
 .gate form.panel{align-content:start}
 [hidden]{display:none!important}
 .quick{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:end;background:linear-gradient(135deg,#071a5c,#10307f);color:#fff;border-radius:16px;padding:18px 20px;margin-bottom:14px}.quick h3{color:#fff}.quick .sm{color:rgba(255,255,255,.8)}.quick label{color:#fff}.quick input{background:#fff;color:#111}.quick .chip{background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.3)}.quick .chip[aria-pressed=true]{background:#f0c75e;color:#1a1200;border-color:#f0c75e}@media (max-width:760px){.quick{grid-template-columns:1fr}}
+.hp{border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:999px;padding:6px 12px;font:600 13px var(--f-b,inherit);cursor:pointer}.hp[aria-pressed=true]{background:var(--brand);border-color:var(--brand);color:#fff}.htab td{vertical-align:top}.hth{display:inline-block;width:64px;height:44px;border-radius:8px;background-size:cover;background-position:center;border:1px solid var(--line)}.lnk{background:none;border:0;padding:0;color:var(--brand);cursor:pointer;font:inherit;text-decoration:underline}
 </style>
 
 <div class="topband"><div class="wrap"><div class="top" id="top"></div></div></div><div class="wrap"><main id="app"></main></div>
@@ -1006,7 +1007,49 @@ function vInv(){
 /* ---------- Administración ---------- */
 const nuevoPrecio=(p,m)=>{const v=+m.val||0;let n=m.modo==="pct"?Math.round(p.lista*(1-v/100)):p.lista-v;return Math.max(0,Math.round(n/100)*100)};
 const msInfo=(obj,nuevo)=>`Precio de oferta = precio de lista menos la rebaja, redondeado a la centena. ${obj.length?`Ej.: ${esc(obj[0].n)} pasa de ${money(obj[0].lista)} a ${money(nuevo(obj[0]))}.`:""}`;
-const SUBS=[["ven","Ventas por confirmar"],["cor","Corredores / colaboradores"],["asg","Asignaciones y manejo"],["hotm","Hot list"],["pre","Premios"],["act","Actividad"],["sbx","Conexión"]];
+const SUBS=[["ven","Ventas por confirmar"],["cor","Corredores / colaboradores"],["asg","Asignaciones y manejo"],["hotm","Hot list"],["pre","Premios"],["his","Historial de cambios"],["act","Actividad"],["sbx","Conexión"]];
+/* ===== Historial de cambios (Administración) ===== */
+const HCAMPO={nombre:"Nombre",tipo:"Tipo",provincia:"Provincia",corregimiento:"Corregimiento",estado:"Estado",precio_lista:"Precio de venta",precio_oferta:"Precio con descuento",oferta_hasta:"Oferta hasta",oferta_desde:"Oferta desde",m2:"Área (m²)",avaluo:"Avalúo",avaluo_fecha:"Fecha del avalúo",descripcion:"Descripción",inversion:"Inversión",encargada:"Encargada",manejo:"Manejo",hot:"Hot list",costo_indirecto:"Costo indirecto",valor_libros:"Valor en libros",cedida:"Cedida por",lanzamiento:"Lanzamiento",valor_sugerido:"Valor sugerido",campana:"Campaña de oferta",venta_rapida:"Venta rápida",ref_avaluo:"Referencia del avalúo",avaluo_url:"Enlace del avalúo",vendida_en:"Fecha de venta",lat:"Latitud",lng:"Longitud",finca:"Finca",codigo:"Código",foto:"Foto",orden:"Orden de fotos",rol:"Rol",email:"Correo",telefono:"Teléfono",licencia:"Licencia / usuario"};
+const HPRE=["precio_lista","precio_oferta","oferta_hasta","oferta_desde","campana","valor_sugerido","venta_rapida","avaluo","valor_libros","costo_indirecto"];
+const HCAT=[["","Todo"],["prop","Datos de propiedades"],["precio","Precios y ofertas"],["estado","Estados"],["foto","Fotos"],["usr","Usuarios y permisos"]];
+const hCat=r=>r.tabla==="foto"?"foto":(r.tabla==="usuario"||r.tabla==="permiso")?"usr":r.tabla==="registro"?(/estado .*→/.test(r.despues||"")?"estado":/oferta|precio|rebaja|descuento|B\/\./i.test(r.despues||"")?"precio":"prop"):r.campo==="estado"?"estado":HPRE.includes(r.campo)?"precio":"prop";
+const hVal=(r,v)=>{if(v==null||v==="")return '<span class="muted">—</span>';if(r.tabla==="foto")return `<a href="${esc(v)}" target="_blank" rel="noopener"><span class="hth" style="background-image:url('${esc(v)}')"></span></a>`;
+ if(r.tabla==="permiso"||v==="true"||v==="false")return v==="true"?"Sí":v==="false"?"No":esc(v);
+ if(["precio_lista","precio_oferta","valor_sugerido","venta_rapida","avaluo","valor_libros","costo_indirecto"].includes(r.campo)&&!isNaN(+v))return money(+v);
+ if(r.campo==="rol"){const x=ROLES.find(q=>q[0]===v);return esc(x?x[1]:v)}
+ return esc(String(v).length>160?String(v).slice(0,160)+"…":v)};
+const hQue=r=>{if(r.tabla==="registro")return esc(r.despues||"");const c=HCAMPO[r.campo]||r.campo||"";
+ if(r.tabla==="propiedad")return r.accion==="creó"?"Creó la propiedad":r.accion==="borró"?"Borró la propiedad":esc(c);
+ if(r.tabla==="foto")return r.accion==="creó"?"Agregó una foto":r.accion==="borró"?"Borró una foto":r.campo==="orden"?"Cambió el orden de las fotos":"Cambió una foto";
+ if(r.tabla==="usuario")return r.accion==="creó"?"Creó el usuario":r.accion==="borró"?"Eliminó el usuario":esc(c);
+ if(r.tabla==="permiso"){const p=PERMS.find(q=>q[0]===r.campo),ro=ROLES.find(q=>q[0]===r.codigo);return `Permiso «${esc(p?p[1]:r.campo)}» de ${esc(ro?ro[1]:r.codigo)}`}
+ return esc(c)};
+async function hCargar(){const H=UI.hist||(UI.hist={dias:30,cat:"",q:""});H.cargando=true;H.err="";
+ if(!sbOn()){H.rows=(S.precioLog||[]).map((l,i)=>({id:-i,fecha:l.t,usuario:l.por,tabla:"registro",accion:"cambió",codigo:"",despues:l.x})).reverse();H.cargando=false;H.dias_ok=H.dias;render(1);return}
+ try{const {data,error}=await sb.rpc("historial_ver",{p_lic:CRED.lic,p_pin:CRED.pin,p_dias:H.dias,p_limite:3000});if(error)throw error;H.rows=data||[];H.falta=false}
+ catch(e){const m=(e&&e.message)||"";if(/historial_ver|function|schema cache/i.test(m))H.falta=true;else H.err=m.replace(/^.*?: /,"")}
+ H.cargando=false;H.dias_ok=H.dias;render(1)}
+function hFiltrados(){const H=UI.hist||{},q=(H.q||"").toLowerCase().trim();return (H.rows||[]).filter(r=>(!H.cat||hCat(r)===H.cat)&&(!q||[r.codigo,r.propiedad,r.usuario,r.campo,HCAMPO[r.campo],r.antes,r.despues].join(" ").toLowerCase().includes(q)))}
+function vHist(){const H=UI.hist||(UI.hist={dias:30,cat:"",q:""});
+ if(!H.rows&&!H.cargando&&!H.falta&&!H.err)setTimeout(hCargar,0);
+ if(H.falta)return `<div class="panel"><h3 style="font-size:16px">Falta activar el historial</h3><p class="sm muted" style="margin:6px 0 0">Para empezar a guardar cada cambio, corre una vez <b>HISTORIAL_MODIFICACIONES.sql</b> en Supabase (SQL Editor → pegar → Run). Desde ese momento queda registrado quién cambió qué y cuándo.</p></div>`;
+ const L=hFiltrados(),hoy=new Date().toDateString();
+ const fh=t=>{const d=new Date(t);return (d.toDateString()===hoy?"Hoy":d.toLocaleDateString("es-PA",{day:"numeric",month:"short",year:"numeric"}))+" · "+d.toLocaleTimeString("es-PA",{hour:"numeric",minute:"2-digit"})};
+ const ref=r=>{if(r.tabla==="propiedad"||r.tabla==="foto"||(r.tabla==="registro"&&r.codigo)){const p=PR(r.codigo);return p?`<button class="lnk" data-a="ficha" data-v="${esc(r.codigo)}"><b>${esc(r.codigo)}</b></button><div class="sm muted">${esc(p.n)}</div>`:`<b>${esc(r.codigo||"")}</b>${r.propiedad?`<div class="sm muted">${esc(r.propiedad)}</div>`:""}`}
+  if(r.tabla==="usuario"){const x=S.users.find(u=>u.lic===r.codigo);return `<b>${esc(x?x.n:r.codigo)}</b><div class="sm muted">${esc(r.codigo||"")}</div>`}
+  if(r.tabla==="permiso")return '<span class="muted">Permisos</span>';return '<span class="muted">General</span>'};
+ const pills=HCAT.map(([k,t])=>`<button class="hp" data-a="hCat" data-v="${k}" aria-pressed="${(H.cat||"")===k}">${t}</button>`).join("");
+ return `<p class="muted sm" style="max-width:80ch">Cada cambio queda registrado: <b>quién</b> lo hizo, <b>cuándo</b>, <b>qué</b> cambió y el valor de <b>antes</b> y <b>después</b>. Toca el código de una propiedad para abrir su ficha.</p>
+ <div class="panel" style="display:grid;gap:10px;margin-bottom:14px"><div class="row" style="gap:10px;align-items:end"><label style="flex:1;min-width:220px">Buscar<input id="hQ" value="${esc(H.q||"")}" placeholder="Código, propiedad, usuario o dato"></label>
+ <label>Período<select data-f="hDias">${[[1,"Hoy"],[7,"Últimos 7 días"],[30,"Últimos 30 días"],[90,"Últimos 90 días"],[0,"Todo"]].map(([v,t])=>`<option value="${v}" ${+H.dias===v?"selected":""}>${t}</option>`).join("")}</select></label>
+ <button class="btn" data-a="hXls" ${L.length?"":"disabled"}>Bajar a Excel</button></div><div class="row" style="gap:6px">${pills}</div></div>
+ ${H.err?`<div class="pill red" style="white-space:normal;margin-bottom:10px">${esc(H.err)}</div>`:""}
+ <div class="panel tbl"><div class="row" style="justify-content:space-between;margin-bottom:6px"><span class="sm muted">${H.cargando?"Cargando…":`${L.length} ${L.length===1?"cambio":"cambios"}`}</span><button class="btn s" data-a="hRec">Actualizar</button></div>
+ ${L.length?`<table class="htab"><thead><tr><th>Fecha</th><th>Quién</th><th>Propiedad / usuario</th><th>Qué cambió</th><th>Antes</th><th>Después</th></tr></thead><tbody>${L.slice(0,500).map(r=>`<tr><td class="sm" style="white-space:nowrap">${fh(r.fecha)}</td><td>${esc(r.usuario||"")}</td><td>${ref(r)}</td><td>${hQue(r)}</td><td>${r.tabla==="registro"?"":hVal(r,r.antes)}</td><td>${r.tabla==="registro"?"":hVal(r,r.despues)}</td></tr>`).join("")}</tbody></table>${L.length>500?`<p class="sm muted">Se muestran los 500 más recientes; usa el buscador o «Bajar a Excel» para verlos todos.</p>`:""}`:`<p class="muted" style="margin:10px 0">${H.cargando?"Cargando el historial…":"No hay cambios con estos filtros."}</p>`}</div>`}
+function hXls(){const L=hFiltrados(),plano=v=>v==null?"":String(v);
+ const rows=L.map(r=>({"Fecha":new Date(r.fecha).toLocaleString("es-PA"),"Quién":r.usuario||"","Código":r.codigo||"","Propiedad":r.propiedad||((PR(r.codigo)||{}).n)||"","Qué cambió":hQue(r).replace(/<[^>]+>/g,"").replace(/&quot;/g,'"').replace(/&amp;/g,"&").replace(/&lt;/g,"<").replace(/&gt;/g,">"),"Antes":r.tabla==="registro"?"":plano(r.antes),"Después":r.tabla==="registro"?"":plano(r.despues)}));
+ xlsBajar([["Historial",rows.length?rows:[{"Fecha":""}]]],`historial-${new Date().toISOString().slice(0,10)}.xlsx`,"Historial de cambios")}
+
 function vAdm(){
  if(!can("adm"))UI.sub="cor";const s=UI.sub;let b="";
  if(s==="cor"){
@@ -1037,6 +1080,7 @@ function vAdm(){
   b=`<div class="grid g2"><div class="panel"><h3 style="font-size:15px;margin-bottom:8px">Premiar a un corredor</h3><form id="fPre" class="grid"><label>Corredor<select id="pU">${bk.map(x=>`<option value="${x.id}">${esc(x.n)}</option>`).join("")}</select></label><label>Puntos<input id="pP" type="number" value="100" min="1"></label><label>Motivo<input id="pM" placeholder="Ej. Mejor mes en visitas" required></label><button class="btn p" type="submit">Otorgar puntos</button></form></div>
   <div class="panel"><h3 style="font-size:15px;margin-bottom:8px">Premios y cupones por entregar ${C.filter(c=>c.st==="Solicitado").length?`<span class="pill red">${C.filter(c=>c.st==="Solicitado").length}</span>`:""}</h3>${C.map(c=>`<div class="row" style="justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--line)"><span><b>${esc(U(c.u).n)}</b><br><span class="sm muted">${esc(premioN(c.r))} · ${fd(c.t)}</span></span>${c.st==="Solicitado"?`<button class="btn s p" data-a="entr" data-v="${c.t}|${c.u}|${c.r}">Marcar entregado</button>`:`<span class="pill">Entregado</span>`}</div>`).join("")||`<p class="muted sm">Aún no hay canjes.</p>`}</div></div>`;
  }
+ if(s==="his"){b=vHist()}
  if(s==="act"){
   const per=S.users.filter(x=>x.rol==="corredor"&&x.st==="Activo").map(x=>({x,v:S.views.filter(v=>v.u===x.id).length,l:S.leads.filter(l=>l.u===x.id).length}));
   const top=[...S.props].filter(vendible).sort((a,b)=>vis(b)-vis(a)).slice(0,6);
@@ -1195,7 +1239,10 @@ document.addEventListener("click",e=>{
  else if(a==="mv"){const l=S.leads.find(x=>x.id===v),i=ETAPAS.findIndex(x=>x[0]===l.e)+ +b.dataset.d;if(i<0||i>4)return;if(ETAPAS[i][0]==="cierre"&&!can("adm")){toast("La venta la confirma la administración");return}l.e=ETAPAS[i][0];if(+b.dataset.d>0)award(l.u,l.e,l,l.p);save();render(1)}
  else if(a==="canje"&&sbOn()){const r=PREMIOS.find(x=>x.id===v);after(rpc("canjear",{p_premio_id:r.id,p_premio:r.n,p_puntos:r.p}).then(()=>toast("Canje solicitado")))}
  else if(a==="canje"){const u=me(),r=PREMIOS.find(x=>x.id===v);if(pts(u.id)<r.p)return;S.log.push({u:u.id,t:iso(NOW),x:"Canje: "+r.n,pts:-r.p});S.canjes.push({u:u.id,r:v,t:Date.now(),st:"Solicitado"});save();toast("Canje solicitado");render(1)}
- else if(a==="sub"){UI.sub=v;render(1)}
+ else if(a==="sub"){UI.sub=v;if(v==="his"&&UI.hist)UI.hist.rows=null;render(1)}
+ else if(a==="hCat"){UI.hist.cat=v;render(1)}
+ else if(a==="hRec"){UI.hist.rows=null;render(1)}
+ else if(a==="hXls"){hXls()}
  else if(a==="goAdm"){UI.tab="adm";UI.sub=v;render();scrollTo(0,0)}
  else if((a==="ap"||a==="rj")&&sbOn()){after(rpc("aprobar_corredor",{p_id:v,p_aprobar:a==="ap"}).then(()=>toast(a==="ap"?"Corredor aprobado":"Solicitud rechazada")))}
  else if(a==="ap"){const x=U(v);x.st="Activo";x.rol="corredor";save();toast("Corredor aprobado");render(1)}
@@ -1304,11 +1351,13 @@ document.addEventListener("submit",e=>{
  if(id==="fPre"){const uu=$("#pU").value;S.log.push({u:uu,t:iso(NOW),x:"Premio: "+$("#pM").value.trim(),pts:+$("#pP").value||0});save();toast("Puntos otorgados");render(1)}
 });
 document.addEventListener("input",e=>{const t=e.target;
+ if(t.id==="hQ"&&UI.hist){UI.hist.q=t.value;clearTimeout(UI.hist.tq);UI.hist.tq=setTimeout(()=>{const p=t.selectionStart;render(1);const i=$("#hQ");if(i){i.focus();i.setSelectionRange(p,p)}},250);return}
  if(t.dataset&&t.dataset.f==="invQ"){UI.inv.q=t.value;clearTimeout(UI.inv.tq);UI.inv.tq=setTimeout(()=>{render(1);const i=document.querySelector('[data-f="invQ"]');if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length)}},250);return}if(t.id==="fiTxt"){const pv_=$("#fiPrev");if(pv_)pv_.textContent=t.value.trim()||firmaDef(me());return}
  if(t.dataset&&t.dataset.tz){const p=PR(UI.mat.p);(S.tz[p.c]=S.tz[p.c]||{})[t.dataset.tz]=t.value;save();drawCv();return}
  if(t.id==="msVal"||t.id==="msDias"){if(t.id==="msVal")UI.mas.val=+t.value||0;else UI.mas.dias=+t.value||7;const m=UI.mas,info=$("#msInfo");if(info){const obj=S.props.filter(vendible).filter(p=>(!m.tipo||p.t===m.tipo)&&(!m.prov||p.prov===m.prov)&&(m.solo==="todas"||(m.solo==="hot"&&p.hot)||(m.solo==="sin"&&!(ofAct(p)))));info.innerHTML=msInfo(obj,p=>nuevoPrecio(p,m))}return}
  if(t.id==="fq"){UI.q=t.value;const p=t.selectionStart;render(1);const n=$("#fq");n.focus();n.setSelectionRange(p,p)}});
 document.addEventListener("change",e=>{
+ if(e.target.dataset&&e.target.dataset.f==="hDias"&&UI.hist){UI.hist.dias=+e.target.value;UI.hist.rows=null;render(1);return}
  if(e.target.dataset&&e.target.dataset.f==="invE"){UI.inv.est=e.target.value;render(1);return}
  if(e.target.id==="invFotos"){const fl=e.target.files;if(fl&&fl.length&&UI.inv.ed&&UI.inv.ed!=="nuevo")subirFotos(UI.inv.ed,fl);return}
  if(e.target.id==="invRep"){const fl=e.target.files;if(fl&&fl.length&&UI.inv.rep&&UI.inv.ed&&UI.inv.ed!=="nuevo")subirFotos(UI.inv.ed,[fl[0]],UI.inv.rep);UI.inv.rep=null;return}
