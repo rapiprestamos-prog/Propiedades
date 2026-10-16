@@ -100,6 +100,52 @@ footer{padding:28px 0 48px;color:var(--mute);font-size:13px;border-top:1px solid
 [hidden]{display:none!important}
 .menu a[aria-current=page]{background:var(--blue-soft);color:var(--blue);font-weight:700}
 .vista-anim{animation:vin .25s ease}@keyframes vin{from{opacity:.4;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* Ficha nueva (fx) */
+.dlg.fx{width:min(1120px,100%)}
+.fx-top{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 20px;border-bottom:1px solid var(--line)}
+.fx-crumb{font-size:13px;color:var(--mute)}.fx-crumb b{color:var(--ink)}
+.fx-grid{display:grid;grid-template-columns:1.55fr 1fr;align-items:start}
+.fx-galw{padding:16px 14px 16px 20px;display:grid;gap:10px}
+.fx-mos{display:grid;gap:8px;height:440px;border-radius:16px;overflow:hidden}
+.fx-mos.n2{grid-template-columns:2fr 1fr}.fx-mos.n3{grid-template-columns:2fr 1fr;grid-template-rows:1fr 1fr}
+.fx-mos.n3 .fx-big{grid-row:1/3}
+.dlg.fx .ph.fx-big{aspect-ratio:auto;height:100%;border-radius:0}
+.fx-t{background-size:cover;background-position:center;position:relative;cursor:pointer;filter:saturate(.75)}
+.fx-more{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(5,15,51,.55);color:#fff;font:600 15px var(--f-d)}
+.fx-gal{padding:0}
+.fx-ok{background:#e3f6ec!important;color:#0a7a45!important}
+.fx-dots{display:none}
+.fx-side{padding:16px 20px 16px 6px}
+.fx-card{border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:0 10px 30px rgba(10,31,92,.08);display:grid;gap:6px}
+.fx-h{font-size:24px;margin:0}
+.fx-price{font-size:32px;margin-top:10px}
+.fx-of{font:600 12px var(--f-b);color:var(--ok)}
+.fx-pm{font-size:13px;color:var(--mute)}
+.fx-kv{grid-template-columns:1fr 1fr;margin:10px 0 4px}
+.fx-acts{display:grid;gap:8px}.fx-acts .btn{justify-content:center;text-align:center;width:100%}
+.fx-share{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.fx-low{display:grid;grid-template-columns:1.55fr 1fr;border-top:1px solid var(--line)}
+.fx-low.sin{grid-template-columns:1fr}
+.fx-sec{padding:18px 20px}.fx-sec h3{font-size:16px;margin:0 0 8px}.fx-sec p{margin:0;line-height:1.55}
+.fx-docs{display:flex;flex-wrap:wrap;gap:8px}.fx-docs span{border:1px dashed var(--gold);background:rgba(212,166,42,.08);border-radius:999px;padding:6px 12px;font-size:13px}
+.fx-note{font-size:12px;color:var(--mute);margin-top:6px}
+.fx-bar{display:none}
+@media(max-width:820px){
+ .ov:has(.dlg.fx){padding:0}
+ .dlg.fx{border-radius:0;border:0;min-height:100vh;padding-bottom:76px}
+ .fx-grid,.fx-low{grid-template-columns:1fr}
+ .fx-galw{padding:0}.fx-mos{height:auto;border-radius:0;grid-template-columns:1fr!important;grid-template-rows:auto!important}
+ .fx-mos .fx-t{display:none}.dlg.fx .ph.fx-big{aspect-ratio:4/3;height:auto;grid-row:auto}
+ .fx-gal{padding:0 14px}
+ .fx-dots{display:flex;position:absolute;left:0;right:0;bottom:12px;justify-content:center;gap:6px;z-index:1}
+ .fx-dots i{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.55);cursor:pointer}.fx-dots i.on{background:#fff}
+ .fx-side{padding:14px 16px}.fx-card{border:0;box-shadow:none;padding:0}
+ .fx-acts>.btn{display:none}.fx-top{padding:10px 14px}.fx-sec{padding:14px 16px}
+ .fx-bar{display:grid;grid-template-columns:1fr 1fr;gap:8px;position:fixed;left:0;right:0;bottom:0;z-index:60;background:var(--panel);border-top:1px solid var(--line);padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px))}
+ .fx-bar .btn{justify-content:center;text-align:center}
+}
+@media(min-width:1500px){.dlg.fx{width:min(1120px,calc(100vw/1.5 - 40px))}}
 </style>
 
 <header class="hdr"><div class="wrap"><div class="logo"><div class="mark"><svg viewBox="0 0 64 64" role="img" aria-label="Logotipo"><defs><linearGradient id="lg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#10307f"/><stop offset="1" stop-color="#050f33"/></linearGradient><linearGradient id="lg2" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#d4a62a"/><stop offset="1" stop-color="#f6d27a"/></linearGradient></defs><rect x="2" y="2" width="60" height="60" rx="16" fill="url(#lg1)"/><rect x="2.75" y="2.75" width="58.5" height="58.5" rx="15.5" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="1.5"/><path d="M14 36 L32 18 L50 36" fill="none" stroke="#fff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 33 V47 H44 V33" fill="none" stroke="#fff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" opacity=".92"/><path d="M26 41 L31 36 L35 39 L42 31" fill="none" stroke="url(#lg2)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M37 30 H43 V36" fill="none" stroke="url(#lg2)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div>Propiedades<small>Oportunidades de inversión y negocios</small></div></div>
@@ -205,18 +251,43 @@ function render(){
 }
 function calc(){const p=PROPS.find(x=>x.c===$("#cP").value)||PROPS.find(x=>x.inv)||PROPS[0];const m=Math.max(0,+$("#cM").value||0),y=+$("#cH").value,r=Math.max(0,+$("#cR").value||0);const anual=m*r/100,total=m*(Math.pow(1+r/100,y)-1);$("#cOut").innerHTML=`<div><b>${money(anual)}</b><span>retorno estimado por año</span></div><div><b>${money(total)}</b><span>ganancia estimada a ${y} año${y>1?"s":""}</span></div><div><b>${r}%</b><span>rendimiento anual supuesto</span></div><div><b>${Math.round(m/precio(p)*100)}%</b><span>de la propiedad (${money(precio(p))})</span></div>`}
 function ficha(c){const p=PROPS.find(x=>x.c===c);if(!p)return;
- $("#modal").innerHTML=`<div class="ov" id="ov"><div class="dlg" role="dialog" aria-modal="true" aria-label="Ficha ${p.c}"><div class="ph" id="fph" style="background-image:${bg(p,1)}"><div class="tags">${act(p)?`<span class="pill red">Oferta −${off(p)}%</span>`:""}${p.inv&&MOSTRAR_INVERSION?`<span class="pill gold">Inversión</span>`:""}<span class="pill" style="background:#fff">${p.t}</span></div><span class="code">${p.c}</span></div>
- ${fotoN(p)>1?`<div class="gal">${[...Array(fotoN(p))].map((_,i)=>`<button class="gth" data-g="${i+1}" aria-pressed="${i===0}" style="background-image:url('${fotoUrl(p,i+1)}')" aria-label="Foto ${i+1}"></button>`).join("")}</div>`:""}
- <div class="in"><div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start"><div><h2 style="font-size:26px">${esc(p.n)}</h2><div class="meta">${esc(p.dist)}, ${esc(p.prov)}</div></div><button class="btn s" id="cl">Cerrar</button></div>
- <div class="price" style="font-size:32px">${money(precio(p))}${act(p)?`<s>${money(p.lista)}</s>${p.ofHasta?`<em>Oferta válida hasta el ${fd(p.ofHasta)}</em>`:""}`:""}</div>
- <p style="margin:0;max-width:70ch">${esc(p.dsc)}</p>
- <div class="kv"><div><span>Finca</span><b>${esc(p.finca)}</b></div>${p.m2?`<div><span>Área</span><b>${m2txt(p)}</b></div>`:""}<div><span>Precio de venta</span><b>${money(p.lista)}</b></div>${act(p)?`<div><span>Descuento</span><b>−${off(p)}%</b></div>`:""}<div><span>Estado</span><b>${p.est}</b></div></div>
- ${p.lat!=null&&p.lng!=null?`<div class="mapa"><div class="mh"><b>📍 Ubicación</b><a class="btn s" target="_blank" rel="noopener" href="https://www.google.com/maps?q=${p.lat},${p.lng}">Abrir en Google Maps ↗</a></div><a class="mf" target="_blank" rel="noopener" href="https://www.google.com/maps?q=${p.lat},${p.lng}" title="Ver el mapa completo"><iframe src="https://www.google.com/maps?q=${p.lat},${p.lng}&z=15&t=k&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe></a></div>`:""}
- <div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn wa" target="_blank" rel="noopener" href="${WA+encodeURIComponent(`Hola, me interesa ${p.n} (${p.c}). ¿Podemos coordinar una visita?`)}">Coordinar visita por WhatsApp</a><a class="btn o" href="#contacto" id="goC">Que me llamen</a></div>
- <p style="margin:0;font-size:12px;color:var(--mute)">Documentos disponibles para compradores: ficha técnica, avalúo y certificación de Registro Público. Los solicita tu corredor.</p></div></div></div>`;
- $("#cl").onclick=()=>$("#modal").innerHTML="";$("#ov").onclick=e=>{if(e.target.id==="ov")$("#modal").innerHTML=""};$("#goC").onclick=()=>{$("#modal").innerHTML="";$("#ci").value=p.c};
+ const N=fotoN(p),disp=/^Disponible/.test(p.est),pm=p.m2?(v=>v<10?"B/. "+v.toFixed(2):money(v))(precio(p)/p.m2):"",mapa=p.lat!=null&&p.lng!=null;
+ const waH=WA+encodeURIComponent(`Hola, me interesa ${p.n} (${p.c}). ¿Podemos coordinar una visita?`);
+ const tile=(i,more)=>`<div class="fx-t" ${more?`data-more="1" role="button" tabindex="0" aria-label="Ver todas las fotos"`:`data-g="${i}" role="button" tabindex="0" aria-label="Foto ${i}"`} style="background-image:url('${fotoUrl(p,i)}'), ${GRIS}">${more?`<span class="fx-more">+${N-2} fotos</span>`:""}</div>`;
+ $("#modal").innerHTML=`<div class="ov" id="ov"><div class="dlg fx" role="dialog" aria-modal="true" aria-label="Ficha ${p.c}">
+ <div class="fx-top"><div class="fx-crumb">Propiedades › ${esc(p.prov)} › <b>${p.c}</b></div><button class="btn s" id="cl">✕ Cerrar</button></div>
+ <div class="fx-grid"><div class="fx-galw"><div class="fx-mos n${Math.min(N,3)}">
+  <div class="ph fx-big" id="fph" style="background-image:${bg(p,1)}"><div class="tags">${disp?`<span class="pill fx-ok">● Disponible</span>`:`<span class="pill" style="background:#fff">${esc(p.est)}</span>`}${act(p)?`<span class="pill red">Oferta −${off(p)}%</span>`:""}${p.inv&&MOSTRAR_INVERSION?`<span class="pill gold">Inversión</span>`:""}<span class="pill" style="background:#fff">${p.t}</span></div><span class="code">${p.c}</span>${N>1?`<div class="fx-dots">${[...Array(N)].map((_,i)=>`<i data-g="${i+1}" class="${i?"":"on"}"></i>`).join("")}</div>`:""}</div>
+  ${N>=2?tile(2,false):""}${N>=3?tile(3,N>3):""}
+ </div>
+ ${N>1?`<div class="gal fx-gal" id="fxgal" hidden>${[...Array(N)].map((_,i)=>`<button class="gth" data-g="${i+1}" aria-pressed="${i===0}" style="background-image:url('${fotoUrl(p,i+1)}')" aria-label="Foto ${i+1}"></button>`).join("")}</div>`:""}</div>
+ <div class="fx-side"><div class="fx-card">
+  <h2 class="fx-h">${esc(p.n)}</h2><div class="meta">📍 ${esc(p.dist)}, ${esc(p.prov)}</div>
+  <div class="price fx-price">${money(precio(p))}${act(p)?`<s>${money(p.lista)}</s>`:""}</div>
+  ${act(p)&&p.ofHasta?`<div class="fx-of">Oferta válida hasta el ${fd(p.ofHasta)}</div>`:""}${pm?`<div class="fx-pm">${pm} por m²</div>`:""}
+  <div class="kv fx-kv">${p.m2?`<div><span>Área</span><b>${m2txt(p)}</b></div>`:""}<div><span>Tipo</span><b>${esc(p.t)}</b></div><div><span>Finca</span><b>${esc(p.finca)}</b></div>${act(p)?`<div><span>Descuento</span><b>−${off(p)}%</b></div>`:`<div><span>Estado</span><b>${esc(p.est)}</b></div>`}</div>
+  <div class="fx-acts"><a class="btn wa" target="_blank" rel="noopener" href="${waH}">💬 Coordinar visita por WhatsApp</a><a class="btn o" href="#contacto" id="goC">📞 Que me llamen</a>
+  <div class="fx-share"><button class="btn s" type="button" id="fxCopy">🔗 Copiar enlace</button><button class="btn s" type="button" id="fxShare">↗ Compartir</button></div></div>
+ </div></div></div>
+ <div class="fx-low${mapa?"":" sin"}"><div class="fx-sec"><h3>Descripción</h3><p>${esc(p.dsc)}</p>
+  <h3 style="margin-top:16px">Documentos para compradores</h3><div class="fx-docs"><span>Ficha técnica</span><span>Avalúo</span><span>Certificación de Registro Público</span></div><div class="fx-note">Los solicita tu corredor.</div></div>
+  ${mapa?`<div class="fx-sec"><div class="mapa"><div class="mh"><b>📍 Ubicación</b><a class="btn s" target="_blank" rel="noopener" href="https://www.google.com/maps?q=${p.lat},${p.lng}">Abrir en Google Maps ↗</a></div><a class="mf" target="_blank" rel="noopener" href="https://www.google.com/maps?q=${p.lat},${p.lng}" title="Ver el mapa completo"><iframe src="https://www.google.com/maps?q=${p.lat},${p.lng}&z=15&t=k&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe></a></div></div>`:""}
+ </div>
+ <div class="fx-bar"><a class="btn wa" target="_blank" rel="noopener" href="${waH}">💬 WhatsApp</a><a class="btn o" href="#contacto" id="goC2">📞 Que me llamen</a></div>
+ </div></div>`;
+ const cerrar=()=>$("#modal").innerHTML="";
+ $("#cl").onclick=cerrar;$("#ov").onclick=e=>{if(e.target.id==="ov")cerrar()};
+ const llamar=()=>{cerrar();$("#ci").value=p.c};$("#goC").onclick=llamar;$("#goC2").onclick=llamar;
+ const link=location.origin+location.pathname+"?p="+encodeURIComponent(p.c);
+ const copiar=()=>{const ok=()=>toast("Enlace copiado");try{navigator.clipboard.writeText(link).then(ok,()=>prompt("Copia el enlace:",link))}catch(e){prompt("Copia el enlace:",link)}};
+ $("#fxCopy").onclick=copiar;
+ $("#fxShare").onclick=()=>{if(navigator.share)navigator.share({title:p.n,text:`${p.n} · ${money(precio(p))}`,url:link}).catch(()=>{});else copiar()};
+ const more=document.querySelector("#ov [data-more]");if(more){const ver=()=>{const g=$("#fxgal");if(g)g.hidden=!g.hidden};more.onclick=ver;more.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();ver()}}}
+ const ph=$("#fph");if(N>1&&ph){let x0=null,i=1;ph.addEventListener("touchstart",e=>{x0=e.touches[0].clientX},{passive:true});
+  ph.addEventListener("touchend",e=>{if(x0==null)return;const dx=e.changedTouches[0].clientX-x0;x0=null;if(Math.abs(dx)<40)return;
+   const cur=+((document.querySelector(".fx-dots i.on")||{}).dataset||{}).g||1;i=dx<0?(cur%N)+1:((cur-2+N)%N)+1;const d=document.querySelector(`.fx-dots i[data-g="${i}"]`);if(d)d.click()},{passive:true})}
 }
-document.addEventListener("click",e=>{const g=e.target.closest("[data-g]");if(g){const ph=$("#fph"),c=$("#fph")&&document.querySelector(".dlg").getAttribute("aria-label").replace("Ficha ","");const p=PROPS.find(x=>x.c===c);if(ph&&p){const u=fotoUrl(p,+g.dataset.g),im=new Image();im.onload=()=>{ph.style.backgroundImage=`url('${u}'), url('${fotoUrl(p,0)}'), ${GRIS}`};im.src=u}document.querySelectorAll(".gth").forEach(b=>b.setAttribute("aria-pressed",b===g));return}const t=e.target.closest("[data-t]");if(t){UI.tab=t.dataset.t;render();return}const f=e.target.closest("[data-f]");if(f)ficha(f.dataset.f)});
+document.addEventListener("click",e=>{const g=e.target.closest("[data-g]");if(g){const ph=$("#fph"),c=$("#fph")&&document.querySelector(".dlg").getAttribute("aria-label").replace("Ficha ","");const p=PROPS.find(x=>x.c===c);if(ph&&p){const u=fotoUrl(p,+g.dataset.g),im=new Image();im.onload=()=>{ph.style.backgroundImage=`url('${u}'), url('${fotoUrl(p,0)}'), ${GRIS}`};im.src=u}document.querySelectorAll(".gth").forEach(b=>b.setAttribute("aria-pressed",b.dataset.g===g.dataset.g));document.querySelectorAll(".fx-dots i").forEach(d=>d.classList.toggle("on",d.dataset.g===g.dataset.g));return}const t=e.target.closest("[data-t]");if(t){UI.tab=t.dataset.t;render();return}const f=e.target.closest("[data-f]");if(f)ficha(f.dataset.f)});
 document.addEventListener("keydown",e=>{if(e.key==="Escape")$("#modal").innerHTML="";if((e.key==="Enter"||e.key===" ")&&e.target.classList.contains("card")){e.preventDefault();ficha(e.target.dataset.f)}});
 $("#fs").addEventListener("submit",e=>{e.preventDefault();UI.q=$("#q").value;UI.t=$("#ft").value;UI.prov=$("#fp").value;UI.max=$("#fm").value;render();irA("catalogo",true)});
 ["cM","cH","cP","cR"].forEach(id=>$("#"+id).addEventListener("input",calc));
