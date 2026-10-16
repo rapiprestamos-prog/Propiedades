@@ -477,12 +477,12 @@ function vFirma(){const u=me(),f=UI.firmaTmp!=null?UI.firmaTmp:(u.firma||firmaDe
  <div class="row"><label style="flex:1;min-width:140px">Licencia<input id="vfL" maxlength="40" value="${esc(v.lic||"")}" placeholder="${esc(u.lic?"Lic. "+u.lic:"")}"></label><label style="flex:1;min-width:180px">Línea extra (opcional)<input id="vfX" maxlength="60" value="${esc(v.extra||"")}" placeholder="Correo, empresa o redes"></label></div>`})()}
  <div class="row"><button class="btn p" type="submit">Guardar</button><button type="button" class="btn" data-a="firmaDef">Volver a mis datos de registro</button><button type="button" class="btn" data-a="closeFirma">Cancelar</button></div></div></form></div>`}
 function vCliForm(){
- const u=me(),all=can("segall")||can("adm"),brk=S.users.filter(x=>x.rol==="corredor"&&x.st==="Activo");
+ const u=me(),all=can("segall")||can("adm"),brk=S.users.filter(x=>x.st==="Activo").sort((a,b)=>(a.id===u.id?-1:b.id===u.id?1:0)||a.n.localeCompare(b.n));
  return `<div class="ov" data-a="closeCli"><form class="dlg" id="fCli" role="dialog" aria-modal="true" aria-label="Registrar cliente"><div style="background:var(--brand);color:var(--brand-ink);padding:14px 18px;display:flex;justify-content:space-between;align-items:center"><b style="font:700 18px var(--f-d)">Registrar cliente</b><button type="button" class="btn s" data-a="closeCli" style="background:transparent;color:inherit;border-color:transparent">✕</button></div>
  <div class="in"><div class="grid g2"><label>Nombre<input id="cN" required autofocus></label><label>Teléfono<input id="cT" required></label>
  <label>Canal por donde escribió<select id="cC">${CANALES.map(c=>`<option>${c}</option>`).join("")}</select></label><label>Fecha<input id="cD" type="date" value="${iso(NOW)}"></label>
  <label>Propiedad de interés<select id="cP"><option value="">Sin propiedad específica</option>${S.props.filter(vendible).map(p=>`<option value="${p.c}">${p.c} · ${esc(p.n)}</option>`).join("")}</select></label>
- ${all?`<label>Asignar a corredor<select id="cU"><option value="">Sin asignar</option>${brk.map(b=>`<option value="${b.id}">${esc(b.n)}</option>`).join("")}</select></label>`:""}</div>
+ ${all?`<label>Quién lo atiende<select id="cU">${brk.map(b=>`<option value="${b.id}" ${b.id===u.id?"selected":""}>${esc(b.n)}${b.id===u.id?" (yo)":` (${esc((ROLES.find(r=>r[0]===b.rol)||["",b.rol])[1])})`}</option>`).join("")}<option value="">Sin asignar</option></select></label>`:""}</div>
  <label>Qué pidió o comentó<textarea id="cO" rows="3" placeholder="Qué preguntó, qué busca, presupuesto"></textarea></label>
  <label class="chk"><input type="checkbox" id="cS"> Pasar de una vez a Seguimiento</label>
  <div class="row" style="justify-content:flex-end"><button type="button" class="btn" data-a="closeCli">Cancelar</button><button class="btn p" type="submit">Guardar cliente</button></div></div></form></div>`;
