@@ -1,0 +1,750 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" href="img/logo.png">
+<title>C4 Realty</title>
+<meta name="description" content="C4 Realty: casas, terrenos, fincas y alquileres en Chiriquí. Boquete, Algarrobos, San Pablo Viejo, Bágala, Montilla, Bugaba, Boquerón y Aguacatal. Cotiza tu vivienda.">
+<meta property="og:title" content="C4 Realty · Casas en Chiriquí">
+<meta property="og:description" content="Cotizar es tu primer paso para obtener tu vivienda.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Manrope:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: azul oscuro de C4 Realty. Hero con buscador → catálogo real (fichas) → cotizador con Bono Pa' Ti → guía del bono → videos → contacto */
+:root{
+  --bg:#0b1526;--bg-2:#0e1b30;--surface:#132342;--surface-2:#1a2f55;
+  --fg:#eaf0fa;--muted:#9fb0c8;--line:#25395f;
+  --accent:#f2b84b;--accent-ink:#1a1200;--sky:#6cb6ff;--ok:#5ad39a;--danger:#ff7b7b;--green:#4cc96e;
+  --shadow:0 14px 40px rgba(0,0,0,.35);
+  --font-display:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --font-body:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --radius:16px;color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:16px;line-height:1.55;margin:0}
+h1,h2,h3,h4{font-family:var(--font-display);line-height:1.12;margin:0;text-wrap:balance;font-weight:700}
+h1{font-size:clamp(2.1rem,5vw,3.4rem);font-weight:800;letter-spacing:-.02em}
+h2{font-size:clamp(1.55rem,3vw,2.2rem);letter-spacing:-.01em}
+h3{font-size:1.1rem}
+p{margin:0}
+a{color:inherit}
+img{max-width:100%;display:block}
+button,input,select{font:inherit;color:inherit}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.eyebrow{font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:700}
+.muted{color:var(--muted)}
+.sec{padding-block:68px}
+.sec.alt{background:var(--bg-2)}
+.sec-head{display:flex;justify-content:space-between;align-items:end;gap:20px;flex-wrap:wrap;margin-bottom:28px}
+.sec-head p{max-width:58ch}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid transparent;border-radius:12px;padding:12px 20px;font-weight:700;cursor:pointer;text-decoration:none;transition:transform .15s,border-color .15s;white-space:nowrap}
+.btn:hover{transform:translateY(-1px)}
+.btn-accent{background:var(--accent);color:var(--accent-ink)}
+.btn-ghost{background:transparent;border-color:var(--line);color:var(--fg)}
+.btn-ghost:hover{border-color:var(--sky)}
+.btn-wa{background:#25d366;color:#05230f}
+.btn-sm{padding:9px 14px;font-size:.88rem}
+:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
+
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;background:rgba(11,21,38,.88);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.nav{display:flex;align-items:center;justify-content:space-between;gap:16px;height:70px}
+.nav ul{display:flex;gap:22px;list-style:none;margin:0;padding:0;font-weight:600;font-size:.92rem}
+.nav ul a{text-decoration:none;color:var(--muted)}
+.nav ul a:hover{color:var(--fg)}
+.nav-right{display:flex;align-items:center;gap:10px}
+.welcome{display:none;align-items:center;gap:10px;font-size:.85rem;color:var(--muted)}
+.welcome b{color:var(--fg)}
+.welcome button{border:0;background:transparent;color:var(--accent);font-weight:700;cursor:pointer;padding:0}
+body.registered .welcome{display:flex}
+.nav ul a.on{color:var(--fg);box-shadow:inset 0 -2px 0 var(--accent);padding-bottom:4px}
+@media (max-width:980px){.welcome{display:none!important}.nav{height:auto;flex-wrap:wrap;padding-block:10px;row-gap:8px}.nav ul{order:3;width:100%;overflow-x:auto;gap:18px;padding-bottom:6px;white-space:nowrap}}
+[data-page][hidden]{display:none!important}
+.pubbox{display:grid;gap:10px;background:var(--bg-2);border:1px solid var(--line);border-radius:14px;padding:14px}
+.pubhead{display:grid;grid-template-columns:72px 1fr;gap:12px;align-items:center}
+.pubhead img{width:72px;height:72px;object-fit:cover;border-radius:10px}
+.pubhead div{display:grid;gap:2px;min-width:0}
+.pubprice{font-family:var(--font-display);font-weight:800;font-size:1.15rem}
+.pubprice s{font-family:var(--font-body);font-size:.85rem;color:var(--muted);font-weight:500}
+
+.hero{position:relative;overflow:hidden}
+.hero-bg{position:absolute;inset:0;background-size:cover;background-position:center;filter:saturate(.9);opacity:.28}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,var(--bg) 25%,rgba(11,21,38,.75) 60%,rgba(11,21,38,.55));pointer-events:none}
+.hero .wrap{position:relative;z-index:1;padding-block:64px 76px;display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center}
+@media (max-width:900px){.hero .wrap{grid-template-columns:1fr}}
+.hero p.lead{max-width:50ch;font-size:1.1rem;color:var(--muted);margin-top:16px}
+.hero-ctas{display:flex;gap:12px;flex-wrap:wrap;margin-top:26px}
+.hero-trust{display:flex;gap:28px;flex-wrap:wrap;margin-top:30px;font-size:.88rem;color:var(--muted)}
+.hero-trust b{display:block;font-family:var(--font-display);font-size:1.6rem;color:var(--fg);font-variant-numeric:tabular-nums}
+.quick{background:var(--surface);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);padding:22px;display:grid;gap:14px}
+.field{display:grid;gap:6px;min-width:0}
+.field label,.flabel{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.field select,.field input{border:1px solid var(--line);background:var(--bg-2);border-radius:10px;padding:11px 12px;width:100%}
+.types{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+@media (max-width:480px){.types{grid-template-columns:repeat(3,1fr)}}
+.types button{border:1px solid var(--line);background:var(--bg-2);border-radius:12px;padding:11px 4px;cursor:pointer;font-weight:700;font-size:.84rem;display:grid;gap:3px;justify-items:center;color:var(--muted)}
+.types button span{font-size:1.2rem}
+.types button.on{border-color:var(--accent);color:var(--fg);background:rgba(242,184,75,.1)}
+.ranges{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.ranges button{border:1px solid var(--line);background:var(--bg-2);border-radius:10px;padding:10px 6px;cursor:pointer;font-weight:600;font-size:.84rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.ranges button.on{border-color:var(--sky);color:var(--fg);background:rgba(108,182,255,.12)}
+
+.note-bar{background:rgba(242,184,75,.1);border:1px solid rgba(242,184,75,.35);color:var(--fg);border-radius:12px;padding:10px 14px;font-size:.88rem;margin-bottom:20px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px;align-items:center}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 14px;font-size:.86rem;font-weight:600;cursor:pointer;color:var(--muted)}
+.chip.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.chips .count{margin-left:auto;font-size:.86rem;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+@media (max-width:960px){.grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:620px){.grid{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;display:grid;grid-template-rows:auto 1fr;transition:transform .2s,border-color .2s}
+.card:hover{transform:translateY(-3px);border-color:var(--sky)}
+.photo{position:relative;aspect-ratio:4/3;max-width:100%;background:var(--bg-2);overflow:hidden}
+.photo img{width:100%;height:100%;object-fit:cover;object-position:center 30%}
+.photo .tags{position:absolute;top:10px;left:10px;right:10px;display:flex;gap:6px;flex-wrap:wrap}
+.tag{background:rgba(11,21,38,.88);color:#fff;font-size:.68rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;padding:5px 8px;border-radius:6px}
+.tag.hot{background:var(--accent);color:var(--accent-ink)}
+.tag.rent{background:var(--green);color:#05230f}
+.body{padding:16px 18px 18px;display:grid;gap:9px;align-content:start}
+.where{font-size:.85rem;color:var(--muted)}
+.price{font-family:var(--font-display);font-size:1.4rem;font-weight:800;font-variant-numeric:tabular-nums}
+.price small{font-family:var(--font-body);font-size:.8rem;color:var(--muted);font-weight:600}
+.price s{font-family:var(--font-body);font-size:.85rem;color:var(--muted);font-weight:500;margin-left:6px}
+.specs{display:flex;gap:12px;flex-wrap:wrap;font-size:.83rem;color:var(--muted);padding-top:9px;border-top:1px solid var(--line);font-variant-numeric:tabular-nums}
+.specs b{color:var(--fg)}
+.posted{font-size:.76rem;color:var(--muted)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:2px}
+.empty{grid-column:1/-1;text-align:center;padding:48px 16px;color:var(--muted);background:var(--surface);border-radius:var(--radius);border:1px dashed var(--line)}
+
+.modal{position:fixed;inset:0;z-index:60;background:rgba(5,10,20,.78);display:none;align-items:center;justify-content:center;padding:max(12px,env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) max(12px,env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px))}
+.modal.open{display:flex}
+.sheet{background:var(--surface);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);width:min(960px,100%);max-height:100%;overflow:auto;display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr)}
+@media (max-width:800px){.sheet{grid-template-columns:1fr}}
+.sheet-media{background:var(--bg-2);position:relative;min-height:260px}
+.sheet-media img{width:100%;height:100%;object-fit:contain;max-height:80vh}
+.thumbs{position:absolute;left:10px;right:10px;bottom:10px;display:flex;gap:6px;flex-wrap:wrap}
+.thumbs button{width:52px;height:52px;border-radius:8px;border:2px solid transparent;padding:0;overflow:hidden;cursor:pointer;background:var(--bg)}
+.thumbs button.on{border-color:var(--accent)}
+.thumbs img{width:100%;height:100%;object-fit:cover}
+.sheet-info{padding:22px;display:grid;gap:14px;align-content:start;position:relative}
+.close{position:absolute;top:12px;right:12px;width:38px;height:38px;border-radius:50%;border:0;background:var(--bg-2);color:#fff;cursor:pointer;font-size:1.05rem;z-index:2}
+.tabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+.tabs button{border:0;background:transparent;padding:10px 12px;font-weight:700;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tabs button.on{color:var(--fg);border-bottom-color:var(--accent)}
+.pane{display:none;gap:12px}
+.pane.on{display:grid}
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.kv div{background:var(--bg-2);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.kv small{display:block;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.kv b{font-variant-numeric:tabular-nums}
+details.post{background:var(--bg-2);border:1px solid var(--line);border-radius:12px;padding:10px 14px}
+details.post summary{cursor:pointer;font-weight:700;font-size:.88rem;color:var(--muted)}
+details.post p{white-space:pre-line;font-size:.9rem;margin-top:8px;line-height:1.5}
+ul.ticks{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+ul.ticks li{display:flex;gap:10px;align-items:flex-start}
+ul.ticks li::before{content:"✓";color:var(--accent);font-weight:800}
+.src{font-size:.78rem;color:var(--muted)}
+.src a{color:var(--sky)}
+
+.gate{position:fixed;inset:0;z-index:70;display:none;place-items:center;padding:16px;background:rgba(5,10,20,.78)}
+.gate.open{display:grid}
+.gate form{background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:26px;max-width:460px;width:100%;display:grid;gap:10px}
+.gate p{font-size:.92rem;color:var(--muted)}
+.gate input,.gate select{border:1px solid var(--line);background:var(--bg-2);border-radius:10px;padding:11px 12px;width:100%}
+.fine{font-size:.76rem;color:var(--muted)}
+.err{color:var(--danger);font-size:.85rem;min-height:1.2em}
+
+.quote{display:grid;grid-template-columns:1fr 1.1fr;gap:26px;align-items:start}
+.quote>*{min-width:0}
+.quote select{max-width:100%;text-overflow:ellipsis}
+@media (max-width:900px){.quote{grid-template-columns:1fr}}
+.qform{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:24px;display:grid;gap:14px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:480px){.two{grid-template-columns:1fr}}
+.check{display:flex;gap:10px;align-items:flex-start;font-size:.9rem;background:var(--bg-2);border:1px solid var(--line);border-radius:12px;padding:12px}
+.check input{margin-top:4px}
+.qres{background:linear-gradient(160deg,var(--surface-2),var(--surface));border:1px solid var(--line);border-radius:20px;padding:24px;display:grid;gap:16px}
+.big{font-family:var(--font-display);font-size:clamp(2rem,4vw,2.8rem);font-weight:800;font-variant-numeric:tabular-nums;line-height:1}
+.big small{font-family:var(--font-body);font-size:.9rem;color:var(--muted);font-weight:500}
+.qgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.qgrid b{overflow-wrap:anywhere}
+.qres,.need{min-width:0}
+@media (max-width:480px){.qres,.qform,.need{padding:16px}}
+.qgrid div{background:rgba(11,21,38,.5);border-radius:12px;padding:12px}
+.qgrid small{display:block;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.qgrid b{font-size:1.05rem;font-variant-numeric:tabular-nums}
+.okmsg{font-size:.88rem;color:var(--ok);font-weight:600;min-height:1.2em}
+
+.bono{display:grid;grid-template-columns:.8fr 1.2fr;gap:28px;align-items:start}
+@media (max-width:860px){.bono{grid-template-columns:1fr}}
+.bono img{border-radius:16px;border:1px solid var(--line)}
+.banks{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media (max-width:700px){.banks{grid-template-columns:1fr}}
+.bank{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;gap:8px;align-content:start;font-size:.9rem}
+.bank h3{font-size:1rem}
+.warn{background:rgba(255,123,123,.08);border:1px solid rgba(255,123,123,.35);border-radius:12px;padding:12px 14px;font-size:.88rem}
+
+.videos{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+@media (max-width:900px){.videos{grid-template-columns:repeat(2,1fr)}}
+.vcard{display:grid;gap:8px;align-content:start}
+.vcard video{width:100%;aspect-ratio:9/16;max-width:100%;object-fit:cover;border-radius:14px;border:1px solid var(--line);background:#000;display:block}
+.vcard .vt{font-weight:700;font-size:.92rem;line-height:1.3}
+.vcard .vt small{display:block;color:var(--accent);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase}
+.vcard a{font-size:.8rem;color:var(--sky)}
+.mvideo{width:100%;max-height:60vh;aspect-ratio:9/16;object-fit:contain;background:#000;border-radius:12px;border:1px solid var(--line)}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:22px}
+@media (max-width:760px){.steps{grid-template-columns:1fr}}
+.step{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start;font-size:.92rem}
+.step b.n{width:32px;height:32px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center}
+.vid{position:relative;aspect-ratio:9/14;max-width:100%;border-radius:14px;overflow:hidden;display:block;text-decoration:none;border:1px solid var(--line);background:var(--bg-2)}
+.vid img{width:100%;height:100%;object-fit:cover}
+.vid::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 45%,rgba(11,21,38,.9))}
+.vid .play{position:absolute;top:12px;right:12px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.92);color:#0b1526;display:grid;place-items:center;font-size:.95rem;z-index:1}
+.vid span.t{position:absolute;left:12px;right:12px;bottom:12px;z-index:1;color:#fff;font-weight:700;font-size:.9rem;line-height:1.3}
+.vid span.t small{display:block;color:var(--accent);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase}
+
+.deliv{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+@media (max-width:800px){.deliv{grid-template-columns:repeat(2,1fr)}}
+.deliv a{display:block;border-radius:14px;overflow:hidden;border:1px solid var(--line);aspect-ratio:4/5;max-width:100%}
+.deliv img{width:100%;height:100%;object-fit:cover}
+
+.contact{display:grid;grid-template-columns:1fr 1fr;gap:26px;align-items:start}
+@media (max-width:860px){.contact{grid-template-columns:1fr}}
+.phone{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;flex-wrap:wrap}
+.phone b{font-family:var(--font-display);font-size:1.3rem;font-variant-numeric:tabular-nums}
+footer{background:#070f1d;color:#9fb0c8;padding-block:40px 26px;border-top:1px solid var(--line);font-size:.88rem}
+.fbottom{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center}
+.wa{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:max(16px,env(safe-area-inset-bottom,0px));z-index:40;width:56px;height:56px;border-radius:50%;background:#25d366;color:#fff;display:grid;place-items:center;box-shadow:0 8px 24px rgba(0,0,0,.35);text-decoration:none}
+.toast{position:fixed;left:50%;bottom:max(22px,env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--surface-2);border:1px solid var(--accent);padding:10px 16px;border-radius:12px;z-index:95;font-weight:700;display:none}
+/* Ficha clara estilo portafolio */
+.drawer{position:fixed;inset:0;z-index:60;display:none}
+.drawer.open{display:block}
+.drawer .scrim{position:absolute;inset:0;background:rgba(5,10,20,.6)}
+.panel{--paper:#ffffff;--ink:#14171c;--ink2:#6b7280;--rule:#e6e8ec;--soft:#f4f5f7;position:absolute;top:0;right:0;bottom:0;width:min(560px,100%);background:var(--paper);color:var(--ink);overflow:auto;box-shadow:-20px 0 60px rgba(0,0,0,.35);color-scheme:light;padding-bottom:env(safe-area-inset-bottom,0px)}
+.panel .pbar{position:sticky;top:0;z-index:2;background:rgba(255,255,255,.96);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:space-between;padding:12px 18px;padding-top:max(12px,env(safe-area-inset-top,0px));border-bottom:1px solid var(--rule);font-size:.95rem}
+.panel .pbar button{border:0;background:transparent;cursor:pointer;color:var(--ink);font-weight:600;padding:6px 10px;border-radius:8px;font-size:.95rem}
+.panel .pbar button:hover{background:var(--soft)}
+.panel .pnav{display:flex;gap:2px}
+.panel .hero-img{background:#0b1526}
+.panel .hero-img img{width:100%;max-height:440px;object-fit:contain;display:block;margin:0 auto}
+.panel .strip{display:flex;gap:6px;padding:10px 20px 0;overflow-x:auto}
+.panel .strip button{flex:none;width:58px;height:58px;border-radius:8px;border:2px solid transparent;padding:0;overflow:hidden;cursor:pointer;background:var(--soft)}
+.panel .strip button.on{border-color:var(--ink)}
+.panel .strip img{width:100%;height:100%;object-fit:cover}
+.panel .pbody{padding:18px 20px 28px;display:grid;gap:20px}
+.panel h2{font-family:var(--font-display);font-size:1.6rem;font-weight:700;color:var(--ink);letter-spacing:-.01em}
+.panel .ploc{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2);margin-top:6px}
+.panel .pills{display:flex;gap:8px;flex-wrap:wrap}
+.panel .pill{display:inline-flex;align-items:center;gap:7px;background:var(--soft);border-radius:999px;padding:5px 12px;font-size:.85rem;font-weight:600}
+.panel .pill i{width:8px;height:8px;border-radius:50%}
+.panel .pprice{font-family:var(--font-display);font-size:2.1rem;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;line-height:1.1}
+.panel .pprice small{font-family:var(--font-body);font-size:.9rem;color:var(--ink2);font-weight:500;letter-spacing:0}
+.panel .pprice s{font-family:var(--font-body);font-size:1rem;color:var(--ink2);font-weight:500}
+.panel .psec{display:grid;gap:8px}
+.panel .psec>h4{font-family:var(--font-body);font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2);font-weight:700;padding-bottom:6px;border-bottom:1px solid var(--rule)}
+.panel .rows{display:grid}
+.panel .rows div{display:grid;grid-template-columns:150px 1fr;gap:12px;padding:6px 0;font-size:.95rem}
+.panel .rows div span:first-child{color:var(--ink2)}
+.panel .rows div span:last-child{font-weight:600;font-variant-numeric:tabular-nums}
+.panel ul.plist{list-style:none;margin:0;padding:0;display:grid;gap:7px;font-size:.95rem}
+.panel ul.plist li{display:flex;gap:10px}
+.panel ul.plist li::before{content:"";flex:none;width:6px;height:6px;border-radius:50%;background:var(--ink);margin-top:.55em}
+.panel video{width:100%;max-height:520px;aspect-ratio:9/16;object-fit:contain;background:#000;border-radius:10px;display:block}
+.panel details{border:1px solid var(--rule);border-radius:10px;padding:10px 14px;background:var(--soft)}
+.panel details summary{cursor:pointer;font-weight:600;font-size:.9rem}
+.panel details p{white-space:pre-line;font-size:.92rem;margin-top:8px;line-height:1.55;color:#2b2f36}
+.panel .pact{display:flex;gap:8px;flex-wrap:wrap}
+.panel .pbtn{display:inline-flex;align-items:center;gap:8px;border-radius:10px;padding:11px 16px;font-weight:700;text-decoration:none;cursor:pointer;border:1px solid var(--rule);background:#fff;color:var(--ink);font-size:.92rem}
+.panel .pbtn.dark{background:#0b1526;color:#fff;border-color:#0b1526}
+.panel .pbtn.pwa{background:#25d366;color:#05230f;border-color:#25d366}
+.panel .psrc{font-size:.8rem;color:var(--ink2)}
+.panel .psrc a{color:#1f5fbf}
+.panel :focus-visible{outline:2px solid #1f5fbf}
+@media (max-width:520px){.panel .rows div{grid-template-columns:120px 1fr}}
+/* Cotizador: requisitos y pasos */
+.need{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:22px;display:grid;gap:14px}
+.need-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center}
+.seg{display:inline-flex;background:var(--bg-2);border:1px solid var(--line);border-radius:12px;padding:4px}
+.seg button{border:0;background:transparent;padding:8px 14px;border-radius:9px;font-weight:700;cursor:pointer;color:var(--muted)}
+.seg button.on{background:var(--accent);color:var(--accent-ink)}
+.docs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:700px){.docs{grid-template-columns:1fr}}
+.doc{display:flex;gap:10px;align-items:flex-start;background:var(--bg-2);border:1px solid var(--line);border-radius:12px;padding:12px;cursor:pointer;font-size:.92rem}
+.doc input{margin-top:2px;accent-color:#f2b84b;width:18px;height:18px;flex:none}
+.free{display:flex;gap:8px;flex-wrap:wrap}
+.free span{background:rgba(90,211,154,.12);border:1px solid rgba(90,211,154,.35);color:var(--fg);border-radius:999px;padding:6px 12px;font-size:.84rem;font-weight:600}
+.timeline{display:grid;grid-template-columns:repeat(7,1fr);gap:10px;margin-top:22px}
+@media (max-width:1000px){.timeline{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:480px){.timeline{grid-template-columns:1fr}}
+.tl{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;display:grid;gap:8px;align-content:start;font-size:.88rem}
+.tl b.n{width:28px;height:28px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-size:.85rem}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}html{scroll-behavior:auto}}
+
+/* Contenido C4 (octubre 2026): fotos verticales, precios por modelo, planos y reels */
+.photo{aspect-ratio:4/5}
+.photo img{object-position:center top}
+.panel .hero-img img{max-height:min(620px,72vh)}
+.panel .vrows{display:grid;border:1px solid var(--rule);border-radius:12px;overflow:hidden}
+.panel .vrows div{display:flex;justify-content:space-between;gap:12px;padding:10px 14px;font-size:.93rem}
+.panel .vrows div+div{border-top:1px solid var(--rule)}
+.panel .vrows div:nth-child(odd){background:var(--soft)}
+.panel .vrows b{font-variant-numeric:tabular-nums;white-space:nowrap}
+.panel .aviso{background:#fff4e5;border:1px solid #f5c98b;color:#5c3a00;border-radius:10px;padding:10px 14px;font-size:.88rem}
+.panel .mvids{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.reel{position:relative;margin:0;border-radius:16px;overflow:hidden;aspect-ratio:9/16;background:#000;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.reel video,.panel .reel video{width:100%;height:100%;max-height:none;object-fit:cover;border-radius:0;display:block}
+.reel figcaption{position:absolute;left:0;right:0;bottom:0;padding:28px 12px 10px;background:linear-gradient(transparent,rgba(0,0,0,.72));color:#fff;font-weight:700;font-size:.9rem;letter-spacing:.02em}
+.vfeat{border:1px solid color-mix(in srgb,var(--accent) 45%,var(--line));border-radius:22px;padding:22px;background:radial-gradient(120% 90% at 0% 0%,color-mix(in srgb,var(--accent) 14%,transparent),transparent 60%),var(--surface)}
+.vfeat-head{display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.vfeat-head h3{font-family:Georgia,"Times New Roman",serif;font-size:clamp(1.5rem,3vw,2.1rem);font-weight:700;margin-top:8px}
+.vfeat-head h3 em{font-style:normal;background:linear-gradient(180deg,#ffe7a3,#e0a93a 55%,#b8801f);-webkit-background-clip:text;background-clip:text;color:transparent}
+.vbadge{display:inline-block;background:var(--accent);color:var(--accent-ink);font-size:.72rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;border-radius:999px;padding:4px 10px}
+.vreels{display:grid;grid-template-columns:repeat(4,minmax(0,250px));gap:16px}
+@media (max-width:620px){.vreels{grid-template-columns:repeat(2,1fr);gap:10px}.vfeat{padding:14px}.reel{border-radius:12px}.reel figcaption{font-size:.78rem;padding:20px 8px 8px}}
+</style>
+<script>
+/* Plantilla de diseño elegida en el panel (se guarda para aplicarla sin parpadeo) */
+const C4_API="https://c4realty-api.c4realty0.workers.dev";
+function c4Tema(t){if(!t||!t.tokens)return;const k=t.tokens,r=document.documentElement,st=r.style;
+  if(t.id==="noche"){r.removeAttribute("data-tema");r.removeAttribute("data-claro");["--bg","--bg-2","--surface","--surface-2","--fg","--muted","--line","--accent","--accent-ink","--radius","--font-display","--font-body","--shadow","color-scheme"].forEach(v=>st.removeProperty(v));return;}
+  const lum=h=>{h=h.replace("#","");const n=[0,2,4].map(i=>parseInt(h.substr(i,2),16)/255).map(c=>c<=.03928?c/12.92:Math.pow((c+.055)/1.055,2.4));return .2126*n[0]+.7152*n[1]+.0722*n[2];};
+  r.setAttribute("data-tema",t.id);
+  const set={"--bg":k.fondo,"--bg-2":`color-mix(in srgb,${k.fondo} 94%,${k.texto} 6%)`,"--surface":k.superficie,"--surface-2":`color-mix(in srgb,${k.superficie} 90%,${k.texto} 10%)`,"--fg":k.texto,"--muted":k.texto_suave,"--line":k.linea,"--accent":k.acento,"--accent-ink":lum(k.acento)<.35?"#ffffff":"#1a1200","--radius":(k.radio||16)+"px","--font-display":`"${k.titulos}",system-ui,sans-serif`,"--font-body":`"${k.cuerpo}",system-ui,sans-serif`};
+  r.toggleAttribute("data-claro",lum(k.fondo)>.5);if(lum(k.fondo)>.5){set["--shadow"]="0 10px 30px rgba(20,23,28,.10)";st.setProperty("color-scheme","light");}
+  for(const v in set)st.setProperty(v,set[v]);
+  const id="c4-fuentes";if(!document.getElementById(id)){const l=document.createElement("link");l.id=id;l.rel="stylesheet";l.href="https://fonts.googleapis.com/css2?family="+[k.titulos,k.cuerpo].map(f=>encodeURIComponent(f).replace(/%20/g,"+")+":wght@400;600;700;800").join("&family=")+"&display=swap";document.head.appendChild(l);}}
+try{c4Tema(JSON.parse(localStorage.getItem("c4_tema")||"null"));}catch(e){}
+</script>
+<style>
+html[data-tema] header.top{background:color-mix(in srgb,var(--bg) 90%,transparent)}
+html[data-tema] .hero::after{background:linear-gradient(90deg,var(--bg) 25%,color-mix(in srgb,var(--bg) 80%,transparent) 60%,color-mix(in srgb,var(--bg) 55%,transparent))}
+html[data-tema] .qgrid div{background:color-mix(in srgb,var(--surface) 75%,transparent)}
+html[data-tema] footer{background:var(--surface-2);color:var(--muted)}
+html[data-tema] .close{color:var(--fg)}
+html[data-tema] .doc input{accent-color:var(--accent)}
+html[data-claro] header img[src*="logo.png"],html[data-claro] footer img[src*="logo.png"]{filter:brightness(0)}
+</style>
+</head>
+<body>
+
+
+<header class="top">
+  <div class="wrap nav">
+    <a href="#inicio" aria-label="C4 Realty, inicio"><img src="img/logo.png" alt="C4 Realty" style="height:26px;width:auto"></a>
+    <ul>
+      <li><a href="#inicio">Inicio</a></li>
+      <li><a href="#catalogo">Catálogo</a></li>
+      <li><a href="#cotizar">Cotizar</a></li>
+      <li><a href="#bono">Bono Pa' Ti</a></li>
+      <li><a href="#videos">Videos</a></li>
+      <li><a href="#contacto">Contacto</a></li>
+    </ul>
+    <div class="nav-right">
+      <div class="welcome"><span>Hola, <b id="welcome-name"></b></span><button type="button" id="logout">Salir</button></div>
+      <a class="btn btn-accent btn-sm" href="#cotizar">Cotizar</a>
+    </div>
+  </div>
+</header>
+
+<section class="hero" id="inicio" data-page="inicio">
+  <div class="hero-bg" id="hero-bg"></div>
+  <div class="wrap">
+    <div>
+      <div class="eyebrow">Casas · Terrenos · Fincas · Alquileres en Chiriquí</div>
+      <h1 style="margin-top:10px">Cotizar es tu primer paso para obtener tu vivienda</h1>
+      <p class="lead">Somos especialistas en casas en Chiriquí. Boquete, Algarrobos, San Pablo Viejo, Bágala, Montilla, Bugaba, Boquerón, Aguacatal y más: compara proyectos, precios y planes de pago en un solo lugar.</p>
+      <div class="hero-ctas">
+        <a class="btn btn-accent" href="#catalogo">Ver catálogo</a>
+        <a class="btn btn-wa" href="https://wa.me/50762531751" target="_blank" rel="noopener">WhatsApp 6253-1751</a>
+      </div>
+      <div class="hero-trust">
+        <div><b id="t-venta"></b>propiedades en venta</div>
+        <div><b id="t-alq"></b>zonas</div>
+        <div><b id="t-desde"></b>casas desde</div>
+      </div>
+    </div>
+    <form class="quick" id="quick">
+      <div><h3>¿Qué estás buscando?</h3><div class="muted" style="font-size:.88rem">Filtra el catálogo en un paso.</div></div>
+      <div class="types" role="group" aria-label="Tipo">
+        <button type="button" class="on" data-type=""><span>◫</span>Todo</button>
+        <button type="button" data-type="Casa"><span>⌂</span>Casas</button>
+        <button type="button" data-type="Terreno"><span>▱</span>Terrenos</button>
+        <button type="button" data-type="Finca"><span>❧</span>Fincas</button>
+        <button type="button" data-type="Alquiler"><span>⚿</span>Alquiler</button>
+      </div>
+      <div class="field"><label for="q-zona">Zona</label><select id="q-zona"><option value="">Todas las zonas</option></select></div>
+      <div class="field"><span class="flabel">Rango de precio (venta)</span>
+        <div class="ranges" role="group" aria-label="Rango de precio">
+          <button type="button" class="on" data-min="0" data-max="0">Cualquiera</button>
+          <button type="button" data-min="0" data-max="80000">Hasta $80,000</button>
+          <button type="button" data-min="80000" data-max="120000">$80,000 – $120,000</button>
+          <button type="button" data-min="120001" data-max="0">Más de $120,000</button>
+        </div>
+      </div>
+      <button class="btn btn-accent" type="submit">Ver resultados</button>
+    </form>
+  </div>
+</section>
+
+<section class="sec" id="catalogo" data-page="catalogo">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><div class="eyebrow">Catálogo</div><h2 id="cat-title">Todo el catálogo</h2></div>
+      <p class="muted">Cada ficha tiene fotos, precios por modelo, financiamiento, plano y ubicación.</p>
+    </div>
+    <div class="note-bar">Precios y promociones vigentes de octubre de 2026. Confirma disponibilidad por WhatsApp al <b>6253-1751</b>.</div>
+    <div class="chips" role="group" aria-label="Tipo">
+      <button class="chip on" data-chip="">Todo</button>
+      <button class="chip" data-chip="Casa">Casas</button>
+      <button class="chip" data-chip="Terreno">Terrenos</button>
+      <button class="chip" data-chip="Finca">Fincas</button>
+      <button class="chip" data-chip="Alquiler">Alquileres</button>
+      <span class="count" id="cat-count"></span>
+    </div>
+    <div class="grid" id="grid"></div>
+  </div>
+</section>
+
+<section class="sec alt" id="cotizar" data-page="cotizar">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><div class="eyebrow">Cotizar</div><h2>Cotiza tu casa por WhatsApp</h2></div>
+      <p class="muted">Elige la casa, dinos tu ingreso y marca los documentos que ya tienes. Te respondemos por WhatsApp con tu cotización bancaria. No te cobramos por cotizar ni por el recorrido.</p>
+    </div>
+    <div class="free" style="margin-bottom:22px"><span>✓ Cotización gratis</span><span>✓ Recorrido gratis</span><span>✓ Asesoría gratuita</span><span>✓ 10 años recorriendo el mercado de Chiriquí</span></div>
+    <div class="quote">
+      <form class="qform" id="qform" novalidate>
+        <div class="eyebrow">1 · Tus datos</div>
+        <div class="field"><label for="c-nombre">Nombre</label><input id="c-nombre" autocomplete="name" placeholder="Tu nombre"></div>
+        <div class="field"><span class="flabel">Tipo de ingreso</span><div class="seg" role="group" aria-label="Tipo de ingreso" id="c-tipo"><button type="button" class="on" data-t="asal">Asalariado</button><button type="button" data-t="indep">Independiente</button></div></div>
+        <div class="field"><label for="c-sal">Ingreso mensual aprox. (USD)</label><input id="c-sal" type="number" min="0" step="50" placeholder="Ej. 900"></div>
+        <div class="eyebrow" style="margin-top:6px">2 · La casa que te interesa</div>
+        <div class="field"><label for="c-prop">Propiedad</label><select id="c-prop"></select></div>
+        <div class="pubbox" id="c-pub"></div>
+      </form>
+      <div class="need">
+        <div class="need-head"><div><div class="eyebrow">3 · Lo que necesitas</div><h3 style="margin-top:4px" id="need-title">Documentos para asalariados</h3></div><span class="muted" id="need-count" style="font-size:.88rem"></span></div>
+        <div class="docs" id="docs"></div>
+        <div class="fine" id="need-note"></div>
+        <a class="btn btn-wa" id="c-wa" href="#" target="_blank" rel="noopener" style="justify-content:center;padding:15px 20px;font-size:1.02rem;white-space:normal;text-align:center">Enviar por WhatsApp · te respondemos ahí mismo</a>
+        <div class="fine">Se abre WhatsApp con tus datos, la casa y tu lista de documentos ya escritos. Solo tocas enviar al 6253-1751.</div>
+      </div>
+    </div>
+    <h3 style="margin-top:44px">Pasos para comprar tu casa</h3>
+    <div class="timeline">
+      <div class="tl"><b class="n">1</b><b>Cotización bancaria</b><span class="muted">Conoce tu capacidad.</span></div>
+      <div class="tl"><b class="n">2</b><b>Recorrido</b><span class="muted">Visita los proyectos que están dentro de tu capacidad.</span></div>
+      <div class="tl"><b class="n">3</b><b>Aparta</b><span class="muted">Tu lote favorito con el modelo de tu preferencia.</span></div>
+      <div class="tl"><b class="n">4</b><b>Documentación</b><span class="muted">Llena la documentación del banco.</span></div>
+      <div class="tl"><b class="n">5</b><b>Aprobación</b><span class="muted">Aprobación bancaria lista.</span></div>
+      <div class="tl"><b class="n">6</b><b>Contrato</b><span class="muted">Firma del contrato con la constructora.</span></div>
+      <div class="tl"><b class="n">7</b><b>Abonos y llaves</b><span class="muted">Abonos del % indicado hasta la entrega de tus llaves.</span></div>
+    </div>
+    <p class="muted" style="margin-top:12px">En cada uno de estos pasos te guiamos hasta la entrega de tus llaves.</p>
+  </div>
+</section>
+
+<section class="sec" id="bono" data-page="bono">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><div class="eyebrow">Guía</div><h2>Bono Pa' Ti: $3,000 para tu casa nueva</h2></div>
+      <p class="muted">Lo que hemos informado en nuestras publicaciones de septiembre y octubre de 2026.</p>
+    </div>
+    <div class="bono">
+      <div style="display:grid;gap:14px"><div class="vcard"><video controls playsinline preload="none" poster="videos/DeAvoR1RuE9.jpg" src="videos/DeAvoR1RuE9.mp4"></video><div class="vt"><small>Video</small>Caja de Ahorros confirma su participación</div></div></div>
+      <div style="display:grid;gap:16px">
+        <ul class="ticks">
+          <li>Decreto Ejecutivo N° 35: subsidio estatal no reembolsable de $3,000 para el abono inicial de una casa nueva.</li>
+          <li>Solo para tu primera vivienda con interés preferencial.</li>
+          <li>Aplica para viviendas con valor no mayor de $80,000.</li>
+        </ul>
+        <div class="banks">
+          <div class="bank"><h3>Banco Nacional</h3><ul class="ticks"><li>Abono mínimo 2 %</li><li>Casas con permiso de ocupación</li><li>El bono se aplica al precio de venta</li><li>Se tramita en Panamá Conecta</li></ul></div>
+          <div class="bank"><h3>Caja de Ahorros</h3><ul class="ticks"><li>Sigues abonando el 3 % inicial</li><li>Los $3,000 reducen el precio base</li><li>Se solicita cuando la casa está para entrega inmediata</li></ul></div>
+          <div class="bank"><h3>Banco General</h3><ul class="ticks"><li>Se suma al beneficio</li><li>La solicitud se hace con avance de obra</li></ul></div>
+        </div>
+        <div class="warn"><b>Actualización 14 de octubre:</b> algunas promotoras de la provincia indican que no quieren trabajar con Abono Pa' Ti por la forma de pago. Escríbenos y te decimos qué proyectos sí lo aceptan.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec alt" id="videos" data-page="videos">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><div class="eyebrow">Videos</div><h2>Recorre los proyectos en video</h2></div>
+      <p class="muted">Dale play y recorre cada proyecto sin salir de la página.</p>
+    </div>
+    <div class="vfeat">
+      <div class="vfeat-head"><div><span class="vbadge">Nuevo</span><h3>Modelo <em>Vila</em> en Aguacatal</h3><p class="muted">Lote de 200 m². Mira la casa por dentro.</p></div><button class="btn btn-accent btn-sm" type="button" id="vnew-open">Ver ficha</button></div>
+      <div class="vreels" id="vnew"></div>
+    </div>
+    <h3 style="margin:34px 0 14px">Más recorridos</h3>
+    <div class="videos" id="vids"></div>
+  </div>
+</section>
+
+<section class="sec alt" id="recientes" data-page="inicio">
+  <div class="wrap">
+    <div class="sec-head"><div><div class="eyebrow">Lo más reciente</div><h2>Publicado en las últimas semanas</h2></div><a class="btn btn-ghost" href="#catalogo">Ver todo el catálogo ›</a></div>
+    <div class="grid" id="grid-rec"></div>
+  </div>
+</section>
+
+<section class="sec" id="entregas" data-page="inicio">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><div class="eyebrow">Entregas</div><h2>Familias que ya recibieron su casa</h2></div>
+      <p class="muted">No vendemos una casa, vendemos hogares.</p>
+    </div>
+    <div class="deliv" id="deliv"></div>
+  </div>
+</section>
+
+<section class="sec alt" id="contacto" data-page="contacto">
+  <div class="wrap">
+    <div class="sec-head"><div><div class="eyebrow">Contacto</div><h2>Te ayudamos desde cero</h2></div></div>
+    <div class="contact">
+      <div style="display:grid;gap:12px">
+        <p class="muted" style="max-width:48ch">Envíanos tus documentos y en 5 minutos iniciamos tu precalificación con el banco. Así sabrás qué proyectos sí puedes comprar.</p>
+        <div class="phone"><div><span class="flabel">WhatsApp</span><br><b>6253-1751</b></div><div style="display:flex;gap:8px"><button class="btn btn-ghost btn-sm" data-copy="6253-1751">Copiar</button><a class="btn btn-wa btn-sm" href="https://wa.me/50762531751" target="_blank" rel="noopener">Escribir</a></div></div>
+        <div class="phone"><div><span class="flabel">Correo</span><br><b style="font-size:1.05rem">c4realty1@gmail.com</b></div><button class="btn btn-ghost btn-sm" data-copy="c4realty1@gmail.com">Copiar</button></div>
+        <div class="phone"><div><span class="flabel">Instagram</span><br><b>@c4realty1</b></div><a class="btn btn-ghost btn-sm" href="https://www.instagram.com/c4realty1/" target="_blank" rel="noopener">Ver perfil</a></div>
+      </div>
+      <form class="qform" id="lead-form">
+        <h3>Déjanos tus datos</h3>
+        <div class="field"><label for="l-nombre">Nombre</label><input id="l-nombre" required></div>
+        <div class="two"><div class="field"><label for="l-tel">Teléfono o WhatsApp</label><input id="l-tel" required></div><div class="field"><label for="l-sal">Salario mensual aprox.</label><input id="l-sal" type="number" min="0" step="50"></div></div>
+        <div class="field"><label for="l-prop">¿Qué te interesa?</label><select id="l-prop"><option value="">Elige una opción</option></select></div>
+        <input id="l-web" name="sitio_web" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
+        <button class="btn btn-accent" type="submit">Enviar</button>
+        <div class="okmsg" id="lead-note"></div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap fbottom">
+    <img src="img/logo.png" alt="C4 Realty" style="height:24px;width:auto">
+    <span>WhatsApp 6253-1751 · c4realty1@gmail.com · @c4realty1 · <a href="#" class="privlink">Aviso de privacidad</a></span>
+  </div>
+</footer>
+
+<div class="drawer" id="modal" role="dialog" aria-modal="true" aria-label="Ficha de la propiedad">
+  <div class="scrim" id="m-scrim"></div>
+  <div class="panel" id="panel">
+    <div class="pbar"><button type="button" id="m-close">‹ Volver al catálogo</button><div class="pnav"><button type="button" id="m-prev" aria-label="Propiedad anterior">‹</button><button type="button" id="m-next" aria-label="Propiedad siguiente">›</button></div></div>
+    <div class="hero-img"><img id="m-img" alt=""></div>
+    <div class="strip" id="m-thumbs"></div>
+    <div class="pbody">
+      <div><h2 id="m-title"></h2><div class="ploc" id="m-loc"></div></div>
+      <div class="pills" id="m-pills"></div>
+      <div class="pprice" id="m-price"></div>
+      <div class="psec"><h4>Características</h4><div class="rows" id="m-kv"></div></div>
+      <div class="psec" id="m-pts-sec"><h4>Lo que incluye</h4><ul class="plist" id="m-pts"></ul></div>
+      <div class="psec"><h4>Precio y financiamiento</h4><div class="vrows" id="m-vr"></div><ul class="plist" id="m-pagos"></ul><div class="aviso" id="m-aviso"></div><div class="pact" style="margin-top:6px" id="m-quote-wrap"><button class="pbtn dark" type="button" id="m-quote">Cotizar esta casa</button></div></div>
+      <div class="psec" id="m-plano-sec"><h4>Plano</h4><div class="pact" id="m-plano"></div></div>
+      <div class="psec" id="m-vid-sec"><h4>Videos</h4><div id="m-vid"></div></div>
+      <div class="psec"><h4>Ubicación</h4><div class="rows"><div><span>Zona</span><span id="m-zona"></span></div></div><div class="pact" id="m-map-wrap"><a class="pbtn" id="m-map" href="#" target="_blank" rel="noopener">Ver zona en Google Maps</a></div></div>
+      <div class="psec" id="m-txt-sec"><h4>Información del proyecto</h4><div id="m-txt" style="display:grid;gap:8px"></div></div>
+      <div class="pact"><a class="pbtn pwa" id="m-wa" href="#" target="_blank" rel="noopener">Consultar por WhatsApp</a></div>
+      <div class="psrc" id="m-src"></div>
+    </div>
+  </div>
+</div>
+
+<div class="gate" id="gate">
+  <form id="reg-form" novalidate>
+    <h3>Recibe tu cotización</h3>
+    <p>Déjanos tus datos y te enviamos la cotización por WhatsApp.</p>
+    <input id="r-nombre" placeholder="Nombre y apellido" autocomplete="name">
+    <input id="r-email" type="email" placeholder="Correo electrónico" autocomplete="email">
+    <input id="r-tel" placeholder="Teléfono o WhatsApp" autocomplete="tel">
+    <select id="r-interes"><option value="">¿Qué te interesa?</option><option>Casa</option><option>Terreno</option><option>Finca</option><option>Alquiler</option></select>
+    <button class="btn btn-accent" type="submit">Enviar mis datos</button>
+    <button class="btn btn-ghost" type="button" id="reg-cancel">Ahora no</button>
+    <div class="err" id="reg-err"></div>
+    <div class="fine">Al registrarte aceptas que un asesor te contacte y el <a href="#" class="privlink" style="color:var(--sky)">aviso de privacidad</a>.</div>
+  </form>
+</div>
+
+<a class="wa" href="https://wa.me/50762531751" target="_blank" rel="noopener" aria-label="WhatsApp 6253-1751"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.6.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.8 12 12 0 0 0 4.6 4c1.7.7 2 .6 2.8.5a2.4 2.4 0 0 0 1.6-1.1 2 2 0 0 0 .1-1.1c0-.1-.2-.2-.5-.3z"/></svg></a>
+<div class="gate" id="priv"><div style="background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:24px;max-width:560px;width:100%;display:grid;gap:10px;font-size:.92rem">
+  <h3>Aviso de privacidad</h3>
+  <p>Los datos que nos envías (nombre, teléfono, correo y lo que te interesa) se usan solo para atender tu solicitud, enviarte cotizaciones e información de propiedades, y gestionar tu precalificación con el banco que elijas.</p>
+  <p>No vendemos ni compartimos tus datos con terceros fuera de ese fin. Puedes pedir que los corrijamos o eliminemos escribiendo a c4realty1@gmail.com.</p>
+  <p class="fine">Texto base de la demo; revisarlo con C4 Realty antes de publicar (Ley 81 de 2019 de protección de datos personales).</p>
+  <button class="btn btn-accent" type="button" id="priv-ok" style="justify-self:start">Entendido</button>
+</div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const IMG=new Proxy({},{get:(t,k)=>k});
+const P=[{"id": "orquidea-bagala","n": "Modelo Orquídea","z": "Bágala","precio": 80000,"antes": 86500,"tag": "Precio de lanzamiento","kv": [["Recámaras","2"],["Baños","1"],["Lavandería","Cerrada"],["Estacionamiento","Techado"],["Lote","450 m²"],["Construcción","91.55 m² (abierta 18.61 · cerrada 72.94)"]],"pts": ["Lavandería cerrada","Estacionamiento techado","Teja gala en toda la casa","Lote de 450 m²"],"pagos": ["Precio de $80,000 solo por lanzamiento (precio regular $86,500)","Aplica con salario de $950 a $1,000","Bancos: Caja de Ahorros y Banco Nacional"],"aviso": "Si ya tienes propiedad con mejora en el Registro Público, no aplica el beneficio de ley de interés preferencial.","cat": "Casa","f": "2026-10-15","img": ["img/p/1c286f60e2.jpg","img/p/1b9471d487.jpg","img/p/02f81028d1.jpg","img/p/810b23891f.jpg","img/p/e32ff4e272.jpg","img/p/92b7704c63.jpg","img/p/ac6e11ce43.jpg","img/p/9417ced63e.jpg","img/p/33b2abd58c.jpg","img/p/b4dd9fbbe1.jpg"],"txt": "🏡Bágala\n Modelo Orquídea \n\n✅2rec 1 baño \n✅Lavandería cerrada \n✅️Estacionamiento techado \n✅️Teja gala en toda la casa \n✅lote de 450m2\n\nÁrea de construcción 91.55 ( abierta 18.61 y cerrada 72.94) \n\n💰Precio $80,000 solo por lanzamiento \nPrecio regular 86,500 \n\nAplica con salario 950 a 1,000 bancos Caja de ahorros y banco nacional. \n\n🚫IMPORTANTE 🚨 \nYa tienes propiedad con mejora en registro publico no aplica a beneficio de ley interés preferencial 👈🏻"},{"id": "jazmin-algarrobos","n": "Modelo Jazmín","z": "Algarrobos","precio": 73185,"desde": true,"kv": [["Recámaras","2 o 3"],["Baños","2"],["Lavandería","Cerrada (2 recámaras)"],["Lote","450 m²"]],"vr": [["2 rec · 2 baños · lavandería cerrada · sin garaje",73185],["3 rec · 2 baños · sin garaje",82620],["3 rec · 2 baños · con garaje",86700]],"pts": ["Gastos legales gratis (Banco General y Global Bank)","Grama frontal","Tasa especial de 1.25 %"],"pagos": ["Letra aproximada de $275 mensual","Aplica con salario desde $900 a $1,000 aprox."],"aviso": "Si ya tienes propiedad con mejora, no aplicas a la ley de interés preferencial.","plano": [["Plano Modelo Jazmín","docs/planos/modelo-jazmin.pdf"]],"cat": "Casa","f": "2026-10-15","img": ["img/p/0f1f65a827.jpg","img/p/3176a16905.jpg","img/p/b40afa3fc2.jpg","img/p/2ce5b6d706.jpg","img/p/4860c0a957.jpg","img/p/74b6b5c6bd.jpg","img/p/3d01def824.jpg"],"txt": "✨️Casas en Montilla \n\n🏡Modelo Jazmin\n\nDistribución:\n2rec 2 baños \nCon lavandería cerrada \nPrecio sin garaje $73,185\n\n3rec 2 baños sin garaje $82,620\nCon garaje $ 86,700\n\n✅️Promociones \n🔴gastos legales gratis (banco general y global)\n🔴 grama frontal con una tasa especial de 1.25%\n📌Letra aproximadamente 275 mensual \n\n👉🏻Aplica con salario desde 900 a 1000 aproximadamente\n\n🚫IMPORTANTE \nsi ya tienes propiedad con mejora no aplicas a ley de interés preferencial"},{"id": "coral-spv","n": "Modelo Coral","z": "San Pablo Viejo","precio": 70000,"antes": 74644,"tag": "Por tiempo limitado","kv": [["Recámaras","2"],["Baños","1"],["Lote","600 a 700 m²"]],"pts": ["Aplica bono de $3,000 con el Gobierno","Gastos legales gratis con Global Bank y Banco General","$500 si es con Caja de Ahorros","Grama frontal"],"pagos": ["Valor de $70,000 por tiempo limitado (precio regular $74,644)","Aplica con salarios desde $900 mensual","Letra aproximada de $140 quincenal"],"plano": [["Plano Modelo Coral","docs/planos/modelo-coral.pdf"]],"cat": "Casa","f": "2026-10-15","img": ["img/p/3a308d1380.jpg","img/p/ccb0d26ce4.jpg","img/p/463af14490.jpg","img/p/334d86bce5.jpg","img/p/fe53eb34db.jpg","img/p/f5791d26e5.jpg","img/p/a84eea9edd.jpg"],"txt": "Casas en San Pablo viejo \n🏡Modelo Coral valor $70,000 por (tiempo limitado)\nPrecio regular $74,644)\n\n✅2rec \n✅1 baño \n✅Lote mínimo 600 base lotes con m2 adicional hasta 700m2 \n\n✅️Aplica bono de $3,000 con el Gobierno\nPromo \n\n🎁Gastos legales gratis con : \nGlobal bank y banco general \n500 si es con Caja de ahorros \n🌿Grama frontal \n\nAplica con salarios desde $900 mensual \n\nLetra aproximada de 140 quincenal"},{"id": "girasol-spv","n": "Modelo Girasol","z": "San Pablo Viejo","precio": 71604,"desde": true,"kv": [["Recámaras","2 o 3"],["Baños","1"],["Lote","Mínimo 600 m², hasta 700 m²"]],"vr": [["2 rec · 1 baño · sin garaje",71604],["2 rec · 1 baño · con garaje",73644],["3 rec · 1 baño · sin garaje",76194],["3 rec · 1 baño · con garaje",79254]],"pts": ["Gastos legales gratis con Global Bank y Banco General","$500 si es con Caja de Ahorros","Grama frontal"],"pagos": ["Aplica con salarios desde $900 mensual","Letra aproximada de $152 quincenal"],"plano": [["Plano Modelo Girasol","docs/planos/modelo-girasol.pdf"]],"cat": "Casa","f": "2026-10-15","img": ["img/p/6c84b5dc27.jpg","img/p/c4c5b58e1b.jpg","img/p/0fb8e99865.jpg","img/p/583ca38bde.jpg","img/p/29ab233ae6.jpg","img/p/8b7722e36d.jpg","img/p/30f2131a35.jpg","img/p/3ab7c37574.jpg","img/p/48efc7f628.jpg"],"txt": "Casas en San Pablo viejo \n🏡Modelo Girasol \n \n☑️2rec 1 baño sin Garaje $71,604\nCon garaje $73,644\n☑️3rec 1 baño sin garaje \n$76,194\n☑️3rec 1 baño con garaje$79,254 \n\n✅3rec \n✅1 baño \n✅Lote mínimo 600 base lotes con m2 adicional hasta 700m2 \n\nPromo \n\n🎁Gastos legales gratis con : \nGlobal bank y banco general \n500 si es con Caja de ahorros \n🌿Grama frontal \n\nAplica con salarios desde $900 mensual \n\nLetra aproximada de 152 quincenal"},{"id": "coral-bagala","n": "Modelo Coral","z": "Bágala","precio": 66300,"desde": true,"kv": [["Recámaras","2"],["Baños","1"],["Lote","450 m²"]],"vr": [["2 rec · 1 baño · sin garaje",66300],["2 rec · 1 baño · con garaje",70380]],"pts": ["Gastos legales gratis (Global Bank y Banco General)","Grama frontal"],"pagos": ["Salario promedio de $850 a $900"],"plano": [["Plano Modelo Coral","docs/planos/modelo-coral.pdf"]],"cat": "Casa","f": "2026-10-15","img": ["img/p/2ad8cdb485.jpg","img/p/ccb0d26ce4.jpg","img/p/463af14490.jpg","img/p/334d86bce5.jpg","img/p/fe53eb34db.jpg","img/p/f5791d26e5.jpg","img/p/a84eea9edd.jpg"],"txt": "🏡Modelo Coral Bágala \n\n☑️2rec 1 baño sin garaje $66,300 \nCon garaje $70,380\n\n✅Lote de 450m2\n\nPromo Gastos legales gratis ( Global bank y banci general) \nGrama frontal \n\nSalario promedio 850 - 900"},{"id": "coral-montilla","n": "Modelo Coral","z": "Montilla","precio": 68300,"desde": true,"kv": [["Recámaras","2 o 3"],["Baños","1"],["Lotes","450 m²"]],"vr": [["2 rec · 1 baño · sin estacionamiento",68300],["2 rec · 1 baño · con estacionamiento",69360],["3 rec · 1 baño · sin garaje",72930],["3 rec · 1 baño · con garaje",79990]],"pts": ["Gastos legales gratis (Global Bank y Banco General)","Grama frontal"],"pagos": ["Letra quincenal de $135","Salario para aplicar: $900 aproximadamente"],"aviso": "Si ya tienes propiedad con vivienda en el Registro Público, no aplica al beneficio de ley de interés preferencial 2026.","cat": "Casa","f": "2026-10-15","img": ["img/p/6003655d90.jpg","img/p/ccb0d26ce4.jpg","img/p/a84eea9edd.jpg","img/p/463af14490.jpg","img/p/334d86bce5.jpg","img/p/fe53eb34db.jpg","img/p/f5791d26e5.jpg"],"txt": "🏡Modelo Coral\n\nDisponible en 2 ubicaciones \n🚩 Montilla \n\nDistribución:\n☑️2rec 1 baños sin estacionamiento $68,300\nCon estacionamiento $69,360\n\n☑️3rec 1 baño sin garaje $72,930\nCon garaje $79,990\n\n✅️Lotes 450m2\nLetra quincenal 135 \n\nGastos legales gratis ( Global bank y banco general) \n grama Frontal\nSalario para aplicar $900 aproximadamente \n\n🚫importante si ya tiene propiedad con vivienda en registro publico no aplica al beneficio de ley interés preferencial 2026."},{"id": "coral-bugaba","n": "Modelo Coral","z": "Bugaba","precio": 72250,"kv": [["Recámaras","2"],["Baños","1"],["Garaje","Sin garaje"],["Lote","450 m²"]],"pts": ["Promo: gastos legales gratis (Global Bank)","Caja de Ahorros: bono de $500 para gastos legales"],"vr": [["2 rec · 1 baño · sin garaje",72250]],"pagos": [],"plano": [["Plano Modelo Coral","docs/planos/modelo-coral.pdf"]],"cat": "Casa","f": "2026-10-15","img": ["img/p/2e7d862a49.jpg","img/p/f5791d26e5.jpg","img/p/a84eea9edd.jpg","img/p/ccb0d26ce4.jpg","img/p/463af14490.jpg","img/p/334d86bce5.jpg","img/p/fe53eb34db.jpg"],"txt": "🏡Modelo Coral en Bugaba\n\n☑️2rec 1 baño sin garaje $ 72,250 \n\nPromo gastos legales Gratis ( banco global )\nCaja de ahorros Boko de 500 para Gastos legales"},{"id": "coral-boqueron","n": "Modelo Coral","z": "Boquerón","precio": 74760,"desde": true,"kv": [["Recámaras","2 o 3"],["Baños","1"],["Lote","600 m²"]],"vr": [["2 rec · 1 baño · sin garaje",74760],["2 rec · 1 baño · con garaje",76500],["3 rec · 1 baño · sin garaje",79050],["3 rec · 1 baño · con garaje",82110]],"pts": ["Gastos legales gratis (Banco General y Global Bank)","Caja de Ahorros: bono de $500"],"pagos": ["Aplica con salarios desde $900 aprox."],"cat": "Casa","f": "2026-10-15","img": ["img/p/0fcebdacc0.jpg","img/p/ccb0d26ce4.jpg","img/p/463af14490.jpg","img/p/334d86bce5.jpg","img/p/fe53eb34db.jpg","img/p/f5791d26e5.jpg","img/p/a84eea9edd.jpg"],"txt": "🏡Modelo Coral en Boqueron \n\n☑️2rec 1 baño sin garaje $74,760\nCon garaje $ 76,500\n☑️3rec 1 baño sin garaje $ 79,050\nCon garaje $82,110 \n\n📌Promo \n\nGastos legales gratis ( banco general y global bank)\nCaja de ahorros Bono de 500\n\nAplica con salarios desde 900 aprox"},{"id": "jade-frances","n": "Modelo Jade · Las Hortencias","z": "Boquete","zl": "El Francés, Boquete","precio": 70000,"kv": [["Recámaras","2"],["Baños","1"],["Lote","450 m²"]],"pts": [],"pagos": ["Financiamiento con Caja de Ahorros","Salario aproximado desde $900"],"cat": "Casa","f": "2026-10-15","img": ["img/p/1fae001299.jpg","img/p/c562b68c34.jpg","img/p/b767049113.jpg","img/p/ea358c1e84.jpg","img/p/55b04c09f8.jpg","img/p/f110183be6.jpg","img/p/7f725f9c1e.jpg","img/p/1b35e68b4d.jpg","img/p/cfcce30997.jpg","img/p/27e072c36a.jpg","img/p/2f02aba0ec.jpg","img/p/6e0d49674a.jpg"],"txt": "Las Hortencias \n\n📍El Francés Boquete \n\n🏡Modelo Jade \n2 Recamaras 1 baño \nLote 450m2\n\nPrecio $70,000\n\nfinanciamiento con caja de ahorros \n\nSalario aproximado desde $900"},{"id": "vila-aguacatal","n": "Modelo Vila","z": "Aguacatal","precio": null,"tag": "Nuevo","kv": [["Lote","200 m²"]],"pts": [],"pagos": ["Precio: consultar por WhatsApp"],"vids": [["videos/aguacatal-vila-1","Recámara"],["videos/aguacatal-vila-2","Baño"],["videos/aguacatal-vila-3","Exterior"]],"cat": "Casa","f": "2026-10-15","img": ["img/p/05454e334f.jpg","img/p/0d9a610af8.jpg","img/p/d0fe933b48.jpg","img/p/abf94a5823.jpg"]}];
+const VNEW=[["videos/aguacatal-vila-1","Recámara"],["videos/aguacatal-vila-2","Baño"],["videos/aguacatal-vila-3","Exterior"]];
+const VIDS=[["DcPh7MpxQds","Algarrobos","Nuevo residencial desde $114,750"],["DdDHjB5xsYs","Vía Caldera","Modelo Onix en Boquete"],["DeDX-FBRPLY","Las Trancas","Casa de lujo, lote de 904 m²"],["DdXvidHOVLs","El Francés","Casa de $70,000 en Boquete"],["DdxXy82R5o4","Volcán","Entrega inmediata en Paso Ancho"],["Ddke02gxHxd","Aguacatal","Casas desde $55,000"],["DdIN_4ZxRqz","Vía Caldera","Modelo Star Plus"],["DbKGygdRUF9","Las Trancas","Casa en lote de 614 m²"]];
+const DELIV=[];
+
+/* HubSpot: rellenar cuando exista la cuenta. Vacío = modo demo */
+const HUBSPOT_PORTAL_ID="";const HUBSPOT_FORMS={registro:"",cotizacion:"",contacto:""};
+async function hubspot(k,fields){const id=HUBSPOT_FORMS[k];if(!HUBSPOT_PORTAL_ID||!id)return true;try{const r=await fetch(`https://api.hsforms.com/submissions/v3/integration/submit/${HUBSPOT_PORTAL_ID}/${id}`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({fields:Object.entries(fields).map(([name,value])=>({name,value:String(value??"")})),context:{pageUri:location.href,pageName:document.title}})});return r.ok;}catch(e){return false;}}
+
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const fmt=n=>"$"+Math.round(n).toLocaleString("en-US");
+const MES=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+const fdate=s=>{const [y,m,d]=s.split("-");return `${+d} ${MES[+m-1]} ${y}`;};
+const ig=c=>`https://www.instagram.com/p/${c}/`;
+const zonaTxt=p=>(p.zl||p.z||"Ubicación por confirmar")+(p.z||p.zl?", Chiriquí":"");
+const priceHTML=p=>p.cat==="Alquiler"?`${fmt(p.renta)} <small>/ mes</small>`:p.ptxt?p.ptxt:p.precio==null?`Consultar`:`${p.desde?'<small>Desde </small>':''}${fmt(p.precio)}${p.antes?`<s>${fmt(p.antes)}</s>`:''}`;
+function toast(t){const el=$("#toast");el.textContent=t;el.style.display="block";clearTimeout(toast._t);toast._t=setTimeout(()=>el.style.display="none",2400);}
+
+$("#hero-bg").style.backgroundImage=`url(${P.find(p=>p.id==="orquidea-bagala").img[1]})`;
+$("#t-venta").textContent=P.filter(p=>p.cat!=="Alquiler").length;$("#t-alq").textContent=new Set(P.map(p=>p.z)).size;$("#t-desde").textContent="$"+Math.floor(Math.min(...P.filter(p=>p.precio).map(p=>p.precio))/1000)+"k";
+const ZONAS=[...new Set(P.map(p=>p.z).filter(Boolean))].sort();
+$("#q-zona").innerHTML+=ZONAS.map(z=>`<option>${z}</option>`).join("");
+
+const st={type:"",zona:"",min:0,max:0};
+function list(){return P.filter(p=>(!st.type||p.cat===st.type)&&(!st.zona||p.z===st.zona)&&(!(st.min||st.max)||(p.cat!=="Alquiler"&&p.precio!=null&&p.precio>=st.min&&(!st.max||p.precio<=st.max))));}
+const cardHTML=p=>`
+  <article class="card">
+    <div class="photo"><img src="${IMG[p.img[0]]}" alt="${p.n}" loading="lazy"><div class="tags"><span class="tag ${p.cat==="Alquiler"?"rent":""}">${p.cat==="Alquiler"?"Alquiler":p.cat}</span>${p.tag?`<span class="tag hot">${p.tag}</span>`:""}</div></div>
+    <div class="body">
+      <div class="where">⌖ ${zonaTxt(p)}</div>
+      <h3>${p.n}</h3>
+      <div class="price">${priceHTML(p)}</div>
+      <div class="specs">${p.kv.slice(0,3).map(([k,v])=>`<span>${k}: <b>${v}</b></span>`).join("")}</div>
+      <div class="posted">Publicado el ${fdate(p.f)}</div>
+      <div class="actions"><button class="btn btn-accent btn-sm" data-open="${p.id}">Ver ficha</button>${p.cat!=="Alquiler"&&p.precio&&p.cat==="Casa"?`<button class="btn btn-ghost btn-sm" data-quote="${p.id}">Cotizar</button>`:""}</div>
+    </div>
+  </article>`;
+function render(){
+  const l=list().sort((a,b)=>b.f.localeCompare(a.f));
+  $("#cat-title").textContent=({"":"Todo el catálogo",Casa:"Casas",Terreno:"Terrenos",Finca:"Fincas",Alquiler:"Alquileres"})[st.type]+(st.zona?" en "+st.zona:"");
+  $("#cat-count").textContent=l.length+" resultado"+(l.length===1?"":"s");
+  ORDER=l.map(p=>p.id);
+  $("#grid").innerHTML=l.length?l.map(cardHTML).join(""):`<div class="empty">No hay propiedades con esos filtros. Prueba otro rango de precio u otra zona.</div>`;
+}
+function syncType(){$$(".chip").forEach(x=>x.classList.toggle("on",x.dataset.chip===st.type));$$(".types button").forEach(x=>x.classList.toggle("on",x.dataset.type===st.type));}
+$$(".types button").forEach(b=>b.addEventListener("click",()=>{st.type=b.dataset.type;syncType();render();}));
+$$(".chip").forEach(b=>b.addEventListener("click",()=>{st.type=b.dataset.chip;syncType();render();}));
+$$(".ranges button").forEach(b=>b.addEventListener("click",()=>{$$(".ranges button").forEach(x=>x.classList.toggle("on",x===b));st.min=+b.dataset.min;st.max=+b.dataset.max;render();}));
+$("#q-zona").addEventListener("change",e=>{st.zona=e.target.value;render();});
+$("#quick").addEventListener("submit",e=>{e.preventDefault();render();show("catalogo");});
+
+/* registro */
+const RK="c4_registro";
+const leer=()=>{try{return JSON.parse(localStorage.getItem(RK)||"null");}catch(e){return null;}};
+const guardar=r=>{try{localStorage.setItem(RK,JSON.stringify(r));}catch(e){}};
+function aplicar(r){document.body.classList.toggle("registered",!!r);if(r)$("#welcome-name").textContent=r.nombre.split(" ")[0];}
+aplicar(leer());
+let pend=null;
+function pedir(id){pend=id;$("#gate").classList.add("open");$("#r-nombre").focus();}
+$("#reg-cancel").addEventListener("click",()=>{$("#gate").classList.remove("open");pend=null;});
+$("#reg-form").addEventListener("submit",async e=>{e.preventDefault();
+  const r={nombre:$("#r-nombre").value.trim(),email:$("#r-email").value.trim(),tel:$("#r-tel").value.trim(),interes:$("#r-interes").value};const err=$("#reg-err");
+  if(!r.nombre||!r.email||!r.tel){err.textContent="Completa nombre, correo y teléfono.";return;}
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(r.email)){err.textContent="Revisa el correo electrónico.";return;}
+  err.textContent="";const [firstname,...rest]=r.nombre.split(" ");
+  const ok=await hubspot("registro",{firstname,lastname:rest.join(" "),email:r.email,phone:r.tel,interes:r.interes,proyecto_interes:pend||""});
+  if(!ok){err.textContent="No pudimos registrar tus datos. Intenta de nuevo o escríbenos por WhatsApp.";return;}
+  guardar(r);aplicar(r);$("#gate").classList.remove("open");pend=null;toast("Gracias, "+r.nombre.split(" ")[0]+". Ya puedes pedir tu cotización.");});
+$("#logout").addEventListener("click",()=>{try{localStorage.removeItem(RK);}catch(e){}aplicar(null);});
+
+/* ficha */
+let cur=null,ORDER=[];
+const CATC={Casa:"#2f6fd6",Terreno:"#b7791f",Finca:"#2f855a",Alquiler:"#1fa855"};
+function setImg(i){$("#m-img").src=IMG[cur.img[i]];$("#m-img").alt=cur.n;$$("#m-thumbs button").forEach((b,k)=>b.classList.toggle("on",k===i));}
+function openSheet(id){const p=P.find(x=>x.id===id);if(!p)return;cur=p;
+  $$("#modal video").forEach(v=>v.pause());
+  $("#m-thumbs").innerHTML=p.img.length>1?p.img.map((f,i)=>`<button type="button" data-i="${i}" aria-label="Foto ${i+1}"><img src="${IMG[f]}" alt=""></button>`).join(""):"";
+  $("#m-thumbs").style.display=p.img.length>1?"":"none";
+  $$("#m-thumbs button").forEach(b=>b.addEventListener("click",()=>setImg(+b.dataset.i)));setImg(0);
+  $("#m-title").textContent=p.n;$("#m-loc").textContent=zonaTxt(p);
+  $("#m-pills").innerHTML=`<span class="pill"><i style="background:${CATC[p.cat]}"></i>${p.cat==="Alquiler"?"Alquiler":p.cat}</span>`+(p.tag?`<span class="pill">${p.tag}</span>`:"")+`<span class="pill">Publicado ${fdate(p.f)}</span>`;
+  $("#m-price").innerHTML=p.cat==="Alquiler"?`${fmt(p.renta)}<small>mensual</small>`:p.ptxt?`${p.ptxt}`:p.precio==null?`Consultar<small>precio por WhatsApp</small>`:`${fmt(p.precio)}${p.antes?`<s>${fmt(p.antes)}</s>`:""}<small>${p.desde?"precio desde":"precio de venta"}</small>`;
+  $("#m-kv").innerHTML=p.kv.map(([k,v])=>`<div><span>${k}</span><span>${v}</span></div>`).join("");
+  $("#m-pts").innerHTML=p.pts.map(x=>`<li>${x}</li>`).join("");$("#m-pts-sec").style.display=p.pts.length?"":"none";
+  $("#m-vr").innerHTML=(p.vr||[]).map(([k,v])=>`<div><span>${k}</span><b>${fmt(v)}</b></div>`).join("");$("#m-vr").style.display=p.vr?"":"none";
+  $("#m-pagos").innerHTML=p.pagos.map(x=>`<li>${x}</li>`).join("");
+  $("#m-aviso").innerHTML=p.aviso?`<b>Importante:</b> ${p.aviso}`:"";$("#m-aviso").style.display=p.aviso?"":"none";
+  $("#m-plano").innerHTML=(p.plano||[]).map(([t,u])=>`<a class="pbtn" href="${u}" target="_blank" rel="noopener">📐 Ver ${t} (PDF)</a>`).join("");$("#m-plano-sec").style.display=p.plano?"":"none";
+  $("#m-quote-wrap").style.display=p.cat==="Casa"&&p.precio?"":"none";
+  const V=p.vids||[];$("#m-vid-sec").style.display=V.length?"":"none";
+  $("#m-vid").innerHTML=V.length?`<div class="mvids">${V.map(([v,t])=>`<figure class="reel"><video autoplay muted loop playsinline preload="metadata" poster="${v}.jpg" src="${v}.mp4"></video><figcaption>${t}</figcaption></figure>`).join("")}</div>`:"";
+  $("#m-zona").textContent=zonaTxt(p);$("#m-map").href="https://www.google.com/maps/search/?api=1&query="+encodeURIComponent((p.zl||p.z||"Chiriquí")+", Chiriquí, Panamá");$("#m-map-wrap").style.display=p.z?"":"none";
+  const box=$("#m-txt");box.innerHTML="";$("#m-txt-sec").style.display=p.txt?"":"none";
+  if(p.txt){const d=document.createElement("details");d.open=true;const sm=document.createElement("summary");sm.textContent="Texto completo";const pp=document.createElement("p");pp.textContent=p.txt;d.append(sm,pp);box.append(d);}
+  $("#m-wa").href=`https://wa.me/50762531751?text=${encodeURIComponent("Hola C4 Realty, me interesa: "+p.n+" ("+zonaTxt(p)+").")}`;
+  $("#m-src").innerHTML=`Información actualizada el ${fdate(p.f)}. Confirma precio y disponibilidad por WhatsApp.`;
+  const k=ORDER.indexOf(p.id);$("#m-prev").disabled=k<=0;$("#m-next").disabled=k<0||k>=ORDER.length-1;
+  $("#modal").classList.add("open");document.body.style.overflow="hidden";$("#panel").scrollTop=0;}
+function closeSheet(){$$("#modal video").forEach(v=>v.pause());$("#modal").classList.remove("open");document.body.style.overflow="";}
+$("#m-close").addEventListener("click",closeSheet);$("#m-scrim").addEventListener("click",closeSheet);
+$("#m-prev").addEventListener("click",()=>{const k=ORDER.indexOf(cur.id);if(k>0)openSheet(ORDER[k-1]);});
+$("#m-next").addEventListener("click",()=>{const k=ORDER.indexOf(cur.id);if(k>=0&&k<ORDER.length-1)openSheet(ORDER[k+1]);});
+document.addEventListener("keydown",e=>{if(!$("#modal").classList.contains("open"))return;if(e.key==="Escape")closeSheet();if(e.key==="ArrowRight")$("#m-next").click();if(e.key==="ArrowLeft")$("#m-prev").click();});
+document.addEventListener("click",e=>{if(!e.target.closest(".grid"))return;const o=e.target.closest("[data-open]");if(o){openSheet(o.dataset.open);return;}const q=e.target.closest("[data-quote]");if(q){setQ(q.dataset.quote);show("cotizar");}});
+$("#m-quote").addEventListener("click",()=>{closeSheet();setQ(cur.id);show("cotizar");});
+
+/* cotizador (sin calculadora: muestra lo publicado y arma el WhatsApp) */
+const DOCS={asal:{t:"Documentos para asalariados",d:["Estatus permanente en tu trabajo","Mínimo 1 año de trabajo (hay excepciones; consultamos tu caso)","Cédula de identidad personal","Talonario o comprobante de pago quincenal","Ficha de la CSS (te llega por correo)","Carta de trabajo"],n:"Los documentos los aportas después de tu recorrido, cuando ya elegiste la mejor opción para ti y tu familia."},
+ indep:{t:"Requisitos para independientes",d:["Declaración de renta o estados financieros de mínimo 2 años","Movimiento bancario de mínimo 6 meses","Cartas de referencias comerciales","Abono entre 10 % y 20 %, normalmente en varios pagos durante la construcción"],n:"Los profesionales independientes son una excepción en el porcentaje de abono. Si cumples, te ayudamos a buscar la vivienda que se ajuste a tu presupuesto."}};
+let tipo="asal";const have=new Set();
+function renderDocs(){const D=DOCS[tipo];$("#need-title").textContent=D.t;$("#need-note").textContent=D.n;
+  $("#docs").innerHTML=D.d.map((x,i)=>`<label class="doc"><input type="checkbox" data-d="${i}" ${have.has(tipo+i)?"checked":""}><span>${x}</span></label>`).join("");
+  $$("#docs input").forEach(c=>c.addEventListener("change",()=>{c.checked?have.add(tipo+c.dataset.d):have.delete(tipo+c.dataset.d);countDocs();buildWA();}));countDocs();buildWA();}
+function countDocs(){const n=DOCS[tipo].d.filter((_,i)=>have.has(tipo+i)).length;$("#need-count").textContent=`${n} de ${DOCS[tipo].d.length} listos`;}
+$$("#c-tipo button").forEach(b=>b.addEventListener("click",()=>{tipo=b.dataset.t;$$("#c-tipo button").forEach(x=>x.classList.toggle("on",x===b));renderDocs();}));
+const QP=P.filter(p=>p.cat==="Casa");
+$("#c-prop").innerHTML=`<option value="">Aún no sé, ayúdame a elegir</option>`+QP.map(p=>`<option value="${p.id}">${p.n}${p.z?" · "+p.z:""}${p.precio?" · "+(p.desde?"desde ":"")+fmt(p.precio):""}</option>`).join("");
+$("#l-prop").innerHTML+=P.map(p=>`<option value="${p.id}">${p.n} (${p.z||p.cat})</option>`).join("");
+function setQ(id){$("#c-prop").value=QP.find(p=>p.id===id)?id:"";pub();}
+function pub(){const p=QP.find(x=>x.id===$("#c-prop").value);const box=$("#c-pub");
+  if(!p){box.innerHTML=`<p class="muted" style="font-size:.9rem">Sin problema: con tu ingreso te decimos qué proyectos están dentro de tu capacidad.</p>`;buildWA();return;}
+  box.innerHTML=`<div class="pubhead"><img src="${IMG[p.img[0]]}" alt=""><div><b>${p.n}</b><span class="muted">${zonaTxt(p)}</span><span class="pubprice">${p.precio==null?"Precio: consultar":(p.desde?"Desde ":"")+fmt(p.precio)}${p.antes?` <s>${fmt(p.antes)}</s>`:""}</span></div></div>
+   <div class="flabel" style="margin-top:4px">Precio y financiamiento</div><ul class="ticks">${(p.vr||[]).map(([k,v])=>`<li>${k}: ${fmt(v)}</li>`).join("")}${p.pagos.map(x=>`<li>${x}</li>`).join("")}</ul>
+   ${p.precio&&p.precio<=80000?`<div class="fine">Casa de hasta $80,000: puede aplicar al Bono Pa' Ti si es tu primera vivienda con interés preferencial.</div>`:""}`;buildWA();}
+$("#c-prop").addEventListener("change",pub);["c-nombre","c-sal"].forEach(id=>$("#"+id).addEventListener("input",buildWA));
+function buildWA(){const p=QP.find(x=>x.id===$("#c-prop").value);const D=DOCS[tipo].d,ok=D.filter((_,i)=>have.has(tipo+i)),no=D.filter((_,i)=>!have.has(tipo+i));
+  const nom=$("#c-nombre").value.trim(),sal=$("#c-sal").value;
+  const L=["Hola C4 Realty, quiero cotizar mi casa.",nom?`Nombre: ${nom}`:"",`Ingreso: ${tipo==="asal"?"Asalariado":"Independiente"}${sal?` · $${(+sal).toLocaleString("en-US")} mensual`:""}`,
+   p?`Me interesa: ${p.n}${p.z?` (${p.z})`:""}${p.precio?` · ${p.desde?"desde ":""}${fmt(p.precio)}`:""}`:"Aún no elijo casa; ¿qué opciones tengo?",
+   ok.length?`Ya tengo: ${ok.join("; ")}`:"",no.length?`Me falta: ${no.join("; ")}`:""].filter(Boolean);
+  $("#c-wa").href="https://wa.me/50762531751?text="+encodeURIComponent(L.join("\n"));}
+$("#c-wa").addEventListener("click",()=>{const p=QP.find(x=>x.id===$("#c-prop").value);hubspot("cotizacion",{firstname:$("#c-nombre").value,proyecto:p?p.n:"",tipo_ingreso:tipo,salario:$("#c-sal").value});});
+renderDocs();setQ("");
+
+/* videos y entregas */
+$("#vnew").innerHTML=`<figure class="reel"><img src="${P.find(p=>p.id==="vila-aguacatal").img[0]}" alt="Modelo Vila en Aguacatal" style="width:100%;height:100%;object-fit:cover"></figure>`+VNEW.map(([v,t])=>`<figure class="reel"><video autoplay muted loop playsinline preload="metadata" poster="${v}.jpg" src="${v}.mp4"></video><figcaption>${t}</figcaption></figure>`).join("");
+$("#vnew-open").addEventListener("click",()=>{ORDER=P.map(p=>p.id);openSheet("vila-aguacatal");});
+$("#vids").innerHTML=VIDS.map(([c,z,t])=>`<div class="vcard"><video controls playsinline preload="none" poster="videos/${c}.jpg" src="videos/${c}.mp4" aria-label="${t}"></video><div class="vt"><small>${z}</small>${t}</div><a href="https://www.instagram.com/reel/${c}/" target="_blank" rel="noopener">Ver en Instagram</a></div>`).join("");
+document.addEventListener("play",e=>{if(e.target.muted&&e.target.loop)return;document.querySelectorAll("video").forEach(v=>{if(v!==e.target&&!(v.muted&&v.loop))v.pause();});},true);
+$("#entregas").style.display=DELIV.length?"":"none";$("#deliv").innerHTML=DELIV.map(([c,f])=>`<a href="${ig(c)}" target="_blank" rel="noopener"><img src="${IMG[f]}" alt="Entrega de casa" loading="lazy"></a>`).join("");
+
+/* contacto */
+$$("[data-copy]").forEach(b=>b.addEventListener("click",async()=>{try{await navigator.clipboard.writeText(b.dataset.copy);toast("Copiado");}catch(e){toast(b.dataset.copy);}}));
+$("#lead-form").addEventListener("submit",async e=>{e.preventDefault();const [firstname,...rest]=$("#l-nombre").value.trim().split(" ");
+  const ok=await hubspot("contacto",{firstname,lastname:rest.join(" "),phone:$("#l-tel").value,salario:$("#l-sal").value,proyecto_interes:$("#l-prop").selectedOptions[0]?.value?$("#l-prop").selectedOptions[0].text:""});
+  const ok2=await c4Contacto({nombre:$("#l-nombre").value.trim(),telefono:$("#l-tel").value,ingreso_mensual:$("#l-sal").value,propiedad:$("#l-prop").value,interes:$("#l-prop").value?$("#l-prop").selectedOptions[0].text:"",origen:"web_contacto",sitio_web:$("#l-web")?$("#l-web").value:""});
+  $("#lead-note").textContent=ok2?"Recibido. Te escribimos pronto por WhatsApp.":"No se pudo enviar. Escríbenos al 6253-1751.";if(ok2)e.target.reset();});
+$$(".privlink").forEach(a=>a.addEventListener("click",e=>{e.preventDefault();$("#priv").classList.add("open");}));
+$("#priv-ok").addEventListener("click",()=>$("#priv").classList.remove("open"));
+$("#grid-rec").innerHTML=P.filter(p=>p.cat!=="Alquiler").sort((a,b)=>b.f.localeCompare(a.f)).slice(0,6).map(cardHTML).join("");
+render();
+/* navegación por secciones */
+const PAGES=["inicio","catalogo","cotizar","bono","videos","contacto"];
+function show(pg,noScroll){if(!PAGES.includes(pg))pg="inicio";$$("[data-page]").forEach(s=>s.hidden=s.dataset.page!==pg);
+  $$(".nav ul a").forEach(a=>a.classList.toggle("on",a.getAttribute("href")==="#"+pg));$$("video").forEach(v=>{if(!(v.muted&&v.loop))v.pause();});
+  if(!noScroll)window.scrollTo(0,0);try{history.replaceState(null,"","#"+pg);}catch(e){}}
+document.addEventListener("click",e=>{const a=e.target.closest('a[href^="#"]');if(!a)return;const pg=a.getAttribute("href").slice(1);if(PAGES.includes(pg)){e.preventDefault();closeSheet();show(pg);}});
+show(PAGES.includes(location.hash.slice(1))?location.hash.slice(1):"inicio",true);
+</script>
+
+<script>
+/* Conexión con la base de datos: plantilla activa y formulario de contacto */
+async function c4Contacto(d){if(C4_API.startsWith("__"))return false;try{const r=await fetch(C4_API+"/public/contacto",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(d)});return r.ok;}catch(e){return false;}}
+(async()=>{if(C4_API.startsWith("__"))return;try{const r=await fetch(C4_API+"/public/sitio");if(!r.ok)return;const j=await r.json();if(j.plantilla){c4Tema(j.plantilla);try{localStorage.setItem("c4_tema",JSON.stringify(j.plantilla));}catch(e){}}}catch(e){}})();
+</script>
+</body>
+</html>
