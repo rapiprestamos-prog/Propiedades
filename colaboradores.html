@@ -416,14 +416,15 @@ ${L.length?(()=>{const C=L.slice(0,5),k=(UI.hotK||0)%C.length;return `<div class
 }
 function filt(){
  const q=UI.q.toLowerCase();
- return visibles().filter(p=>(!q||(p.n+p.c+p.dist+p.prov).toLowerCase().includes(q))&&(!UI.tipo||p.t===UI.tipo)&&(!UI.prov||p.prov===UI.prov)&&(!UI.max||precio(p)<=+UI.max)&&(!UI.soloOf||(ofAct(p)))&&(!UI.soloInv||p.inv));
+ return visibles().filter(p=>(!q||(p.n+p.c+p.dist+p.prov).toLowerCase().includes(q))&&(!UI.tipo||p.t===UI.tipo)&&(!UI.prov||p.prov===UI.prov)&&(!UI.est||p.est===UI.est)&&(!UI.max||precio(p)<=+UI.max)&&(!UI.soloOf||(ofAct(p)))&&(!UI.soloInv||p.inv));
 }
 function vProps(){
- const all=visibles(), tipos=[...new Set(all.map(p=>p.t))], provs=[...new Set(all.map(p=>p.prov))], L=filt();
+ const all=visibles(), tipos=[...new Set(all.map(p=>p.t))], provs=[...new Set(all.map(p=>p.prov))], L=filt(), ORD=["Disponible para la venta","En venta","Alquilado","Habitado","En trámite","Legal","Por verificar","Vendida"], ests=[...new Set(all.map(p=>p.est))].sort((a,b)=>(ORD.includes(a)?ORD.indexOf(a):99)-(ORD.includes(b)?ORD.indexOf(b):99)||a.localeCompare(b));
  return `<div class="head"><div><span class="eyebrow">Catálogo</span><h2>Propiedades</h2><p>Todo a un clic: toca una propiedad y ves la ficha técnica, las fotos y los textos listos para publicar. El precio que ves es la Venta (o el precio con descuento si hay oferta).</p></div><div class="row" style="gap:6px;align-items:center"><span class="pill">${L.length} de ${all.length}</span>${can("int")?`<div class="sub" style="margin:0"><button data-a="pView" data-v="cards" aria-pressed="${UI.pv!=="tabla"}">Tarjetas</button><button data-a="pView" data-v="tabla" aria-pressed="${UI.pv==="tabla"}">Tabla de administración</button></div>`:""}</div></div>
  <div class="panel row" style="margin-bottom:14px"><label>Buscar<input id="fq" value="${esc(UI.q)}" placeholder="Nombre, código o zona"></label>
  <label>Tipo<select id="ft"><option value="">Todos</option>${tipos.map(t=>`<option ${UI.tipo===t?"selected":""}>${t}</option>`).join("")}</select></label>
  <label>Provincia<select id="fp"><option value="">Todas</option>${provs.map(t=>`<option ${UI.prov===t?"selected":""}>${t}</option>`).join("")}</select></label>
+ <label>Estado<select id="fe"><option value="">Todos (${all.length})</option>${ests.map(t=>`<option value="${esc(t)}" ${UI.est===t?"selected":""}>${esc(t)} (${all.filter(p=>p.est===t).length})</option>`).join("")}</select></label>
  <label>Precio máximo (B/.)<input id="fm" type="number" min="0" step="1000" value="${UI.max}" style="width:130px"></label>
  <label class="chk"><input type="checkbox" id="fo" ${UI.soloOf?"checked":""}>Solo con descuento</label><label class="chk"><input type="checkbox" id="fi" ${UI.soloInv?"checked":""}>Solo inversión</label></div>
  ${can("int")&&UI.pv==="tabla"?vTablaAdm(L):""}<div class="grid g3" ${can("int")&&UI.pv==="tabla"?"hidden":""}>${L.map(p=>{const o=ofAct(p);return `<div class="card" tabindex="0" data-a="ficha" data-v="${p.c}"><div class="ph" style="${hue(p)}"><div class="tag">${o?`<span class="pill red">Oferta −${off(p)}%</span>`:""}${p.inv&&MOSTRAR_INVERSION?`<span class="pill blue">Inversión</span>`:""}${!vendible(p)?`<span class="pill red">${p.est}: no visible a corredores</span>`:""}</div><em>${fotoN(p)?"Foto del avalúo":"Ilustración"}</em></div>
@@ -1405,7 +1406,7 @@ document.addEventListener("change",e=>{
  if(e.target.id==="invRep"){const fl=e.target.files;if(fl&&fl.length&&UI.inv.rep&&UI.inv.ed&&UI.inv.ed!=="nuevo")subirFotos(UI.inv.ed,[fl[0]],UI.inv.rep);UI.inv.rep=null;return}
  const t=e.target,f=t.dataset.f,id=t.id;
  if(id==="swUser"){UI.me=t.value;UI.ficha=null;render()}
- else if(id==="ft"){UI.tipo=t.value;render(1)}else if(id==="fp"){UI.prov=t.value;render(1)}else if(id==="fm"){UI.max=t.value;render(1)}else if(id==="fo"){UI.soloOf=t.checked;render(1)}else if(id==="fi"){UI.soloInv=t.checked;render(1)}
+ else if(id==="ft"){UI.tipo=t.value;render(1)}else if(id==="fp"){UI.prov=t.value;render(1)}else if(id==="fe"){UI.est=t.value;render(1)}else if(id==="fm"){UI.max=t.value;render(1)}else if(id==="fo"){UI.soloOf=t.checked;render(1)}else if(id==="fi"){UI.soloInv=t.checked;render(1)}
  else if(id==="sfl"){UI.fl=t.value;render(1)}
  else if(id==="iM"){UI.iM=Math.max(1000,+t.value||50000);render(1)}
  else if(id==="ltSet"){UI.lote.set=t.value;UI.lote.items=[];render(1)}
